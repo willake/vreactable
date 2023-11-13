@@ -10,7 +10,7 @@ PATTERN = (5, 7)
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
 CHARUCO_BOARD = aruco.CharucoBoard(
-    size=(5, 7), 
+    size=PATTERN, 
     squareLength=0.04, 
     markerLength=0.02, 
     dictionary=ARUCO_DICT)

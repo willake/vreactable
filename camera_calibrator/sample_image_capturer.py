@@ -1,58 +1,67 @@
 import numpy as np
-import cv2 as cv
+import cv2
+from cv2 import aruco
 import copy
-import const
-import path_getter as pg
+import os
+import pathlib
 
 # the purpose of this script is to capture
 # detectable and undetectable images from the webcam
 # users can run this script and capture good and bad images
 # by pressing 'S'
 
+# ChAruco board configs
+PATTERN = (5, 7)
+ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+
+CHARUCO_BOARD = aruco.CharucoBoard(
+    size=PATTERN, 
+    squareLength=0.04, 
+    markerLength=0.02, 
+    dictionary=ARUCO_DICT)
+
+def validatePath(path):
+    if os.path.exists(path) == False:
+        os.makedirs(path)
 
 # validate the detectable images
-def validate(windowName, image, pattern, goodAmount, badAmount):
+def detect(windowName, imageCopy, goodAmount, badAmount):
     # prepare object points
-    objp = np.zeros((pattern[1] * pattern[0], 3), np.float32)
-    objp[:, :2] = np.mgrid[0 : pattern[0], 0 : pattern[1]].T.reshape(-1, 2)
+    parameters = aruco.DetectorParameters()
+    detector = aruco.CharucoDetector(board=CHARUCO_BOARD, parameters=parameters)
 
-    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2GRAY)
 
-    cv.imshow(windowName, image)
+    cv2.imshow(windowName, imageCopy)
 
     # find the chess board corners
-    isFound, corners = cv.findChessboardCorners(
-        gray,
-        pattern,
-        cv.CALIB_CB_ADAPTIVE_THRESH
-        + cv.CALIB_CB_FAST_CHECK
-        + cv.CALIB_CB_NORMALIZE_IMAGE,
-    )
+    markerCorners, markerIds, _, _ = detector.detectBoard(gray)
 
+    isFound = len(markerIds) > 0
     # set instructions text for setting next image
-    cv.putText(
-        image,
+    cv2.putText(
+        imageCopy,
         f"Capture images    Now captured {goodAmount} good images, and {badAmount} bad images",
         (10, 20),
-        cv.FONT_HERSHEY_SIMPLEX,
+        cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
         (255, 255, 255),
         1,
     )
-    cv.putText(
-        image,
+    cv2.putText(
+        imageCopy,
         f"Press S to take screenshot",
         (10, 40),
-        cv.FONT_HERSHEY_SIMPLEX,
+        cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
         (255, 255, 255),
         1,
     )
-    cv.putText(
-        image,
+    cv2.putText(
+        imageCopy,
         f"Press Q to exit",
         (10, 60),
-        cv.FONT_HERSHEY_SIMPLEX,
+        cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
         (255, 255, 255),
         1,
@@ -60,42 +69,39 @@ def validate(windowName, image, pattern, goodAmount, badAmount):
 
     # if found, add object points, image points (after refining them)
     if isFound:
-        corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), const.criteria)
-
-        # draw corners
-        cv.drawChessboardCorners(image, pattern, corners2, True)
+        imageCopy = aruco.drawDetectedMarkers(imageCopy, markerCorners, markerIds)
 
         # set instructions text for setting next image
-        cv.putText(
-            image,
+        cv2.putText(
+            imageCopy,
             f"corners are found",
             (10, 80),
-            cv.FONT_HERSHEY_SIMPLEX,
+            cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
             (0, 255, 0),
             1,
         )
     else:
         # set instructions text for setting next image
-        cv.putText(
-            image,
+        cv2.putText(
+            imageCopy,
             f"corners are not found",
             (10, 80),
-            cv.FONT_HERSHEY_SIMPLEX,
+            cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
             (0, 0, 255),
             1,
         )
 
-    cv.imshow(windowName, image)
+    cv2.imshow(windowName, imageCopy)
     return isFound
 
 
 # run camera
-def run(pattern, outputFolder):
+def run(outputFolder):
     goodAmount = 0
     badAmount = 0
-    cap = cv.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("error: cannot open camera")
@@ -111,12 +117,12 @@ def run(pattern, outputFolder):
 
         frameCopy = copy.copy(frame)
 
-        result = validate("camera", frameCopy, pattern, goodAmount, badAmount)
+        result = detect("camera", frameCopy, goodAmount, badAmount)
 
-        key = cv.waitKey(33)
+        key = cv2.waitKey(33)
         if key == ord("s"):
             # save screenshot
-            cv.imwrite(f"{outputFolder}/screenshot_{goodAmount + badAmount}.jpg", frame)
+            cv2.imwrite(f"{outputFolder}/screenshot_{goodAmount + badAmount}.jpg", frame)
             if result:
                 goodAmount += 1
             else:
@@ -127,8 +133,10 @@ def run(pattern, outputFolder):
     # release everything if job is finished
     cap.release()
 
-    cv.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    run((9, 6), pg.getSamepleScreenshotFolder())
+    path = f'{pathlib.Path().resolve()}/inputs/samples'
+    validatePath(path)
+    run(path)
