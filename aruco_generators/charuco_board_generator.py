@@ -1,6 +1,17 @@
 import cv2
+from cv2 import aruco
 import os 
 import pathlib
+
+PATTERN = (5, 7)
+ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+
+CHARUCO_BOARD = aruco.CharucoBoard(
+    size=PATTERN, 
+    squareLength=0.04, 
+    markerLength=0.02, 
+    dictionary=ARUCO_DICT)
+CHARUCO_BOARD.setLegacyPattern(True)
 
 def validatePath(path):
     if os.path.exists(path) == False:
@@ -9,13 +20,11 @@ def validatePath(path):
 if __name__ == "__main__":
 
     markerImage = None
-    dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_50)
-    board = cv2.aruco.CharucoBoard((5, 7), 0.04, 0.02, dictionary)
 
-    directory = f"{pathlib.Path().resolve()}/outputs/charuco_board"
+    directory = f"{pathlib.Path().resolve()}/outputs"
     validatePath(directory)
     boardImage = None
-    boardImage = board.generateImage((600, 500), boardImage, 10, 1)
+    boardImage = CHARUCO_BOARD.generateImage((595, 842), boardImage, 30, 1)
     cv2.imwrite(f"{directory}/charuco_board.png", boardImage)
 
     print(f"Generated the charuco board image")
