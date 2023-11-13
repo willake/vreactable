@@ -35,9 +35,9 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     cv2.imshow(windowName, imageCopy)
 
     # find the chess board corners
-    markerCorners, markerIds, _, _ = detector.detectBoard(gray)
+    charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(gray)
 
-    isFound = len(markerIds) > 0
+    isFound = len(charucoIds) > 0
     # set instructions text for setting next image
     cv2.putText(
         imageCopy,
@@ -69,7 +69,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
 
     # if found, add object points, image points (after refining them)
     if isFound:
-        imageCopy = aruco.drawDetectedMarkers(imageCopy, markerCorners, markerIds)
+        imageCopy = aruco.drawDetectedCornersCharuco(imageCopy, charucoCorners, charucoIds)
 
         # set instructions text for setting next image
         cv2.putText(

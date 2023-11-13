@@ -27,15 +27,17 @@ def calibrate():
     images = glob.glob(f'{pathlib.Path().resolve()}/inputs/samples/*.jpg')
     parameters = aruco.DetectorParameters()
     detector = aruco.CharucoDetector(board=CHARUCO_BOARD, parameters=parameters)
-    # detector = aruco.ArucoDetector(dictionary=ARUCO_DICT, parameters=parameters)
+    
     # Loop through images glob
     for iname in images:
         img = cv2.imread(iname)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        corners, ids, _, _ = detector.detectBoard(gray)
+        charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(gray)
 
-        img = aruco.drawDetectedCornersCharuco(img, corners, ids)
+        img = aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
+        corners_all.append(charucoCorners)
+        ids_all.append(charucoIds)
 
         cv2.waitKey(0)
     
@@ -46,16 +48,14 @@ def calibrate():
         charucoCorners=corners_all,
         charucoIds=ids_all,
         board=CHARUCO_BOARD,
-        imageSize=image_size,
-        cameraMatrix=None,
-        distCoeffs=None)
+        imageSize=image_size)
     
     print(cameraMatrix)
     print(distCoeffs)
     
     directory = f'{pathlib.Path().resolve()}/outputs'
     np.savetxt(f'{directory}/camera_prams', mtx = cameraMatrix, distCoeffs = distCoeffs, delimiter=',', fmt='%.4f')
-        
+    
     # fileName = "inputs/images"
     # cap = cv2.VideoCapture(fileName)
     
