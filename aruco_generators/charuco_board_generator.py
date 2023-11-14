@@ -5,11 +5,13 @@ import pathlib
 
 PATTERN = (5, 7)
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+SQUARE_LENGTH = 100
+MARKER_LENGTH = 0.85 * 100
 
 CHARUCO_BOARD = aruco.CharucoBoard(
     size=PATTERN, 
-    squareLength=100, 
-    markerLength=0.85 * 100, 
+    squareLength=SQUARE_LENGTH, 
+    markerLength=MARKER_LENGTH, 
     dictionary=ARUCO_DICT)
 CHARUCO_BOARD.setLegacyPattern(True)
 
