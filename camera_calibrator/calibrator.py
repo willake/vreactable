@@ -17,6 +17,10 @@ CHARUCO_BOARD = aruco.CharucoBoard(
     markerLength=MARKER_LENGTH, 
     dictionary=ARUCO_DICT)
 
+# Generate Charuco board corners in 3D
+OBJ_POINTS = CHARUCO_BOARD.getChessboardCorners()
+# OBJ_POINTS = OBJ_POINTS.reshape(-1, 1, 3)
+
 corners_all = []
 ids_all = []
 # image_size = None # Determined at runtime
@@ -57,6 +61,8 @@ def calibrate():
         imageSize=image_size,
         cameraMatrix=None,
         distCoeffs=None)
+    
+    # cv2.solvePnP(OBJ_POINTS, )
     
     print(cameraMatrix)
     print(distCoeffs)

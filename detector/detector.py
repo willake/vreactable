@@ -4,6 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
+import define_origin
 
 # ChAruco board configs
 PATTERN = (5, 7)
@@ -23,10 +24,12 @@ OBJ_POINTS[1] = np.array([[MARKER_LENGTH /2., MARKER_LENGTH /2., 0]], np.float32
 OBJ_POINTS[2] = np.array([[MARKER_LENGTH /2., -MARKER_LENGTH /2., 0]], np.float32)
 OBJ_POINTS[3] = np.array([[-MARKER_LENGTH /2.,-MARKER_LENGTH /2., 0]], np.float32)
 
-# objp = np.zeros((pattern[1] * pattern[0], 3), np.float32)
-# objp[:, :2] = np.mgrid[0 : pattern[0], 0 : pattern[1]].T.reshape(-1, 2)
+origin_rvec = None
+origin_tvec = None
 
-def detect(imageCopy, cameraMatrix, distCoeffs):
+
+def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
+    imageCopy = copy.copy(frame)
     detectorParams = aruco.DetectorParameters()
     detector = aruco.ArucoDetector(dictionary=ARUCO_DICT, detectorParams=detectorParams)
     
@@ -55,6 +58,24 @@ def detect(imageCopy, cameraMatrix, distCoeffs):
             retval, rvecs[i], tvecs[i] = cv2.solvePnP(OBJ_POINTS, markerCorners[i], cameraMatrix, distCoeffs)
         for i in range(markerCount):
             cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.5)
+        
+        if markerCount > 1:
+            # Convert rotation vector to rotation matrix
+            rot_mat, _ = cv2.Rodrigues(rvecs[0])
+
+            # Extract pitch, yaw, and roll from the rotation matrix
+            pitch = np.arcsin(-rot_mat[1, 2])
+            yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
+            roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
+
+            # Convert angles from radians to degrees if needed
+            pitch_degrees = np.degrees(pitch)
+            yaw_degrees = np.degrees(yaw)
+            roll_degrees = np.degrees(roll)
+        
+            print(f'pitch_degrees: {pitch_degrees} yaw_degrees: {yaw_degrees} roll_degrees: {roll_degrees}')
+            
+        # print(f'origin_tvec: {origin_tvec} tvec: {tvecs[0]}')
     else:
         cv2.putText( 
             imageCopy,
@@ -79,6 +100,7 @@ def detect(imageCopy, cameraMatrix, distCoeffs):
     return markerCorners, markerIds
     
 def run(cameraMatrix, distCoeffs):
+    global origin_rvec, origin_tvec
     
     cap = cv2.VideoCapture(0)
 
@@ -87,9 +109,12 @@ def run(cameraMatrix, distCoeffs):
         exit()
     while cap.isOpened():
         isCaptured, frame = cap.read()
+        
+        if (origin_rvec is None) and (origin_tvec is None):
+            origin_rvec, origin_tvec = define_origin.define_origin(frame, cameraMatrix, distCoeffs)
+            continue
         if isCaptured:
-            imageCopy = copy.copy(frame)
-            detect(imageCopy, cameraMatrix, distCoeffs)
+            detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec)
             
         key = cv2.waitKey(33)
         if key == ord("q"):
