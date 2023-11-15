@@ -64,18 +64,17 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             rot_mat, _ = cv2.Rodrigues(rvecs[0])
 
             # Extract pitch, yaw, and roll from the rotation matrix
-            pitch = np.arcsin(-rot_mat[1, 2])
-            yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
-            roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
+            # pitch = np.arcsin(-rot_mat[1, 2])
+            # yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
+            # roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
 
             # Convert angles from radians to degrees if needed
-            pitch_degrees = np.degrees(pitch)
-            yaw_degrees = np.degrees(yaw)
-            roll_degrees = np.degrees(roll)
+            # pitch_degrees = np.degrees(pitch)
+            # yaw_degrees = np.degrees(yaw)
+            # roll_degrees = np.degrees(roll)
         
-            print(f'pitch_degrees: {pitch_degrees} yaw_degrees: {yaw_degrees} roll_degrees: {roll_degrees}')
-            
-        # print(f'origin_tvec: {origin_tvec} tvec: {tvecs[0]}')
+            # print(f'pitch_degrees: {pitch_degrees} yaw_degrees: {yaw_degrees} roll_degrees: {roll_degrees}')
+            print(f'tvec_0: {np.array_str(tvecs[0], precision=3, suppress_small=True)} tvec_1: {np.array_str(tvecs[1], precision=3, suppress_small=True)}')
     else:
         cv2.putText( 
             imageCopy,
