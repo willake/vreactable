@@ -13,11 +13,13 @@ import pathlib
 # ChAruco board configs
 PATTERN = (5, 7)
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+SQUARE_LENGTH = 100
+MARKER_LENGTH = 0.85 * 100
 
 CHARUCO_BOARD = aruco.CharucoBoard(
     size=PATTERN, 
-    squareLength=0.04, 
-    markerLength=0.02, 
+    squareLength=SQUARE_LENGTH, 
+    markerLength=MARKER_LENGTH, 
     dictionary=ARUCO_DICT)
 
 def validatePath(path):
@@ -27,8 +29,8 @@ def validatePath(path):
 # validate the detectable images
 def detect(windowName, imageCopy, goodAmount, badAmount):
     # prepare object points
-    parameters = aruco.DetectorParameters()
-    detector = aruco.CharucoDetector(board=CHARUCO_BOARD, parameters=parameters)
+    detectorParams = aruco.DetectorParameters()
+    detector = aruco.CharucoDetector(board=CHARUCO_BOARD, detectorParams=detectorParams)
 
     gray = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2GRAY)
 
@@ -37,7 +39,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # find the chess board corners
     charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(gray)
 
-    isFound = len(charucoIds) > 0
+    isFound = (charucoIds is not None) and len(charucoIds) > 0
     # set instructions text for setting next image
     cv2.putText(
         imageCopy,
