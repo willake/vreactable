@@ -10,13 +10,6 @@ import sys
 PROJECT_PATH = pathlib.Path(__file__).parent
 PROJECT_UI = PROJECT_PATH / "vreactable.ui"
 
-# Get the parent directory
-parent_dir = os.path.dirname(os.path.realpath(__file__))
-
-# Add the parent directory to sys.path
-sys.path.append(parent_dir)
-
-
 
 class VreactableApp:
     def __init__(self, master=None):

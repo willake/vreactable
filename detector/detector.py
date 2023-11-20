@@ -25,6 +25,7 @@ OBJ_POINTS[2] = np.array([[MARKER_LENGTH /2., -MARKER_LENGTH /2., 0]], np.float3
 OBJ_POINTS[3] = np.array([[-MARKER_LENGTH /2.,-MARKER_LENGTH /2., 0]], np.float32)
 
 origin_rvec = None
+
 origin_tvec = None
 
 def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
@@ -133,6 +134,8 @@ def run(cameraMatrix, distCoeffs):
         key = cv2.waitKey(33)
         if key == ord("q"):
             break
+    cap.release()
+    cv2.destroyAllWindows()
         
 def detect_arucos(calibFilePath: str):
     global WEBSOCKET
