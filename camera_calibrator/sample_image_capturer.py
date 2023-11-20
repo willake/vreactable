@@ -137,6 +137,10 @@ def run(outputFolder):
 
     cv2.destroyAllWindows()
 
+def capture_sample_images():
+    path = f'{pathlib.Path().resolve()}/inputs/samples'
+    validatePath(path)
+    run(path)
 
 if __name__ == "__main__":
     path = f'{pathlib.Path().resolve()}/inputs/samples'

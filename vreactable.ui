@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface version="1.3">
   <object class="tk.Toplevel" id="toplevel_vreactable" named="True">
-    <property name="height">200</property>
+    <property name="height">400</property>
     <property name="minsize">0|200</property>
     <property name="title" translatable="yes">VRectable</property>
     <property name="width">400</property>
@@ -21,7 +21,6 @@
         </containerlayout>
         <child>
           <object class="ttk.Frame" id="frame_title" named="True">
-            <property name="height">300</property>
             <property name="width">0</property>
             <layout manager="pack">
               <property name="expand">false</property>
@@ -41,8 +40,71 @@
           </object>
         </child>
         <child>
+          <object class="ttk.Labelframe" id="frame_board_settings" named="True">
+            <property name="height">100</property>
+            <property name="text" translatable="yes">CharucoBoard Settings</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="expand">true</property>
+              <property name="fill">x</property>
+              <property name="padx">10</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="ttk.Label" id="label4">
+                <property name="text" translatable="yes">Pattern</property>
+                <layout manager="pack">
+                  <property name="side">top</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Frame" id="frame_pattern" named="True">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="pady">10</property>
+                  <property name="side">top</property>
+                </layout>
+                <child>
+                  <object class="ttk.Entry" id="entry_row" named="True">
+                    <property name="justify">center</property>
+                    <property name="text" translatable="yes">5</property>
+                    <property name="validatecommand" type="command" cbtype="entry_validate" args="">on_type_pattern</property>
+                    <property name="width">3</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Label" id="label_x" named="True">
+                    <property name="text" translatable="yes">x</property>
+                    <layout manager="grid">
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Entry" id="entry_column" named="True">
+                    <property name="justify">center</property>
+                    <property name="text" translatable="yes">7</property>
+                    <property name="validatecommand" type="command" cbtype="entry_validate" args="">on_type_pattern</property>
+                    <property name="width">3</property>
+                    <layout manager="grid">
+                      <property name="column">2</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="ttk.Labelframe" id="frame_calibration" named="True">
-            <property name="height">200</property>
             <property name="text" translatable="yes">Calibration</property>
             <property name="width">200</property>
             <layout manager="pack">
@@ -51,6 +113,69 @@
               <property name="pady">5</property>
               <property name="side">top</property>
             </layout>
+            <child>
+              <object class="ttk.Frame" id="frame_sample_images_count" named="True">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="expand">true</property>
+                  <property name="fill">x</property>
+                  <property name="padx">10</property>
+                  <property name="pady">0</property>
+                  <property name="side">top</property>
+                </layout>
+                <containerlayout manager="grid">
+                  <property name="anchor">center</property>
+                </containerlayout>
+                <child>
+                  <object class="ttk.Frame" id="frame2" named="True">
+                    <property name="height">200</property>
+                    <property name="width">200</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Label" id="label1" named="True">
+                        <property name="compound">center</property>
+                        <property name="justify">center</property>
+                        <property name="padding">10</property>
+                        <property name="text" translatable="yes">Sample image count:</property>
+                        <layout manager="pack" />
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Frame" id="frame3" named="True">
+                    <property name="height">200</property>
+                    <property name="width">200</property>
+                    <layout manager="grid">
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Label" id="label2" named="True">
+                        <property name="text" translatable="yes">0</property>
+                        <property name="textvariable">string:sample_image_count</property>
+                        <layout manager="pack" />
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Button" id="button_sample_images" named="True">
+                <property name="command" type="command" cbtype="simple">on_click_capture_sample_images</property>
+                <property name="text" translatable="yes">Capture sample images</property>
+                <layout manager="pack">
+                  <property name="ipadx">20</property>
+                  <property name="pady">10</property>
+                  <property name="side">top</property>
+                </layout>
+              </object>
+            </child>
             <child>
               <object class="ttk.Frame" id="frame_is_calibrated" named="True">
                 <property name="height">200</property>
@@ -105,8 +230,10 @@
             </child>
             <child>
               <object class="ttk.Button" id="button_calibrate" named="True">
+                <property name="command" type="command" cbtype="simple">on_click_calibrate_camera</property>
                 <property name="text" translatable="yes">Calibrate camera</property>
                 <layout manager="pack">
+                  <property name="ipadx">20</property>
                   <property name="pady">10</property>
                   <property name="side">top</property>
                 </layout>
@@ -125,6 +252,7 @@
             </layout>
             <child>
               <object class="ttk.Button" id="button_detect" named="True">
+                <property name="command" type="command" cbtype="simple">on_click_detect</property>
                 <property name="text" translatable="yes">Detect</property>
                 <layout manager="pack">
                   <property name="ipadx">30</property>

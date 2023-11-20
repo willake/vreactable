@@ -1,0 +1,1 @@
+print("Initializing module: aruco_generators")

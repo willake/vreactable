@@ -4,8 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
-import define_origin
-import sender
+from detector import sender
 
 # ChAruco board configs
 PATTERN = (5, 7)
@@ -134,7 +133,14 @@ def run(cameraMatrix, distCoeffs):
         key = cv2.waitKey(33)
         if key == ord("q"):
             break
-    
+        
+def detect_arucos(calibFilePath: str):
+    global WEBSOCKET
+    with np.load(calibFilePath) as X:
+        cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
+
+    WEBSOCKET = sender.setup_websocket_client()
+    run(cameraMatrix, distCoeffs)
 
 if __name__ == "__main__":
     global WEBSOCKET

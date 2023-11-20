@@ -1,8 +1,21 @@
 #!/usr/bin/python3
 import pathlib
+import tkinter.ttk as ttk
 import pygubu
+import camera_calibrator.sample_image_capturer as sample_image_capturer
+from detector import detector
+import pathlib
+import os
+import sys
 PROJECT_PATH = pathlib.Path(__file__).parent
 PROJECT_UI = PROJECT_PATH / "vreactable.ui"
+
+# Get the parent directory
+parent_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Add the parent directory to sys.path
+sys.path.append(parent_dir)
+
 
 
 class VreactableApp:
@@ -13,13 +26,29 @@ class VreactableApp:
         # Main widget
         self.mainwindow = builder.get_object("toplevel_vreactable", master)
 
+        self.sample_image_count = None
         self.is_calibrated = None
-        builder.import_variables(self, ['is_calibrated'])
+        builder.import_variables(self, ['sample_image_count', 'is_calibrated'])
 
         builder.connect_callbacks(self)
 
     def run(self):
         self.mainwindow.mainloop()
+
+    def on_type_pattern(self):
+        pass
+
+    def on_click_capture_sample_images(self):
+        print("Start capturing")
+        sample_image_capturer.capture_sample_images()
+
+    def on_click_calibrate_camera(self):
+        pass
+
+    def on_click_detect(self):
+        print("Start detecting")
+        calibFilePath = f'{pathlib.Path().resolve()}/resources/calib.npz'
+        detector.detect_arucos(calibFilePath)
 
 
 if __name__ == "__main__":
