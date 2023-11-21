@@ -7,8 +7,10 @@ from detector import detector
 import pathlib
 import os
 import sys
-PROJECT_PATH = pathlib.Path(__file__).parent
-PROJECT_UI = PROJECT_PATH / "vreactable.ui"
+# PROJECT_PATH = pathlib.Path(__file__).parent
+PROJECT_PATH = '.'
+PROJECT_UI = f"{PROJECT_PATH}/vreactable.ui"
+# PROJECT_UI = PROJECT_PATH / "vreactable.ui"
 
 
 class VreactableApp:
