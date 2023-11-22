@@ -2,6 +2,7 @@ import cv2
 from cv2 import aruco
 from PIL import Image, ImageDraw
 from aruco_generators import aruco_generator
+from aruco_generators import charuco_board_generator
 from helper import helper 
 # import aruco_generator
 import os
@@ -87,7 +88,9 @@ def generatePackedArucoMarkers(arucoDict, numMarkers, markerSizecm, gapSizecm):
     a4Heightcm = 29.7  # A4 height in centimeters
 
     packImages(imagesFolder, outputFolder, a4Widthcm, a4Heightcm, gapSizecm)
-
+    
+def generateCharucoBoard(arucoDict, pattern):
+    charuco_board_generator.generateCharucoboardImage(arucoDict = arucoDict, pattern = pattern)
 if __name__ == "__main__":
     arucoDict = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
     generatePackedArucoMarkers(arucoDict = arucoDict, numMarkers = 36, markerSizecm = 4.5, gapSizecm = 0.5)

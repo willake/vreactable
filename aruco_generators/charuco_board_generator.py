@@ -6,7 +6,7 @@ SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
 
 def generateCharucoboardImage(arucoDict, pattern):
-    directory = f"{helper.getRootPath()}/resources/charuco_board"
+    directory = f"{helper.getRootPath()}/resources/aruco/charuco_board"
     helper.clearFolder(directory)
     helper.validatePath(directory)
     

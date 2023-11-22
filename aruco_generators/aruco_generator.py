@@ -21,5 +21,5 @@ if __name__ == "__main__":
         numOfImgs = 50,
         size = 200
     )
-    print(f"Generated {numOfImgs} aruco images")
+    print(f"Generated {50} aruco images")
     

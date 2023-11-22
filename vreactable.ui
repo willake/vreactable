@@ -267,6 +267,17 @@
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="ttk.Button" id="button_generate_charuco_board" named="True">
+                    <property name="command" type="command" cbtype="simple">on_click_generate_charuco_board</property>
+                    <property name="text" translatable="yes">Generate charuco board</property>
+                    <layout manager="pack">
+                      <property name="ipadx">20</property>
+                      <property name="pady">10</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
               </object>
             </child>
             <child>

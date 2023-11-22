@@ -70,9 +70,18 @@ class VreactableApp:
     
     def on_click_generate_aruco(self):
         generator.generatePackedArucoMarkers(
+            arucoDict = ARUCO_DICT,
             numMarkers = int(self.var_num_of_markers.get()),
             markerSizecm = float(self.var_aruco_size.get()),
             gapSizecm = float(self.var_aruco_gap_size.get()))
+        pass
+    
+    def on_click_generate_charuco_board(self):
+        pattern = (
+            int(self.var_board_pattern_row.get()),
+            int(self.var_board_pattern_column.get())
+        )
+        generator.generateCharucoBoard(arucoDict = ARUCO_DICT, pattern = pattern)
         pass
 
     def on_click_capture_sample_images(self):
