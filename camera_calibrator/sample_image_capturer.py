@@ -125,7 +125,7 @@ def run(outputFolder):
         key = cv2.waitKey(33)
         if key == ord("s"):
             # save screenshot
-            cv2.imwrite(f"{outputFolder}/screenshot_{goodAmount + badAmount}.jpg", frame)
+            cv2.imwrite(f"{outputFolder}\\screenshot_{goodAmount + badAmount}.jpg", frame)
             if result:
                 goodAmount += 1
             else:
@@ -143,5 +143,5 @@ def capture_sample_images(sampleFolder):
     run(sampleFolder)
 
 if __name__ == "__main__":
-    sampleFolder = os.path.join(helper.getRootPath(), 'resources\\samples')
+    sampleFolder = os.path.join(helper.getRootPath(), 'resources\\calibration\\samples')
     capture_sample_images(sampleFolder)

@@ -26,16 +26,22 @@ def validatePath(path):
     if os.path.exists(path) == False:
         os.makedirs(path)
         
-def count_images(folder_path):
+def checkCalibFileExit(path):
+    if os.path.exists(path):
+        return True
+    else:
+        return False
+        
+def countImages(folderPath):
     # List all files in the folder
-    all_files = os.listdir(folder_path)
+    all_files = os.listdir(folderPath)
 
     # Filter out only image files (you can customize the list of extensions)
     # image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
-    image_extensions = ['.jpg']
-    image_files = [file for file in all_files if any(file.lower().endswith(ext) for ext in image_extensions)]
+    imageExtensions = ['.jpg']
+    imageFiles = [file for file in all_files if any(file.lower().endswith(ext) for ext in imageExtensions)]
 
     # Count the number of image files
-    num_images = len(image_files)
+    numImages = len(imageFiles)
 
-    return num_images
+    return numImages

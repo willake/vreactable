@@ -2,8 +2,8 @@ import websocket
 import json 
 
 def setup_websocket_client():
-    # ws = websocket.create_connection("ws://localhost:8080")
-    ws = websocket.create_connection("ws://10.2.40.112:8080/")
+    ws = websocket.create_connection("ws://localhost:8080")
+    # ws = websocket.create_connection("ws://10.2.40.112:8080/")
     return ws
 
 def format(v):

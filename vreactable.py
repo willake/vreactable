@@ -2,7 +2,7 @@ import pathlib
 import tkinter.ttk as ttk
 from tkinter.messagebox import showerror, showwarning, showinfo
 import pygubu
-import camera_calibrator.sample_image_capturer as sample_image_capturer
+from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
 from detector import detector
 from aruco_generators import generator
@@ -18,6 +18,7 @@ MARKER_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['MarkerFolder'
 PACKED_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['PackedFolder'])
 CHARUCO_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['CharucoFolder'])
 SAMPLE_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['SampleFolder'])
+CALIB_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['CalibFolder'])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
@@ -60,23 +61,19 @@ class VreactableApp:
         
         builder.connect_callbacks(self)
         
-        numImgs = helper.count_images(SAMPLE_FOLDER)
-        self.var_sample_image_count.set(str(numImgs))
+        self.updateNumSampledImages()
+        self.updateIsCalibrated()
 
     def run(self):
         self.mainwindow.mainloop()
-
-    def on_select_dictionary(self):
-        pass
-
-    def on_type_num_of_markers(self):
-        pass
-
-    def on_type_aruco_size(self, p_entry_value):
-        pass
-
-    def on_type_pattern(self):
-        pass
+        
+    def updateNumSampledImages(self):
+        numImgs = helper.countImages(SAMPLE_FOLDER)
+        self.var_sample_image_count.set(str(numImgs))
+    
+    def updateIsCalibrated(self):
+        isCalibConfigExist = bool(helper.checkCalibFileExit(os.path.join(CALIB_FOLDER, 'calib.npz')))
+        self.var_is_calibrated.set('Yes' if isCalibConfigExist else 'No')
     
     def on_click_generate_aruco(self):
         generator.generatePackedArucoMarkers(
@@ -99,14 +96,25 @@ class VreactableApp:
         pass
     
     def on_click_refresh_sampled_count(self):
-        numImgs = helper.count_images(SAMPLE_FOLDER)
+        numImgs = helper.countImages(SAMPLE_FOLDER)
         self.var_sample_image_count.set(str(numImgs))
         pass
 
     def on_click_capture_sample_images(self):
         sample_image_capturer.capture_sample_images(SAMPLE_FOLDER)
+        self.updateNumSampledImages()
+        showinfo(title = 'Capture Sample Images', message = f'Successfully sampled images. \n The files are at: {SAMPLE_FOLDER}')
+        pass
 
     def on_click_calibrate_camera(self):
+        pattern = (
+            int(self.var_board_pattern_row.get()),
+            int(self.var_board_pattern_column.get())
+        )
+        calibrator.calibrate(
+            sampleFolder = SAMPLE_FOLDER, calibFolder = CALIB_FOLDER, 
+            arucoDict = ARUCO_DICT, pattern = pattern)
+        self.updateIsCalibrated()
         pass
 
     def on_click_detect(self):
