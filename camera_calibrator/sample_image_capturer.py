@@ -4,6 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
+from helper import helper
 
 # the purpose of this script is to capture
 # detectable and undetectable images from the webcam
@@ -137,12 +138,10 @@ def run(outputFolder):
 
     cv2.destroyAllWindows()
 
-def capture_sample_images():
-    path = f'{pathlib.Path().resolve()}/inputs/samples'
-    validatePath(path)
-    run(path)
+def capture_sample_images(sampleFolder):
+    helper.validatePath(sampleFolder)
+    run(sampleFolder)
 
 if __name__ == "__main__":
-    path = f'{pathlib.Path().resolve()}/inputs/samples'
-    validatePath(path)
-    run(path)
+    sampleFolder = os.path.join(helper.getRootPath(), 'resources\\samples')
+    capture_sample_images(sampleFolder)

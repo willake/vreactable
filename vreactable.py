@@ -14,6 +14,11 @@ import configparser
 config = configparser.ConfigParser()
 config.read('./config.ini')
 
+MARKER_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['MarkerFolder'])
+PACKED_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['PackedFolder'])
+CHARUCO_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['CharucoFolder'])
+SAMPLE_FOLDER = os.path.join(helper.getRootPath(), config['PATH']['SampleFolder'])
+
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
 # PROJECT_PATH = pathlib.Path(__file__).parent
@@ -54,6 +59,9 @@ class VreactableApp:
         # combo.current(0)
         
         builder.connect_callbacks(self)
+        
+        numImgs = helper.count_images(SAMPLE_FOLDER)
+        self.var_sample_image_count.set(str(numImgs))
 
     def run(self):
         self.mainwindow.mainloop()
@@ -71,31 +79,32 @@ class VreactableApp:
         pass
     
     def on_click_generate_aruco(self):
-        markerFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\markers')
-        packedFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\packed')
         generator.generatePackedArucoMarkers(
-            markerFolder = markerFolder,
-            packedFolder = packedFolder,
+            markerFolder = MARKER_FOLDER,
+            packedFolder = PACKED_FOLDER,
             arucoDict = ARUCO_DICT,
             numMarkers = int(self.var_num_of_markers.get()),
             markerSizecm = float(self.var_aruco_size.get()),
             gapSizecm = float(self.var_aruco_gap_size.get()))
-        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {packedFolder}')
+        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {PACKED_FOLDER}')
         pass
     
     def on_click_generate_charuco_board(self):
-        outputFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\charuco_board')
         pattern = (
             int(self.var_board_pattern_row.get()),
             int(self.var_board_pattern_column.get())
         )
-        generator.generateCharucoBoard(outputFolder = outputFolder, arucoDict = ARUCO_DICT, pattern = pattern)
-        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {outputFolder}')
+        generator.generateCharucoBoard(outputFolder = CHARUCO_FOLDER, arucoDict = ARUCO_DICT, pattern = pattern)
+        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {CHARUCO_FOLDER}')
+        pass
+    
+    def on_click_refresh_sampled_count(self):
+        numImgs = helper.count_images(SAMPLE_FOLDER)
+        self.var_sample_image_count.set(str(numImgs))
         pass
 
     def on_click_capture_sample_images(self):
-        print("Start capturing")
-        sample_image_capturer.capture_sample_images()
+        sample_image_capturer.capture_sample_images(SAMPLE_FOLDER)
 
     def on_click_calibrate_camera(self):
         pass
