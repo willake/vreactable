@@ -307,7 +307,7 @@
                         <property name="compound">center</property>
                         <property name="justify">center</property>
                         <property name="padding">10</property>
-                        <property name="text" translatable="yes">Sample image count:</property>
+                        <property name="text" translatable="yes">Sampled image count:</property>
                         <layout manager="pack" />
                       </object>
                     </child>
@@ -328,6 +328,17 @@
                         <layout manager="pack" />
                       </object>
                     </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Button" id="btn_referesh" named="True">
+                    <property name="command" type="command" cbtype="simple">on_click_refresh_sampled_count</property>
+                    <property name="image">refresh.png</property>
+                    <layout manager="grid">
+                      <property name="column">2</property>
+                      <property name="padx">10</property>
+                      <property name="row">0</property>
+                    </layout>
                   </object>
                 </child>
               </object>
@@ -427,50 +438,6 @@
                 </layout>
               </object>
             </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="pygubu.builder.widgets.dialog" id="dialog_ok" named="True">
-    <property name="height">200</property>
-    <property name="width">400</property>
-    <child>
-      <object class="ttk.Frame" id="frame7">
-        <property name="height">200</property>
-        <property name="width">400</property>
-        <layout manager="pack">
-          <property name="expand">true</property>
-          <property name="fill">both</property>
-          <property name="side">top</property>
-        </layout>
-        <child>
-          <object class="ttk.Frame" id="frame8">
-            <property name="height">200</property>
-            <property name="width">200</property>
-            <layout manager="pack">
-              <property name="padx">10</property>
-              <property name="pady">10</property>
-              <property name="side">top</property>
-            </layout>
-            <child>
-              <object class="ttk.Label" id="label_ok_message" named="True">
-                <property name="text" translatable="yes">message</property>
-                <layout manager="pack">
-                  <property name="side">top</property>
-                </layout>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="ttk.Button" id="button_ok" named="True">
-            <property name="text" translatable="yes">OK</property>
-            <layout manager="pack">
-              <property name="ipadx">20</property>
-              <property name="pady">10</property>
-              <property name="side">top</property>
-            </layout>
           </object>
         </child>
       </object>

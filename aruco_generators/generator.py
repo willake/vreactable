@@ -69,28 +69,31 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
         output_path = os.path.join(outputFolder, f"packed_aruco_markers_{image_counter}.jpg")
         currentImage.save(output_path)
         
-def generatePackedArucoMarkers(arucoDict, numMarkers, markerSizecm, gapSizecm):
+def generatePackedArucoMarkers(markerFolder, packedFolder, arucoDict, numMarkers, markerSizecm, gapSizecm):
     # Specify the folder to save ArUco markers and the number of markers to generate
-    arucoOutputFolder = "resources/aruco/markers"
-    
-    helper.clearFolder(arucoOutputFolder)
-    helper.validatePath(arucoOutputFolder)
+    helper.clearFolder(markerFolder)
+    helper.validatePath(markerFolder)
 
-    aruco_generator.generateArucoMarkers(arucoOutputFolder, arucoDict, numMarkers, cmToPixels(markerSizecm))
+    aruco_generator.generateArucoMarkers(markerFolder, arucoDict, numMarkers, cmToPixels(markerSizecm))
 
     # Specify the folder containing ArUco markers, the output folder, and A4 size in centimeters
-    imagesFolder = "resources/aruco/markers"
-    outputFolder = "resources/aruco/packed"
-    helper.clearFolder(outputFolder)
-    helper.validatePath(imagesFolder)
-    helper.validatePath(outputFolder)
+    helper.clearFolder(packedFolder)
+    helper.validatePath(packedFolder)
     a4Widthcm = 21.0  # A4 width in centimeters
     a4Heightcm = 29.7  # A4 height in centimeters
 
-    packImages(imagesFolder, outputFolder, a4Widthcm, a4Heightcm, gapSizecm)
+    packImages(markerFolder, packedFolder, a4Widthcm, a4Heightcm, gapSizecm)
     
-def generateCharucoBoard(arucoDict, pattern):
-    charuco_board_generator.generateCharucoboardImage(arucoDict = arucoDict, pattern = pattern)
+def generateCharucoBoard(outputFolder, arucoDict, pattern):
+    charuco_board_generator.generateCharucoboardImage(outputFolder = outputFolder, arucoDict = arucoDict, pattern = pattern)
 if __name__ == "__main__":
+    markerFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\markers')
+    packedFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\packed')
     arucoDict = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
-    generatePackedArucoMarkers(arucoDict = arucoDict, numMarkers = 36, markerSizecm = 4.5, gapSizecm = 0.5)
+    generatePackedArucoMarkers(
+        markerFolder = markerFolder, 
+        packedFolder = packedFolder, 
+        arucoDict = arucoDict, 
+        numMarkers = 36, 
+        markerSizecm = 4.5, 
+        gapSizecm = 0.5)

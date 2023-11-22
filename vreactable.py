@@ -1,10 +1,12 @@
 import pathlib
 import tkinter.ttk as ttk
+from tkinter.messagebox import showerror, showwarning, showinfo
 import pygubu
 import camera_calibrator.sample_image_capturer as sample_image_capturer
 import cv2.aruco as aruco
 from detector import detector
 from aruco_generators import generator
+from helper import helper
 import pathlib
 import os
 import sys
@@ -69,19 +71,26 @@ class VreactableApp:
         pass
     
     def on_click_generate_aruco(self):
+        markerFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\markers')
+        packedFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\packed')
         generator.generatePackedArucoMarkers(
+            markerFolder = markerFolder,
+            packedFolder = packedFolder,
             arucoDict = ARUCO_DICT,
             numMarkers = int(self.var_num_of_markers.get()),
             markerSizecm = float(self.var_aruco_size.get()),
             gapSizecm = float(self.var_aruco_gap_size.get()))
+        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {packedFolder}')
         pass
     
     def on_click_generate_charuco_board(self):
+        outputFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\charuco_board')
         pattern = (
             int(self.var_board_pattern_row.get()),
             int(self.var_board_pattern_column.get())
         )
-        generator.generateCharucoBoard(arucoDict = ARUCO_DICT, pattern = pattern)
+        generator.generateCharucoBoard(outputFolder = outputFolder, arucoDict = ARUCO_DICT, pattern = pattern)
+        showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {outputFolder}')
         pass
 
     def on_click_capture_sample_images(self):
