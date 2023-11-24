@@ -4,36 +4,26 @@ import glob
 import os
 import numpy as np
 import pathlib
+from helper import helper
 
-# ChAruco board configs
-PATTERN = (5, 7)
-ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
-
-CHARUCO_BOARD = aruco.CharucoBoard(
-    size=PATTERN, 
-    squareLength=SQUARE_LENGTH, 
-    markerLength=MARKER_LENGTH, 
-    dictionary=ARUCO_DICT)
-
-# Generate Charuco board corners in 3D
-OBJ_POINTS = CHARUCO_BOARD.getChessboardCorners()
-# OBJ_POINTS = OBJ_POINTS.reshape(-1, 1, 3)
 
 corners_all = []
 ids_all = []
 # image_size = None # Determined at runtime
 
-def validatePath(path):
-    if os.path.exists(path) == False:
-        os.makedirs(path)
-
-def calibrate():
-    images = glob.glob(f'{pathlib.Path().resolve()}/inputs/samples/*.jpg')
+def calibrate(sampleFolder, calibFolder, arucoDict, pattern):
+    images = glob.glob(f'{sampleFolder}\\*.jpg')
     detectorParams = aruco.DetectorParameters()
-    detector = aruco.CharucoDetector(board=CHARUCO_BOARD, detectorParams=detectorParams)
+    charucoBoard = aruco.CharucoBoard(
+        size=pattern, 
+        squareLength=SQUARE_LENGTH, 
+        markerLength=MARKER_LENGTH, 
+        dictionary=arucoDict)
+    objPoints = charucoBoard.getChessboardCorners()
     
+    detector = aruco.CharucoDetector(board=charucoBoard, detectorParams=detectorParams)
     # Loop through images glob
     for iname in images:
         img = cv2.imread(iname)
@@ -57,7 +47,7 @@ def calibrate():
     calibration, cameraMatrix, distCoeffs, rvecs, tvecs = aruco.calibrateCameraCharuco(
         charucoCorners=corners_all,
         charucoIds=ids_all,
-        board=CHARUCO_BOARD,
+        board=charucoBoard,
         imageSize=image_size,
         cameraMatrix=None,
         distCoeffs=None)
@@ -66,10 +56,9 @@ def calibrate():
     
     print(cameraMatrix)
     print(distCoeffs)
-    
-    directory = f'{pathlib.Path().resolve()}/outputs'
-    validatePath(directory)
-    np.savez(f'{directory}/calib', cameraMatrix = cameraMatrix, distCoeffs = distCoeffs)
+
+    helper.validatePath(calibFolder)
+    np.savez(os.path.join(calibFolder, 'calib'), cameraMatrix = cameraMatrix, distCoeffs = distCoeffs)
     
     # fileName = "inputs/images"
     # cap = cv2.VideoCapture(fileName)
@@ -80,4 +69,6 @@ def calibrate():
 
 
 if __name__ == "__main__":
-    calibrate()
+    calibrate(sampleFolder = f'{helper.getRootPath()}\\resources\\calibration\\samples', 
+              calibFolder = f'{helper.getRootPath()}\\resources\\clibration', 
+              arucoDict = aruco.getPredefinedDictionary(aruco.DICT_6X6_50), pattern = (5, 7))

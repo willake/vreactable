@@ -4,8 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
-import define_origin
-import sender
+from detector import sender
 
 # ChAruco board configs
 PATTERN = (5, 7)
@@ -26,6 +25,7 @@ OBJ_POINTS[2] = np.array([[MARKER_LENGTH /2., -MARKER_LENGTH /2., 0]], np.float3
 OBJ_POINTS[3] = np.array([[-MARKER_LENGTH /2.,-MARKER_LENGTH /2., 0]], np.float32)
 
 origin_rvec = None
+
 origin_tvec = None
 
 def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
@@ -122,6 +122,8 @@ def run(cameraMatrix, distCoeffs):
     if not cap.isOpened():
         print("error: cannot open camera")
         exit()
+    
+    print("Camera is found...")
     while cap.isOpened():
         isCaptured, frame = cap.read()
         
@@ -134,7 +136,17 @@ def run(cameraMatrix, distCoeffs):
         key = cv2.waitKey(33)
         if key == ord("q"):
             break
-    
+    cap.release()
+    cv2.destroyAllWindows()
+        
+def detect_arucos(calibFilePath: str, ip: str):
+    global WEBSOCKET
+    with np.load(calibFilePath) as X:
+        cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
+    print("Calibration file is loaded...")
+    WEBSOCKET = sender.setup_websocket_client(ip)
+    print("Websocket is set...")
+    run(cameraMatrix, distCoeffs)
 
 if __name__ == "__main__":
     global WEBSOCKET
