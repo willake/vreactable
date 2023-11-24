@@ -44,6 +44,7 @@ class VreactableApp:
         self.var_board_pattern_column = None
         self.var_sample_image_count = None
         self.var_is_calibrated = None
+        self.var_websocket_ip = None
         builder.import_variables(self,
                                  ['var_aruco_dict',
                                   'var_num_of_markers',
@@ -52,7 +53,8 @@ class VreactableApp:
                                   'var_board_pattern_row',
                                   'var_board_pattern_column',
                                   'var_sample_image_count',
-                                  'var_is_calibrated'])
+                                  'var_is_calibrated',
+                                  'var_websocket_ip'])
         
         # combobox
         # combo = self.builder.get_object("combobox_dict")
@@ -119,8 +121,9 @@ class VreactableApp:
 
     def on_click_detect(self):
         print("Start detecting")
+        ip = self.var_websocket_ip.get()
         calibFilePath = f'{pathlib.Path().resolve()}/resources/calib.npz'
-        detector.detect_arucos(calibFilePath)
+        detector.detect_arucos(calibFilePath, ip)
 
 
 if __name__ == "__main__":

@@ -122,6 +122,8 @@ def run(cameraMatrix, distCoeffs):
     if not cap.isOpened():
         print("error: cannot open camera")
         exit()
+    
+    print("Camera is found...")
     while cap.isOpened():
         isCaptured, frame = cap.read()
         
@@ -137,12 +139,13 @@ def run(cameraMatrix, distCoeffs):
     cap.release()
     cv2.destroyAllWindows()
         
-def detect_arucos(calibFilePath: str):
+def detect_arucos(calibFilePath: str, ip: str):
     global WEBSOCKET
     with np.load(calibFilePath) as X:
         cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
-
-    WEBSOCKET = sender.setup_websocket_client()
+    print("Calibration file is loaded...")
+    WEBSOCKET = sender.setup_websocket_client(ip)
+    print("Websocket is set...")
     run(cameraMatrix, distCoeffs)
 
 if __name__ == "__main__":
