@@ -28,7 +28,10 @@ origin_rvec = None
 
 origin_tvec = None
 
+isLastObjectGone = False
+
 def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
+    global isLastObjectGone
     global WEBSOCKET
     imageCopy = copy.copy(frame)
     detectorParams = aruco.DetectorParameters()
@@ -75,6 +78,7 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.5)
         
         sender.send_object_data(WEBSOCKET, markerIds, tvecs, rotations)
+        isLastObjectGone = False
         # if markerCount > 1:
             # Convert rotation vector to rotation matrix
             # rot_mat, _ = cv2.Rodrigues(rvecs[0])
@@ -92,6 +96,9 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # print(f'pitch_degrees: {pitch_degrees} yaw_degrees: {yaw_degrees} roll_degrees: {roll_degrees}')
             # print(f'tvec_0: {np.array_str(tvecs[0], precision=3, suppress_small=True)} tvec_1: {np.array_str(tvecs[1], precision=3, suppress_small=True)}')
     else:
+        if isLastObjectGone is False:
+            sender.send_object_data(WEBSOCKET, [], [], [])
+            isLastObjectGone = True
         cv2.putText( 
             imageCopy,
             f"Markers not found",
