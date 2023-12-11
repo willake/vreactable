@@ -5,6 +5,7 @@ import copy
 import os
 import pathlib
 from detector import sender
+import math
 
 # ChAruco board configs
 PATTERN = (5, 7)
@@ -58,6 +59,11 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
         rotations = [None] * markerCount
         rvecs = [None] * markerCount
         tvecs = [None] * markerCount
+        
+        filteredMarkerIds = [-1] * 6
+        filteredTvecs = [None] * 6
+        filteredRvecs = [None] * 6
+        filteredRotations = [np.array([360, 360, 360], np.float32)] * 6
 
         for i in range(markerCount):
             retval, rvecs[i], tvecs[i] = cv2.solvePnP(OBJ_POINTS, markerCorners[i], cameraMatrix, distCoeffs)
@@ -74,10 +80,24 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             yaw_degrees = np.degrees(yaw)
             roll_degrees = np.degrees(roll)
             rotations[i] = np.array([pitch_degrees, yaw_degrees, roll_degrees], np.float32)
-        for i in range(markerCount):
-            cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.5)
+            
+            # filter by rotations so there will be only 1 marker on a box being detected
+            cubeIndex = int(markerIds[i] / 6)
+            standard = filteredRotations[cubeIndex]
+            # pitch diff with platform
+            pitchDiff = abs(pitch_degrees)
+            yawDiff = abs(abs(yaw_degrees) - 180)
+            if pitchDiff < standard[0] and yawDiff < standard[1]:
+                filteredMarkerIds[cubeIndex] = markerIds[i]
+                filteredTvecs[cubeIndex] = tvecs[i]
+                filteredRvecs[cubeIndex] = rvecs[i]
+                filteredRotations[cubeIndex] = rotations[i]
+            
+        for i in range(6):
+            if filteredMarkerIds[i] is not -1:
+                cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, filteredRvecs[i], filteredTvecs[i], 0.5)
         
-        sender.send_object_data(WEBSOCKET, markerIds, tvecs, rotations)
+        sender.send_object_data(WEBSOCKET, filteredMarkerIds, filteredTvecs, filteredRotations)
         isLastObjectGone = False
         # if markerCount > 1:
             # Convert rotation vector to rotation matrix
