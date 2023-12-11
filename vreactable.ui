@@ -170,7 +170,6 @@
                             <property name="text" translatable="yes">0.5</property>
                             <property name="textvariable">string:var_aruco_gap_size</property>
                             <property name="validate">focusout</property>
-                            <property name="validatecommand" type="command" cbtype="entry_validate" args="%P">on_type_aruco_size</property>
                             <property name="width">5</property>
                             <layout manager="grid">
                               <property name="column">1</property>
