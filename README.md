@@ -4,7 +4,7 @@ VReactable is an interface connects the VR world and Reality. The setup includes
 
 ## Prepare markers
 
-Open the VReactalbe program,
+Open the VReactalbe program.
 
 ## Calibration
 
@@ -23,6 +23,10 @@ When the board is prepared, press `Capture sample images` button. A camera view 
 
 Lastly, press `Calibrate camera` to start calibration. In the end a `cali.npz` file in resources folder should be seen.
 
-## Run
+## Run Tracking
 
-Camera
+### Prepare resonite world
+
+### Prepare websocket server
+
+### Start tracking
