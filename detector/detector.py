@@ -77,17 +77,17 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
 
             # Convert angles from radians to degrees if needed
             pitch_degrees = np.degrees(pitch)
-            yaw_degrees = abs(np.degrees(yaw))
+            yaw_degrees = np.degrees(yaw)
             roll_degrees = np.degrees(roll)
             rotations[i] = np.array([pitch_degrees, yaw_degrees, roll_degrees], np.float32)
             
             # filter by rotations so there will be only 1 marker on a box being detected
-            cubeIndex = int(i / 6)
+            cubeIndex = int(markerIds[i] / 6)
             standard = filteredRotations[cubeIndex]
             # pitch diff with platform
             pitchDiff = abs(pitch_degrees)
-            yawDiff = abs(yaw_degrees - 180)
-            if pitchDiff < standard[cubeIndex] and yawDiff < standard[cubeIndex]:
+            yawDiff = abs(abs(yaw_degrees) - 180)
+            if pitchDiff < standard[0] and yawDiff < standard[1]:
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]

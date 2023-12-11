@@ -7,7 +7,7 @@ def setup_websocket_client(ip: str):
     return ws
 
 def format(v):
-    return "{:.2f}".format(round(v, 2))
+    return "{:.2f}".format(round(v, 1))
 
 lastIds = []
 def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations):
