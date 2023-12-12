@@ -25,17 +25,17 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
             if id > -1:
                 markerId = id[0]
                 x = p[0][0]
-                y = p[1][0]* -1
+                y = p[1][0] * -1
                 z = p[2][0] 
                 
-                pitch = r[0]
-                yaw = r[1]
-                roll = r[2]
+                roll = r[0]
+                pitch = r[1]
+                yaw = r[2]
 
                 data += f'Box{markerId}'
                 data += f'[{format(x)};{format(y)};{format(z)}]'
                 data += f'/'
-                data += f'[{format(pitch)};{format(yaw)};{format(roll)}]'
+                data += f'[{format(roll)};{format(pitch)};{format(yaw)}]'
                 data += f'Box{markerId}end/'
     
     # for id in missedIds:

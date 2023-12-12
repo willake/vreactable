@@ -31,24 +31,23 @@ origin_tvec = None
 
 isLastObjectGone = False
 
-def GetQuaternionFromEuler(pitch, yaw, roll):
-  """
-  Convert an Euler angle to a quaternion.
-   
-  Input
-    :param roll: The roll (rotation around x-axis) angle in radians.
-    :param pitch: The pitch (rotation around y-axis) angle in radians.
-    :param yaw: The yaw (rotation around z-axis) angle in radians.
- 
-  Output
-    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
-  """
-  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
- 
-  return np.array([qx, qy, qz, qw], np.float32)
+def wrapAngle(angle):
+    """
+    Wrap an angle to the range -180 to 180 degrees.
+
+    Args:
+        angle (float): Input angle in degrees.
+
+    Returns:
+        float: Wrapped angle in the range -180 to 180 degrees.
+    """
+    wrapped_angle = (angle + 180) % 360
+    
+    if wrapped_angle > 180: wrapped_angle = (wrapped_angle - 360)
+    return wrapped_angle
+
+def format(v):
+    return "{:.2f}".format(round(v, 1))
 
 def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
     global isLastObjectGone
@@ -94,17 +93,18 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
             # roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
         
-            
             proj_matrix = np.hstack((rot_mat, tvecs[i]))
             eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6] 
             
-            pitch_degrees, yaw_degrees, roll_degrees = eulerAngles
+            roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
 
-            pitch_degrees = pitch_degrees[0]
+            roll_degrees = wrapAngle(roll_degrees[0])
+            pitch_degrees = -pitch_degrees[0]
             yaw_degrees = yaw_degrees[0]
-            roll_degrees = roll_degrees[0]
             
-            qut = GetQuaternionFromEuler(math.radians(pitch_degrees), math.radians(yaw_degrees), math.radians(roll_degrees))
+            #print(f"{format(pitch_degrees)}, {format(yaw_degrees)}, {format(roll_degrees)}")
+            
+            # quaternion = GetQuaternionFromEuler(math.radians(roll_degrees), math.radians(pitch_degrees), math.radians(yaw_degrees))
             # pitch = pitch
             # roll = roll
             # yaw = yaw
@@ -122,19 +122,17 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # pitch_degrees = np.degrees(pitch)
             # yaw_degrees = np.degrees(yaw)
             # roll_degrees = np.degrees(roll)
-            rotations[i] = np.array([pitch_degrees, yaw_degrees, roll_degrees], np.float32)
-            
+            rotation = np.array([roll_degrees, pitch_degrees, yaw_degrees], np.float32)
             # filter by rotations so there will be only 1 marker on a box being detected
             cubeIndex = int(markerIds[i] / 6)
-            standard = filteredRotations[cubeIndex]
             # pitch diff with platform
             pitchDiff = abs(pitch_degrees)
             yawDiff = abs(yaw_degrees)
-            if pitchDiff < standard[0] and yawDiff < standard[1]:
+            if pitchDiff < filteredRotations[cubeIndex][1] and yawDiff < filteredRotations[cubeIndex][2]:
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]
-                filteredRotations[cubeIndex] = rotations[i]
+                filteredRotations[cubeIndex] = rotation
             
         for i in range(6):
             if filteredMarkerIds[i] != -1:
