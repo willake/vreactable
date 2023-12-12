@@ -99,8 +99,9 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
 
             roll_degrees = wrapAngle(roll_degrees[0])
-            pitch_degrees = -pitch_degrees[0]
-            yaw_degrees = yaw_degrees[0]
+            tmp_pitch = -pitch_degrees[0]
+            pitch_degrees =  yaw_degrees[0]
+            yaw_degrees = tmp_pitch
             
             #print(f"{format(pitch_degrees)}, {format(yaw_degrees)}, {format(roll_degrees)}")
             
