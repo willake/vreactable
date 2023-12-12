@@ -1,5 +1,7 @@
 import websocket
 import json 
+import numpy as np
+import math
 
 def setup_websocket_client(ip: str):
     ws = websocket.create_connection(ip)
@@ -23,13 +25,13 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
             if id > -1:
                 markerId = id[0]
                 x = p[0][0]
-                y = p[1][0]
-                z = p[2][0]
+                y = p[1][0]* -1
+                z = p[2][0] 
                 
                 pitch = r[0]
                 yaw = r[1]
                 roll = r[2]
-                
+
                 data += f'Box{markerId}'
                 data += f'[{format(x)};{format(y)};{format(z)}]'
                 data += f'/'
