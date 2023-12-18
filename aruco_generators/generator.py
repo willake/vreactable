@@ -59,6 +59,9 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             currentImage = Image.new('RGB', (a4Width, a4Height), 'white')
             draw = ImageDraw.Draw(currentImage)
             
+            draw.line([(0, 0), (a4Width, 0)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+            draw.line([(0, 0), (0, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+            
 
             # Reset coordinates for the new image
             x, y = gapSize, gapSize
@@ -70,8 +73,6 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
         currentImage.paste(arucoImg, (x, y))
         
         if shouldDrawID:
-            # print(FONT.getbbox('0'))
-            # print(FONT.getbbox('11'))
             left, top, right, bottom = FONT.getbbox(str(arucoCount))
             tw = right - left
             th = bottom - top
@@ -89,18 +90,6 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             draw.line([(x + arucoImg.size[1] + gapSize, 0), (x + arucoImg.size[1] + gapSize, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
             
         arucoCount += 1
-    
-    # Draw horizontal grid lines
-    # for i in range(1, num_rows):
-    #     borderY = i * arucoImg.size[1]
-    #     draw.line([(0, y), (width, y)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
-
-    # # Draw vertical grid lines
-    # for i in range(1, num_columns):
-    #     x = i * column_spacing
-    #     draw.line([(x, 0), (x, height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
-    #     shape = [(40, 40), (x - 10, y - 10)] 
-    #     draw.line(shape, fill ="red", width = 1) 
 
         # Save the last image if it contains content
         if currentImage:

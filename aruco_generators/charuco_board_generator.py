@@ -27,8 +27,6 @@ def generateCharucoboardImage(outputFolder, arucoDict, pattern, squareSizecm, ma
     charucoBoard.setLegacyPattern(True)
     boardImage = None
     
-    print(squareSize)
-    
     row, column = pattern
     
     boardSize = (
