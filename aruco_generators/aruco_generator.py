@@ -10,8 +10,10 @@ def generateArucoMarkers(outputFolder, arucoDict, numOfImgs, size):
     for x in range(numOfImgs):
         markerImage = cv2.aruco.generateImageMarker(arucoDict, x, size)
         print(markerImage)
-        cv2.imwrite(os.path.join(outputFolder, f"aruco_marker_{x}.png"), markerImage)
-
+        if x < 10 and x > 0:
+            cv2.imwrite(os.path.join(outputFolder, f"aruco_marker_0{x}.png"), markerImage)
+        else:
+            cv2.imwrite(os.path.join(outputFolder, f"aruco_marker_{x}.png"), markerImage)
     print(f"Generated {numOfImgs} aruco images")
 
 if __name__ == "__main__":
