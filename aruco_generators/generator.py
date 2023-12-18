@@ -1,6 +1,6 @@
 import cv2
 from cv2 import aruco
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from aruco_generators import aruco_generator
 from aruco_generators import charuco_board_generator
 from helper import helper 
@@ -10,12 +10,14 @@ import os
 # Specify grid parameters
 GRID_COLOR = (0, 0, 0)  # RGB color for grid lines (red in this case)
 GRID_BORDER_WIDTH = 3  # Width of grid lines
+FONT = ImageFont.load_default().font_variant(size=48)
+TEXT_ALIGN = 'center'
 
 def cmToPixels(cm, dpi=300):
     # 1 inch = 2.54 cm
     return int(cm * dpi / 2.54)
 
-def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapSizecm = 1.0):
+def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapSizecm = 1.0, shouldDrawID=True):
     # Convert A4 size from centimeters to pixels
     a4Width = cmToPixels(a4Widthcm)
     a4Height = cmToPixels(a4Heightcm)
@@ -33,6 +35,8 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
     # Create the first A4-sized image
     currentImage = Image.new('RGB', (a4Width, a4Height), 'white')
     draw = ImageDraw.Draw(currentImage)
+    
+    arucoCount = 0
 
     for arucoFile in arucoFiles:
         # Open each ArUco marker image
@@ -50,6 +54,7 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             # Create a new A4-sized image
             currentImage = Image.new('RGB', (a4Width, a4Height), 'white')
             draw = ImageDraw.Draw(currentImage)
+            
 
             # Reset coordinates for the new image
             x, y = gapSize, gapSize
@@ -59,6 +64,14 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
 
         # Paste the ArUco marker image onto the current A4 sheet
         currentImage.paste(arucoImg, (x, y))
+        
+        if shouldDrawID:
+            # print(FONT.getbbox('0'))
+            # print(FONT.getbbox('11'))
+            left, top, right, bottom = FONT.getbbox(str(arucoCount))
+            tw = right - left
+            th = bottom - top
+            draw.text(xy=(x - gapSize + 30 - tw / 2, y - gapSize), text=str(arucoCount), fill=GRID_COLOR, font=FONT, align=TEXT_ALIGN)
 
         # Update the y-coordinate for the next ArUco marker
         y += arucoImg.size[1] + gapSize * 2
@@ -69,6 +82,7 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             x += arucoImg.size[0] + gapSize * 2
             y = gapSize
             draw.line([(x - gapSize, 0), (x - gapSize, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+        arucoCount += 1
     
     # Draw horizontal grid lines
     # for i in range(1, num_rows):
