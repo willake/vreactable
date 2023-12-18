@@ -7,6 +7,10 @@ from helper import helper
 # import aruco_generator
 import os
 
+# Specify grid parameters
+GRID_COLOR = (0, 0, 0)  # RGB color for grid lines (red in this case)
+GRID_BORDER_WIDTH = 3  # Width of grid lines
+
 def cmToPixels(cm, dpi=300):
     # 1 inch = 2.54 cm
     return int(cm * dpi / 2.54)
@@ -58,16 +62,30 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
 
         # Update the y-coordinate for the next ArUco marker
         y += arucoImg.size[1] + gapSize * 2
+        draw.line([(0, y - gapSize), (a4Width, y - gapSize)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
 
         # If the ArUco marker image goes beyond the bottom of the A4 sheet, start a new column
-        if y + arucoImg.size[1] > a4Height:
+        if y + arucoImg.size[1] + gapSize * 2 > a4Height:
             x += arucoImg.size[0] + gapSize * 2
             y = gapSize
+            draw.line([(x - gapSize, 0), (x - gapSize, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+    
+    # Draw horizontal grid lines
+    # for i in range(1, num_rows):
+    #     borderY = i * arucoImg.size[1]
+    #     draw.line([(0, y), (width, y)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
 
-    # Save the last image if it contains content
-    if currentImage:
-        output_path = os.path.join(outputFolder, f"packed_aruco_markers_{image_counter}.jpg")
-        currentImage.save(output_path)
+    # # Draw vertical grid lines
+    # for i in range(1, num_columns):
+    #     x = i * column_spacing
+    #     draw.line([(x, 0), (x, height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+    #     shape = [(40, 40), (x - 10, y - 10)] 
+    #     draw.line(shape, fill ="red", width = 1) 
+
+        # Save the last image if it contains content
+        if currentImage:
+            output_path = os.path.join(outputFolder, f"packed_aruco_markers_{image_counter}.jpg")
+            currentImage.save(output_path)
         
 def generatePackedArucoMarkers(markerFolder, packedFolder, arucoDict, numMarkers, markerSizecm, gapSizecm):
     # Specify the folder to save ArUco markers and the number of markers to generate
