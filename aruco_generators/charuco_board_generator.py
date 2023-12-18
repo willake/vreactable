@@ -6,18 +6,38 @@ import os
 SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
 
-def generateCharucoboardImage(outputFolder, arucoDict, pattern):
+def cmToPixels(cm, dpi=300):
+    # 1 inch = 2.54 cm
+    return int(cm * dpi / 2.54)
+
+def generateCharucoboardImage(outputFolder, arucoDict, pattern, squareSizecm, markerSizecm):
     helper.clearFolder(outputFolder)
     helper.validatePath(outputFolder)
     
+    squareSize = cmToPixels(squareSizecm)
+    markerSize = cmToPixels(markerSizecm)
+    
+    margin = 20
+    
     charucoBoard = aruco.CharucoBoard(
         size=pattern, 
-        squareLength=SQUARE_LENGTH, 
-        markerLength=MARKER_LENGTH, 
+        squareLength=squareSize, 
+        markerLength=markerSize, 
         dictionary=arucoDict)
     charucoBoard.setLegacyPattern(True)
     boardImage = None
-    boardImage = charucoBoard.generateImage((595, 842), boardImage, 20, 1)
+    
+    print(squareSize)
+    
+    row, column = pattern
+    
+    boardSize = (
+        margin * 2 + row * squareSize,
+        margin * 2 + column * squareSize 
+    )
+    
+    ## calculate size
+    boardImage = charucoBoard.generateImage(boardSize, boardImage, margin, 1)
     cv2.imwrite(f"{outputFolder}/charuco_board.png", boardImage)
 
     print(f"Generated the charuco board image")

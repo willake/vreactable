@@ -122,8 +122,9 @@ def generatePackedArucoMarkers(markerFolder, packedFolder, arucoDict, numMarkers
 
     packImages(markerFolder, packedFolder, a4Widthcm, a4Heightcm, gapSizecm)
     
-def generateCharucoBoard(outputFolder, arucoDict, pattern):
-    charuco_board_generator.generateCharucoboardImage(outputFolder = outputFolder, arucoDict = arucoDict, pattern = pattern)
+def generateCharucoBoard(outputFolder, arucoDict, pattern, markerSizecm, gapSizecm):
+    charuco_board_generator.generateCharucoboardImage(outputFolder = outputFolder, arucoDict = arucoDict, pattern = pattern, squareSizecm = markerSizecm + gapSizecm * 2, markerSizecm = markerSizecm)
+    
 if __name__ == "__main__":
     markerFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\markers')
     packedFolder = os.path.join(helper.getRootPath(), 'resources\\aruco\\packed')

@@ -93,7 +93,7 @@ class VreactableApp:
             int(self.var_board_pattern_row.get()),
             int(self.var_board_pattern_column.get())
         )
-        generator.generateCharucoBoard(outputFolder = CHARUCO_FOLDER, arucoDict = ARUCO_DICT, pattern = pattern)
+        generator.generateCharucoBoard(outputFolder = CHARUCO_FOLDER, arucoDict = ARUCO_DICT, pattern = pattern, markerSizecm = float(self.var_aruco_size.get()), gapSizecm = float(self.var_aruco_gap_size.get()))
         showinfo(title = 'Generate Aruco Markers', message = f'Successfully generated aruco markers. \n The files are at: {CHARUCO_FOLDER}')
         pass
     
