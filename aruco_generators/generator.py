@@ -37,6 +37,9 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
     draw = ImageDraw.Draw(currentImage)
     
     arucoCount = 0
+    
+    draw.line([(0, 0), (a4Width, 0)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+    draw.line([(0, 0), (0, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
 
     for arucoFile in arucoFiles:
         # Open each ArUco marker image
@@ -49,6 +52,7 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
         if x + arucoImg.size[1] + gapSize > a4Width:
             # Save the current image
             output_path = os.path.join(outputFolder, f"packed_aruco_markers_{image_counter}.jpg")
+            
             currentImage.save(output_path)
 
             # Create a new A4-sized image
@@ -71,7 +75,7 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             left, top, right, bottom = FONT.getbbox(str(arucoCount))
             tw = right - left
             th = bottom - top
-            draw.text(xy=(x - gapSize + 30 - tw / 2, y - gapSize), text=str(arucoCount), fill=GRID_COLOR, font=FONT, align=TEXT_ALIGN)
+            draw.text(xy=(x + arucoImg.size[0] / 2 - tw / 2, y - gapSize), text=str(arucoCount), fill=GRID_COLOR, font=FONT, align=TEXT_ALIGN)
 
         # Update the y-coordinate for the next ArUco marker
         y += arucoImg.size[1] + gapSize * 2
@@ -82,6 +86,8 @@ def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapS
             x += arucoImg.size[0] + gapSize * 2
             y = gapSize
             draw.line([(x - gapSize, 0), (x - gapSize, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+            draw.line([(x + arucoImg.size[1] + gapSize, 0), (x + arucoImg.size[1] + gapSize, a4Height)], fill=GRID_COLOR, width=GRID_BORDER_WIDTH)
+            
         arucoCount += 1
     
     # Draw horizontal grid lines
@@ -106,7 +112,7 @@ def generatePackedArucoMarkers(markerFolder, packedFolder, arucoDict, numMarkers
     helper.clearFolder(markerFolder)
     helper.validatePath(markerFolder)
 
-    aruco_generator.generateArucoMarkers(markerFolder, arucoDict, numMarkers, cmToPixels(markerSizecm))
+    aruco_generator.generateArucoMarkers(markerFolder, arucoDict, numMarkers, cmToPixels(markerSizecm - gapSizecm * 2))
 
     # Specify the folder containing ArUco markers, the output folder, and A4 size in centimeters
     helper.clearFolder(packedFolder)
