@@ -127,9 +127,9 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # filter by rotations so there will be only 1 marker on a box being detected
             cubeIndex = int(markerIds[i] / 6)
             # pitch diff with platform
-            pitchDiff = abs(pitch_degrees)
+            rollDiff = abs(roll_degrees)
             yawDiff = abs(yaw_degrees)
-            if pitchDiff < filteredRotations[cubeIndex][1] and yawDiff < filteredRotations[cubeIndex][2]:
+            if rollDiff < abs(filteredRotations[cubeIndex][0]) and yawDiff < abs(filteredRotations[cubeIndex][2]):
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]
