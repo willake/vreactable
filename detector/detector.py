@@ -56,7 +56,8 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
     detectorParams = aruco.DetectorParameters()
     detector = aruco.ArucoDetector(dictionary=ARUCO_DICT, detectorParams=detectorParams)
     
-    markerCorners, markerIds, _ = detector.detectMarkers(imageCopy)
+    gray = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2GRAY)
+    markerCorners, markerIds, _ = detector.detectMarkers(gray)
     
     isFound = (markerIds is not None) and len(markerIds) > 0
     
@@ -99,10 +100,11 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
 
             roll_degrees = wrapAngle(roll_degrees[0])
-            tmp_pitch = -pitch_degrees[0]
-            pitch_degrees =  yaw_degrees[0]
-            yaw_degrees = tmp_pitch
-            
+            # tmp_pitch = -pitch_degrees[0]
+            # pitch_degrees =  yaw_degrees[0]
+            # yaw_degrees = tmp_pitch
+            pitch_degrees =  pitch_degrees[0]
+            yaw_degrees = yaw_degrees[0]
             #print(f"{format(pitch_degrees)}, {format(yaw_degrees)}, {format(roll_degrees)}")
             
             # quaternion = GetQuaternionFromEuler(math.radians(roll_degrees), math.radians(pitch_degrees), math.radians(yaw_degrees))
@@ -127,9 +129,11 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # filter by rotations so there will be only 1 marker on a box being detected
             cubeIndex = int(markerIds[i] / 6)
             # pitch diff with platform
-            rollDiff = abs(roll_degrees)
-            yawDiff = abs(yaw_degrees)
-            if rollDiff < abs(filteredRotations[cubeIndex][0]) and yawDiff < abs(filteredRotations[cubeIndex][2]):
+            rollDiff = abs(rotation[0])
+            pitchDiff = abs(rotation[1])
+            if rollDiff < abs(filteredRotations[cubeIndex][0]) and pitchDiff < abs(filteredRotations[cubeIndex][1]) and rollDiff < 45 and pitchDiff < 45:
+                if markerIds[i] == 16: 
+                    print(f"{rollDiff} < {abs(filteredRotations[cubeIndex][0])} and {pitchDiff} < {abs(filteredRotations[cubeIndex][1])}")
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]
@@ -138,7 +142,6 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
         for i in range(6):
             if filteredMarkerIds[i] != -1:
                 cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, filteredRvecs[i], filteredTvecs[i], 0.5)
-        
         sender.send_object_data(WEBSOCKET, filteredMarkerIds, filteredTvecs, filteredRotations)
         isLastObjectGone = False
         # if markerCount > 1:
@@ -202,7 +205,7 @@ def run(cameraMatrix, distCoeffs):
         if isCaptured:
             detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec)
             
-        key = cv2.waitKey(33)
+        key = cv2.waitKey(math.floor(1000 / 30))
         if key == ord("q"):
             break
     cap.release()

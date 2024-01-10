@@ -32,6 +32,14 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # prepare object points
     detectorParams = aruco.DetectorParameters()
     detector = aruco.CharucoDetector(board=CHARUCO_BOARD, detectorParams=detectorParams)
+    
+    # Increase contrast using histogram equalization
+    # lab = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2LAB)
+    # l, a, b = cv2.split(lab)
+    # clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    # l = clahe.apply(l)
+    # lab = cv2.merge((l, a, b))
+    # imageCopy = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
     gray = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2GRAY)
 
@@ -40,7 +48,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # find the chess board corners
     charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(gray)
 
-    isFound = (charucoIds is not None) and len(charucoIds) > 0
+    isFound = (charucoIds is not None) and len(charucoIds) == (PATTERN[0] - 1) * (PATTERN[1] - 1)
     # set instructions text for setting next image
     cv2.putText(
         imageCopy,
@@ -73,6 +81,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # if found, add object points, image points (after refining them)
     if isFound:
         imageCopy = aruco.drawDetectedCornersCharuco(imageCopy, charucoCorners, charucoIds)
+        
 
         # set instructions text for setting next image
         cv2.putText(
