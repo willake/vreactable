@@ -131,9 +131,9 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             # pitch diff with platform
             rollDiff = abs(rotation[0])
             pitchDiff = abs(rotation[1])
-            if rollDiff < abs(filteredRotations[cubeIndex][0]) and pitchDiff < abs(filteredRotations[cubeIndex][1]) and rollDiff < 45 and pitchDiff < 45:
-                if markerIds[i] == 16: 
-                    print(f"{rollDiff} < {abs(filteredRotations[cubeIndex][0])} and {pitchDiff} < {abs(filteredRotations[cubeIndex][1])}")
+            if rollDiff < abs(filteredRotations[cubeIndex][0]) and pitchDiff < abs(filteredRotations[cubeIndex][1]) and rollDiff < 55 and pitchDiff < 55:
+                # if markerIds[i] == 16: 
+                    # print(f"{rollDiff} < {abs(filteredRotations[cubeIndex][0])} and {pitchDiff} < {abs(filteredRotations[cubeIndex][1])}")
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]

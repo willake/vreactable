@@ -35,7 +35,7 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
                 data += f'Box{markerId}'
                 data += f'[{format(x)};{format(y)};{format(z)}]'
                 data += f'/'
-                data += f'[{format(roll)};{format(pitch)};{format(yaw)}]'
+                data += f'[{format(roll)};{format(pitch)};{format(-yaw)}]'
                 data += f'Box{markerId}end/'
     
     # for id in missedIds:
@@ -45,5 +45,5 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
         "raw": data
     }
     ws.send(json.dumps(message))
-    # print(data)
+    print(data)
     # lastIds = markerIds
