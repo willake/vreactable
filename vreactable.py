@@ -33,7 +33,6 @@ class VreactableApp:
         self.toplevel_vreactable.title("VRectable")
         
         self.frame_vreactable = ttk.Frame(self.toplevel_vreactable)
-        self.frame_vreactable.configure(height=200, width=400)
         
         # title
         self.frame_title = ttk.Frame(self.frame_vreactable)
@@ -49,53 +48,21 @@ class VreactableApp:
         
         # main frame
         self.frame_container = ttk.Frame(self.frame_vreactable)
-        self.frame_container.configure(height=200, width=200)
         
         # left frame
         self.frame_left = ttk.Frame(self.frame_container)
-        self.frame_left.configure(height=200, width=300)
         # aruco generator
-        self.draw_aruco_generator_frame(self.frame_left)
+        self.draw_frame_aruco_generator(self.frame_left)
         # calibration fraem
-        self.draw_calibration_frame(self.frame_left)
+        self.draw_frame_calibration(self.frame_left)
         self.frame_left.grid(column=0, row=0)
         
         # right frame
         self.frame_right = ttk.Frame(self.frame_container)
-        self.frame_right.configure(height=200, width=200)
+        
         self.draw_status_frame(self.frame_right)
-        self.label_frame_detect = ttk.Labelframe(self.frame_right)
-        self.label_frame_detect.configure(
-            height=200, text='Detection', width=200)
-        frame10 = ttk.Frame(self.label_frame_detect)
-        frame10.configure(height=200, width=200)
-        self.label_detection_ready = ttk.Label(frame10)
-        self.label_detection_ready.configure(text='Is Detection Ready:')
-        self.label_detection_ready.grid(column=0, row=0)
-        self.label_is_detection_ready = ttk.Label(frame10)
-        self.label_is_detection_ready.configure(
-            text='Yes', textvariable=self.var_is_calibrated)
-        self.label_is_detection_ready.grid(column=1, padx=10, row=0)
-        frame10.pack(ipadx=10, pady=10, side="top")
-        frame14 = ttk.Frame(self.label_frame_detect)
-        frame14.configure(height=200, width=200)
-        title_label5 = ttk.Label(frame14)
-        title_label5.configure(text='Websocket IP:')
-        title_label5.grid(column=0, row=0)
-        self.entry_websocket_ip = ttk.Entry(frame14)
-        self.var_websocket_ip = tk.StringVar(value='ws://localhost:8090')
-        self.entry_websocket_ip.configure(textvariable=self.var_websocket_ip)
-        _text_ = 'ws://localhost:8090'
-        self.entry_websocket_ip.delete("0", "end")
-        self.entry_websocket_ip.insert("0", _text_)
-        self.entry_websocket_ip.grid(column=1, padx=10, row=0)
-        frame14.pack(ipadx=10, pady=10, side="top")
-        self.button_detect = ttk.Button(self.label_frame_detect)
-        self.button_detect.configure(text='Detect')
-        self.button_detect.pack(ipadx=30, ipady=2, pady=10, side="top")
-        self.button_detect.configure(command=self.on_click_detect)
-        self.label_frame_detect.pack(
-            expand=True, fill="both", padx=10, side="top")
+        self.draw_detection_frame(self.frame_right)
+        
         self.frame_right.grid(column=1, padx=10, row=0)
         self.frame_container.pack(
             expand=False, fill="both", padx=20, side="top")
@@ -108,24 +75,22 @@ class VreactableApp:
         # Main widget
         self.mainwindow = self.toplevel_vreactable
         
-    def draw_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
-        num_field = ttk.Frame(parent)
-        num_field.configure(height=200, width=200)
-        field_title = ttk.Label(num_field)
+    def draw_text_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
+        text_field = ttk.Frame(parent)
+        field_title = ttk.Label(text_field)
         field_title.configure(text=title)
         field_title.grid(column=0, row=0)
-        entry = ttk.Entry(num_field)
+        entry = ttk.Entry(text_field)
         entry.configure(
             justify="center", textvariable=variable, width=5)
         entry.delete("0", "end")
         entry.insert("0", default_value)
         entry.grid(column=1, padx=10, row=0)
-        num_field.pack(pady=10, side="top")
+        text_field.pack(expand=True, ipadx=10, pady=10, side="top")
         pass
     
     def draw_cm_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
         cm_num_field = ttk.Frame(parent)
-        cm_num_field.configure(height=200, width=200)
         field_title = ttk.Label(cm_num_field)
         field_title.configure(text=title)
         field_title.grid(column=0, row=0)
@@ -158,13 +123,12 @@ class VreactableApp:
             command=callback)
         return button
         
-    def draw_aruco_generator_frame(self, parent):
+    def draw_frame_aruco_generator(self, parent):
         # aruco generator
         frame_aruco_generator = ttk.Labelframe(parent)
-        frame_aruco_generator.configure(
-            height=200, text='Aruco Generator', width=200)
+        frame_aruco_generator.configure(text='Aruco Generator')
         self.var_num_of_markers = tk.StringVar(value='36')
-        self.draw_number_field(frame_aruco_generator, self.var_num_of_markers, "Num of markers", '36')
+        self.draw_text_field(frame_aruco_generator, self.var_num_of_markers, "Num of markers", '36')
         self.var_aruco_size = tk.StringVar(value='5')
         self.draw_cm_number_field(frame_aruco_generator, self.var_aruco_size, "Marker size", '5')
         self.var_aruco_gap_size = tk.StringVar(value='0.5')
@@ -245,7 +209,7 @@ class VreactableApp:
         frame.pack(ipadx=10, side="top")
         pass
     
-    def draw_calibration_settings(self, parent):
+    def draw_frame_calibration_settings(self, parent):
         frame_board_settings = ttk.Labelframe(parent)
         frame_board_settings.configure(
             height=100, text='CharucoBoard Settings', width=200)
@@ -258,11 +222,11 @@ class VreactableApp:
             expand=True, fill="x", padx=20, pady=10, side="top")
         pass
         
-    def draw_calibration_frame(self, parent):
+    def draw_frame_calibration(self, parent):
         self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
         frame_calibration = ttk.Labelframe(parent)
-        frame_calibration.configure(text='Calibration', width=200)
-        self.draw_calibration_settings(frame_calibration)
+        frame_calibration.configure(text='Calibration')
+        self.draw_frame_calibration_settings(frame_calibration)
         
         self.var_sample_image_count = tk.StringVar(value='0')
         self.draw_refreshable_state_field(
@@ -278,7 +242,7 @@ class VreactableApp:
     
     def draw_status_frame(self, parent):
         frame_status = ttk.Labelframe(parent)
-        frame_status.configure(height=200, text='Status', width=200)
+        frame_status.configure(text='Status')
         
         self.var_is_calibrated = tk.StringVar(value='No')
         self.var_is_camera_ready = tk.StringVar(value='No')
@@ -295,10 +259,23 @@ class VreactableApp:
             padx=10,
             pady=10,
             side="top")
+    
+    def draw_detection_frame(self, parent):
+        frame_detect = ttk.Labelframe(parent)
+        frame_detect.configure(text='Detection')
         
+        self.var_websocket_ip = tk.StringVar(value='ws://localhost:8090')
+        
+        self.draw_text_field(frame_detect, self.var_websocket_ip, 'Websocket IP', 'ws://localhost:8090')
+        self.draw_button(frame_detect, 'Detect', self.on_click_detect)
+        frame_detect.pack(
+            expand=True, fill="both", padx=10, side="top")
+        pass
+    
     def run(self):
         self.mainwindow.mainloop()
-
+        pass
+    
     def on_click_generate_aruco(self):
         generator.generatePackedArucoMarkers(
         markerFolder = MARKER_FOLDER,
