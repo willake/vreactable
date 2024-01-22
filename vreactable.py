@@ -286,7 +286,7 @@ class VreactableApp:
         self.draw_state_field(frame_status, 'Is Calibrated: ', self.var_is_calibrated, 'No')
         self.draw_state_field(frame_status, 'Is Camera ready:', self.var_is_camera_ready, 'No')
         
-        button_refresh = self.draw_icon_button(frame_status, self.img_refresh, self.on_click_refresh_status)
+        button_refresh = self.draw_icon_button(frame_status, self.img_refresh, self.refresh_status)
         button_refresh.pack(ipadx=0, pady=5, side="top")
 
         frame_status.pack(
@@ -326,7 +326,7 @@ class VreactableApp:
 
     def on_click_capture_sample_images(self):
         sample_image_capturer.capture_sample_images(SAMPLE_FOLDER)
-        self.updateNumSampledImages()
+        self.update_num_sampled_images()
         showinfo(title = 'Capture Sample Images', message = f'Successfully sampled images. \n The files are at: {SAMPLE_FOLDER}')
         pass
 
@@ -338,7 +338,7 @@ class VreactableApp:
         calibrator.calibrate(
             sampleFolder = SAMPLE_FOLDER, calibFolder = CALIB_FOLDER, 
             arucoDict = ARUCO_DICT, pattern = pattern)
-        self.updateIsCalibrated()
+        self.refresh_status()
         pass
 
     def on_click_detect(self):
@@ -347,8 +347,11 @@ class VreactableApp:
         calibFilePath = f'{pathlib.Path().resolve()}/resources/calib.npz'
         detector.detect_arucos(calibFilePath, ip)
         pass
+    
+    def update_num_sampled_images():
+        pass
 
-    def on_click_refresh_status(self):
+    def refresh_status(self):
         pass
 
 
