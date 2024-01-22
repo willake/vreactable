@@ -62,8 +62,6 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
     isFound = (markerIds is not None) and len(markerIds) > 0
     
     if isFound:
-        # print(OBJ_POINTS)
-        # print(markerCorners[0])
         markerCount = len(markerIds)
         aruco.drawDetectedMarkers(imageCopy, markerCorners, markerIds)
         cv2.putText(
@@ -88,11 +86,6 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             retval, rvecs[i], tvecs[i] = cv2.solvePnP(OBJ_POINTS, markerCorners[i], cameraMatrix, distCoeffs)
             # Convert rotation vector to rotation matrix
             rot_mat, _ = cv2.Rodrigues(rvecs[i])
-
-            # # Extract pitch, yaw, and roll from the rotation matrix
-            # pitch = np.arcsin(-rot_mat[1, 2])
-            # yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
-            # roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
         
             proj_matrix = np.hstack((rot_mat, tvecs[i]))
             eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6] 
@@ -100,31 +93,9 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
 
             roll_degrees = wrapAngle(roll_degrees[0])
-            # tmp_pitch = -pitch_degrees[0]
-            # pitch_degrees =  yaw_degrees[0]
-            # yaw_degrees = tmp_pitch
             pitch_degrees =  pitch_degrees[0]
             yaw_degrees = yaw_degrees[0]
-            #print(f"{format(pitch_degrees)}, {format(yaw_degrees)}, {format(roll_degrees)}")
-            
-            # quaternion = GetQuaternionFromEuler(math.radians(roll_degrees), math.radians(pitch_degrees), math.radians(yaw_degrees))
-            # pitch = pitch
-            # roll = roll
-            # yaw = yaw
-            # # tmpYaw = roll
-            # # roll = yaw
-            # # yaw = tmpYaw
-            
-            # pitch_degrees = math.degrees(math.asin(math.sin(pitch)))
-            # roll_degrees = -math.degrees(math.asin(math.sin(roll)))
-            # yaw_degrees = math.degrees(math.asin(math.sin(yaw)))
-            
-            # roll = roll + (math.pi / 2)
 
-            # Convert angles from radians to degrees if needed
-            # pitch_degrees = np.degrees(pitch)
-            # yaw_degrees = np.degrees(yaw)
-            # roll_degrees = np.degrees(roll)
             rotation = np.array([roll_degrees, pitch_degrees, yaw_degrees], np.float32)
             # filter by rotations so there will be only 1 marker on a box being detected
             cubeIndex = int(markerIds[i] / 6)
@@ -132,8 +103,6 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
             rollDiff = abs(rotation[0])
             pitchDiff = abs(rotation[1])
             if rollDiff < abs(filteredRotations[cubeIndex][0]) and pitchDiff < abs(filteredRotations[cubeIndex][1]) and rollDiff < 55 and pitchDiff < 55:
-                # if markerIds[i] == 16: 
-                    # print(f"{rollDiff} < {abs(filteredRotations[cubeIndex][0])} and {pitchDiff} < {abs(filteredRotations[cubeIndex][1])}")
                 filteredMarkerIds[cubeIndex] = markerIds[i]
                 filteredTvecs[cubeIndex] = tvecs[i]
                 filteredRvecs[cubeIndex] = rvecs[i]
@@ -144,22 +113,7 @@ def detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec):
                 cv2.drawFrameAxes(imageCopy, cameraMatrix, distCoeffs, filteredRvecs[i], filteredTvecs[i], 0.5)
         sender.send_object_data(WEBSOCKET, filteredMarkerIds, filteredTvecs, filteredRotations)
         isLastObjectGone = False
-        # if markerCount > 1:
-            # Convert rotation vector to rotation matrix
-            # rot_mat, _ = cv2.Rodrigues(rvecs[0])
 
-            # Extract pitch, yaw, and roll from the rotation matrix
-            # pitch = np.arcsin(-rot_mat[1, 2])
-            # yaw = np.arctan2(rot_mat[0, 2], rot_mat[2, 2])
-            # roll = np.arctan2(rot_mat[1, 0], rot_mat[1, 1])
-
-            # Convert angles from radians to degrees if needed
-            # pitch_degrees = np.degrees(pitch)
-            # yaw_degrees = np.degrees(yaw)
-            # roll_degrees = np.degrees(roll)
-        
-            # print(f'pitch_degrees: {pitch_degrees} yaw_degrees: {yaw_degrees} roll_degrees: {roll_degrees}')
-            # print(f'tvec_0: {np.array_str(tvecs[0], precision=3, suppress_small=True)} tvec_1: {np.array_str(tvecs[1], precision=3, suppress_small=True)}')
     else:
         if isLastObjectGone is False:
             sender.send_object_data(WEBSOCKET, [], [], [])
@@ -198,10 +152,7 @@ def run(cameraMatrix, distCoeffs):
     print("Camera is found...")
     while cap.isOpened():
         isCaptured, frame = cap.read()
-        
-        # if (origin_rvec is None) and (origin_tvec is None):
-        #     origin_rvec, origin_tvec = define_origin.define_origin(frame, cameraMatrix, distCoeffs)
-        #     continue
+
         if isCaptured:
             detect(frame, cameraMatrix, distCoeffs, origin_rvec, origin_tvec)
             
@@ -227,6 +178,4 @@ if __name__ == "__main__":
         cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
 
     WEBSOCKET = sender.setup_websocket_client()
-    # print(cameraMatrix)
-    # print(distCoeffs)
     run(cameraMatrix, distCoeffs)

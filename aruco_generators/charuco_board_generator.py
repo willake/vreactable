@@ -6,16 +6,12 @@ import os
 SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
 
-def cmToPixels(cm, dpi=300):
-    # 1 inch = 2.54 cm
-    return int(cm * dpi / 2.54)
-
 def generateCharucoboardImage(outputFolder, arucoDict, pattern, squareSizecm, markerSizecm):
     helper.clearFolder(outputFolder)
     helper.validatePath(outputFolder)
     
-    squareSize = cmToPixels(squareSizecm)
-    markerSize = cmToPixels(markerSizecm)
+    squareSize = helper.cmToPixels(squareSizecm)
+    markerSize = helper.cmToPixels(markerSizecm)
     
     margin = 20
     

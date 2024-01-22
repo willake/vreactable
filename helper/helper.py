@@ -31,6 +31,10 @@ def checkCalibFileExit(path):
         return True
     else:
         return False
+    
+def cmToPixels(cm, dpi=300):
+    # 1 inch = 2.54 cm
+    return int(cm * dpi / 2.54)
         
 def countImages(folderPath):
     # List all files in the folder

@@ -13,15 +13,11 @@ GRID_BORDER_WIDTH = 3  # Width of grid lines
 FONT = ImageFont.load_default().font_variant(size=48)
 TEXT_ALIGN = 'center'
 
-def cmToPixels(cm, dpi=300):
-    # 1 inch = 2.54 cm
-    return int(cm * dpi / 2.54)
-
 def packImages(imagesFolder, outputFolder, a4Widthcm=21.0, a4Heightcm=29.7, gapSizecm = 1.0, shouldDrawID=True):
     # Convert A4 size from centimeters to pixels
-    a4Width = cmToPixels(a4Widthcm)
-    a4Height = cmToPixels(a4Heightcm)
-    gapSize = cmToPixels(gapSizecm)
+    a4Width = helper.cmToPixels(a4Widthcm)
+    a4Height = helper.cmToPixels(a4Heightcm)
+    gapSize = helper.cmToPixels(gapSizecm)
 
     # Get a list of ArUco marker image files in the specified folder
     arucoFiles = [f for f in os.listdir(imagesFolder) if f.startswith('aruco_marker') and f.endswith('.png')]

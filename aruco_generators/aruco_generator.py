@@ -4,9 +4,6 @@ import os
 from helper import helper
         
 def generateArucoMarkers(outputFolder, arucoDict, numOfImgs, size):
-    # directory = f"{pathlib.Path().resolve()}/outputs/arucos"
-    # validatePath(directory)
-
     for x in range(numOfImgs):
         markerImage = cv2.aruco.generateImageMarker(arucoDict, x, size)
         if x < 10 and x > 0:

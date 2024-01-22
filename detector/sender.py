@@ -14,10 +14,6 @@ def format(v):
 lastIds = []
 def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations):
     data = ''
-    # missedIds = []
-    # for id in lastIds:
-    #     if id not in markerIds:
-    #         missedIds.append(id)
     if len(markerIds) == 0:
         data = 'empty'
     else:
@@ -35,15 +31,11 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
                 data += f'Box{markerId}'
                 data += f'[{format(x)};{format(y)};{format(z)}]'
                 data += f'/'
-                data += f'[{format(roll)};{format(pitch)};{format(-yaw)}]'
+                data += f'[{format(0)};{format(0)};{format(-yaw)}]'
                 data += f'Box{markerId}end/'
     
-    # for id in missedIds:
-    #     data += f'Box{markerIds}'
-        
     message = {
         "raw": data
     }
     ws.send(json.dumps(message))
     print(data)
-    # lastIds = markerIds
