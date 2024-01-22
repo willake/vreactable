@@ -97,7 +97,7 @@ def generatePackedArucoMarkers(markerFolder, packedFolder, arucoDict, numMarkers
     helper.clearFolder(markerFolder)
     helper.validatePath(markerFolder)
 
-    aruco_generator.generateArucoMarkers(markerFolder, arucoDict, numMarkers, cmToPixels(markerSizecm - gapSizecm * 2))
+    aruco_generator.generateArucoMarkers(markerFolder, arucoDict, numMarkers, helper.cmToPixels(markerSizecm - gapSizecm * 2))
 
     # Specify the folder containing ArUco markers, the output folder, and A4 size in centimeters
     helper.clearFolder(packedFolder)

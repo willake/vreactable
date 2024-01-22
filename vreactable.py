@@ -54,70 +54,8 @@ class VreactableApp:
         self.frame_left.configure(height=200, width=300)
         
         # aruco generator
-        self.frame_aruco_generator = ttk.Labelframe(self.frame_left)
-        self.frame_aruco_generator.configure(
-            height=200, text='Aruco Generator', width=200)
-        frame1 = ttk.Frame(self.frame_aruco_generator)
-        frame1.configure(height=200, width=200)
-        label3 = ttk.Label(frame1)
-        label3.configure(text='Num of markers')
-        label3.grid(column=0, row=0)
-        self.entry_num_of_markers = ttk.Entry(frame1)
-        self.var_num_of_markers = tk.StringVar(value='36')
-        self.entry_num_of_markers.configure(
-            justify="center", textvariable=self.var_num_of_markers, width=5)
-        _text_ = '36'
-        self.entry_num_of_markers.delete("0", "end")
-        self.entry_num_of_markers.insert("0", _text_)
-        self.entry_num_of_markers.grid(column=1, padx=10, row=0)
-        frame1.pack(pady=10, side="top")
-        frame6 = ttk.Frame(self.frame_aruco_generator)
-        frame6.configure(height=200, width=200)
-        label5 = ttk.Label(frame6)
-        label5.configure(text='Size')
-        label5.grid(column=0, row=0)
-        self.entry_aruco_size = ttk.Entry(frame6)
-        self.var_aruco_size = tk.StringVar(value='5')
-        self.entry_aruco_size.configure(
-            justify="center",
-            textvariable=self.var_aruco_size,
-            validate="focusout",
-            width=5)
-        _text_ = '5'
-        self.entry_aruco_size.delete("0", "end")
-        self.entry_aruco_size.insert("0", _text_)
-        self.entry_aruco_size.grid(column=1, padx=10, row=0)
-        label6 = ttk.Label(frame6)
-        label6.configure(text='cm')
-        label6.grid(column=2, row=0)
-        frame6.pack(pady=10, side="top")
-        frame5 = ttk.Frame(self.frame_aruco_generator)
-        frame5.configure(height=200, width=200)
-        label7 = ttk.Label(frame5)
-        label7.configure(text='Gap size')
-        label7.grid(column=0, row=0)
-        self.entry_aruco_gap_size = ttk.Entry(frame5)
-        self.var_aruco_gap_size = tk.StringVar(value='0.5')
-        self.entry_aruco_gap_size.configure(
-            justify="center",
-            textvariable=self.var_aruco_gap_size,
-            validate="focusout",
-            width=5)
-        _text_ = '0.5'
-        self.entry_aruco_gap_size.delete("0", "end")
-        self.entry_aruco_gap_size.insert("0", _text_)
-        self.entry_aruco_gap_size.grid(column=1, padx=10, row=0)
-        label8 = ttk.Label(frame5)
-        label8.configure(text='cm')
-        label8.grid(column=2, row=0)
-        frame5.pack(pady=10, side="top")
-        self.button_generate_aruco = ttk.Button(self.frame_aruco_generator)
-        self.button_generate_aruco.configure(text='Generate aruco markers')
-        self.button_generate_aruco.pack(ipadx=20, pady=10, side="top")
-        self.button_generate_aruco.configure(
-            command=self.on_click_generate_aruco)
-        self.frame_aruco_generator.pack(
-            expand=False, fill="x", padx=20, pady=5, side="top")
+        self.draw_aruco_generator_frame()
+        # calibration fraem
         self.frame_calibration = ttk.Labelframe(self.frame_left)
         self.frame_calibration.configure(text='Calibration', width=200)
         self.frame_board_settings = ttk.Labelframe(self.frame_calibration)
@@ -302,6 +240,62 @@ class VreactableApp:
 
         # Main widget
         self.mainwindow = self.toplevel_vreactable
+        
+    def draw_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
+        num_field = ttk.Frame(parent)
+        num_field.configure(height=200, width=200)
+        field_title = ttk.Label(num_field)
+        field_title.configure(text=title)
+        field_title.grid(column=0, row=0)
+        entry = ttk.Entry(num_field)
+        entry.configure(
+            justify="center", textvariable=variable, width=5)
+        entry.delete("0", "end")
+        entry.insert("0", default_value)
+        entry.grid(column=1, padx=10, row=0)
+        num_field.pack(pady=10, side="top")
+        pass
+    
+    def draw_cm_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
+        cm_num_field = ttk.Frame(parent)
+        cm_num_field.configure(height=200, width=200)
+        field_title = ttk.Label(cm_num_field)
+        field_title.configure(text=title)
+        field_title.grid(column=0, row=0)
+        entry = ttk.Entry(cm_num_field)
+        entry.configure(
+            justify="center",
+            textvariable=variable,
+            validate="focusout",
+            width=5)
+        entry.delete("0", "end")
+        entry.insert("0", default_value)
+        entry.grid(column=1, padx=10, row=0)
+        text_cm = ttk.Label(cm_num_field)
+        text_cm.configure(text='cm')
+        text_cm.grid(column=2, row=0)
+        cm_num_field.pack(pady=10, side="top")
+        
+    def draw_button(self, parent, title, callback):
+        self.button_generate_aruco = ttk.Button(parent)
+        self.button_generate_aruco.configure(text=title)
+        self.button_generate_aruco.pack(ipadx=10, pady=10, side="top")
+        self.button_generate_aruco.configure(command = callback)
+        
+    def draw_aruco_generator_frame(self):
+        # aruco generator
+        self.frame_aruco_generator = ttk.Labelframe(self.frame_left)
+        self.frame_aruco_generator.configure(
+            height=200, text='Aruco Generator', width=200)
+        self.var_num_of_markers = tk.StringVar(value='36')
+        self.draw_number_field(self.frame_aruco_generator, self.var_num_of_markers, "Num of markers", '36')
+        self.var_aruco_size = tk.StringVar(value='5')
+        self.draw_cm_number_field(self.frame_aruco_generator, self.var_aruco_size, "Marker size", '5')
+        self.var_aruco_gap_size = tk.StringVar(value='0.5')
+        self.draw_cm_number_field(self.frame_aruco_generator, self.var_aruco_gap_size, "Gap size", '0.5')
+        self.draw_button(self.frame_aruco_generator, 'Generate aruco markers', self.on_click_generate_aruco)
+        self.frame_aruco_generator.pack(
+            expand=False, fill="x", padx=20, pady=5, side="top")
 
     def run(self):
         self.mainwindow.mainloop()
