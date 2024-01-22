@@ -50,146 +50,41 @@ class VreactableApp:
         # main frame
         self.frame_container = ttk.Frame(self.frame_vreactable)
         self.frame_container.configure(height=200, width=200)
+        
+        # left frame
         self.frame_left = ttk.Frame(self.frame_container)
         self.frame_left.configure(height=200, width=300)
-        
         # aruco generator
-        self.draw_aruco_generator_frame()
+        self.draw_aruco_generator_frame(self.frame_left)
         # calibration fraem
-        self.frame_calibration = ttk.Labelframe(self.frame_left)
-        self.frame_calibration.configure(text='Calibration', width=200)
-        self.frame_board_settings = ttk.Labelframe(self.frame_calibration)
-        self.frame_board_settings.configure(
-            height=100, text='CharucoBoard Settings', width=200)
-        frame4 = ttk.Frame(self.frame_board_settings)
-        frame4.configure(height=200, width=200)
-        label4 = ttk.Label(frame4)
-        label4.configure(text='Pattern')
-        label4.grid(column=0, row=0)
-        self.frame_pattern = ttk.Frame(frame4)
-        self.frame_pattern.configure(height=200, width=200)
-        self.entry_row = ttk.Entry(self.frame_pattern)
-        self.var_board_pattern_row = tk.StringVar(value='5')
-        self.entry_row.configure(
-            justify="center",
-            textvariable=self.var_board_pattern_row,
-            width=3)
-        _text_ = '5'
-        self.entry_row.delete("0", "end")
-        self.entry_row.insert("0", _text_)
-        self.entry_row.grid(column=0, row=0)
-        self.label_x = ttk.Label(self.frame_pattern)
-        self.label_x.configure(text='x')
-        self.label_x.grid(column=1, row=0)
-        self.entry_column = ttk.Entry(self.frame_pattern)
-        self.var_board_pattern_column = tk.StringVar(value='7')
-        self.entry_column.configure(
-            justify="center",
-            textvariable=self.var_board_pattern_column,
-            width=3)
-        _text_ = '7'
-        self.entry_column.delete("0", "end")
-        self.entry_column.insert("0", _text_)
-        self.entry_column.grid(column=2, row=0)
-        self.frame_pattern.grid(column=1, padx=10, row=0)
-        frame4.pack(pady=10, side="top")
-        self.button_generate_charuco_board = ttk.Button(
-            self.frame_board_settings)
-        self.button_generate_charuco_board.configure(
-            text='Generate charuco board')
-        self.button_generate_charuco_board.pack(ipadx=20, pady=10, side="top")
-        self.button_generate_charuco_board.configure(
-            command=self.on_click_generate_charuco_board)
-        self.frame_board_settings.pack(
-            expand=True, fill="x", padx=20, pady=10, side="top")
-        self.frame_sample_images_count = ttk.Frame(self.frame_calibration)
-        self.frame_sample_images_count.configure(height=200, width=200)
-        self.frame2 = ttk.Frame(self.frame_sample_images_count)
-        self.frame2.configure(height=200, width=200)
-        self.label1 = ttk.Label(self.frame2)
-        self.label1.configure(
-            compound="center",
-            justify="center",
-            padding=10,
-            text='Sampled image count:')
-        self.label1.pack()
-        self.frame2.grid(column=0, row=0)
-        self.frame3 = ttk.Frame(self.frame_sample_images_count)
-        self.frame3.configure(height=200, width=200)
-        self.label2 = ttk.Label(self.frame3)
-        self.var_sample_image_count = tk.StringVar(value='0')
-        self.label2.configure(
-            text='0', textvariable=self.var_sample_image_count)
-        self.label2.pack()
-        self.frame3.grid(column=1, row=0)
-        self.btn_referesh = ttk.Button(self.frame_sample_images_count)
-        self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
-        self.btn_referesh.configure(image=self.img_refresh)
-        self.btn_referesh.grid(column=2, padx=10, row=0)
-        self.btn_referesh.configure(
-            command=self.on_click_refresh_sampled_count)
-        self.frame_sample_images_count.pack(
-            expand=True, fill="x", padx=10, pady=0, side="top")
-        self.frame_sample_images_count.grid_anchor("center")
-        self.button_sample_images = ttk.Button(self.frame_calibration)
-        self.button_sample_images.configure(text='Capture sample images')
-        self.button_sample_images.pack(ipadx=20, pady=10, side="top")
-        self.button_sample_images.configure(
-            command=self.on_click_capture_sample_images)
-        self.frame_is_calibrated = ttk.Frame(self.frame_calibration)
-        self.frame_is_calibrated.configure(height=200, width=200)
-        self.frame_is_calibrated_l = ttk.Frame(self.frame_is_calibrated)
-        self.frame_is_calibrated_l.configure(height=200, width=200)
-        self.label_is_calibrated = ttk.Label(self.frame_is_calibrated_l)
-        self.label_is_calibrated.configure(
-            compound="center",
-            justify="center",
-            padding=10,
-            text='Is Calibrated:')
-        self.label_is_calibrated.pack()
-        self.frame_is_calibrated_l.grid(column=0, row=0)
-        self.frame_is_calibrated_r = ttk.Frame(self.frame_is_calibrated)
-        self.frame_is_calibrated_r.configure(height=200, width=200)
-        self.label_is_calibrated_value = ttk.Label(self.frame_is_calibrated_r)
-        self.var_is_calibrated = tk.StringVar(value='Yes')
-        self.label_is_calibrated_value.configure(
-            text='Yes', textvariable=self.var_is_calibrated)
-        self.label_is_calibrated_value.pack()
-        self.frame_is_calibrated_r.grid(column=1, row=0)
-        self.frame_is_calibrated.pack(
-            expand=True, fill="x", padx=10, pady=0, side="top")
-        self.frame_is_calibrated.grid_anchor("center")
-        self.button_calibrate = ttk.Button(self.frame_calibration)
-        self.button_calibrate.configure(text='Calibrate camera')
-        self.button_calibrate.pack(ipadx=20, pady=10, side="top")
-        self.button_calibrate.configure(command=self.on_click_calibrate_camera)
-        self.frame_calibration.pack(
-            expand=False, fill="x", padx=20, pady=5, side="top")
+        self.draw_calibration_frame(self.frame_left)
         self.frame_left.grid(column=0, row=0)
+        
+        # right frame
         self.frame_right = ttk.Frame(self.frame_container)
         self.frame_right.configure(height=200, width=200)
         self.frame_status = ttk.Labelframe(self.frame_right)
         self.frame_status.configure(height=200, text='Status', width=200)
         frame12 = ttk.Frame(self.frame_status)
         frame12.configure(height=200, width=200)
-        self.label11 = ttk.Label(frame12)
-        self.label11.configure(text='Is Calibrated:')
-        self.label11.grid(column=0, row=0)
-        self.label12 = ttk.Label(frame12)
+        title_label1 = ttk.Label(frame12)
+        title_label1.configure(text='Is Calibrated:')
+        title_label1.grid(column=0, row=0)
+        title_label2 = ttk.Label(frame12)
         self.var_is_detection_ready = tk.StringVar(value='Yes')
-        self.label12.configure(text='Yes',
+        title_label2.configure(text='Yes',
                                textvariable=self.var_is_detection_ready)
-        self.label12.grid(column=1, padx=10, row=0)
+        title_label2.grid(column=1, padx=10, row=0)
         frame12.pack(ipadx=10, side="top")
         frame13 = ttk.Frame(self.frame_status)
         frame13.configure(height=200, width=200)
-        self.label13 = ttk.Label(frame13)
-        self.label13.configure(text='Is Camera ready:')
-        self.label13.grid(column=0, row=0)
-        self.label14 = ttk.Label(frame13)
-        self.label14.configure(text='Yes',
+        title_label3 = ttk.Label(frame13)
+        title_label3.configure(text='Is Camera ready:')
+        title_label3.grid(column=0, row=0)
+        title_label4 = ttk.Label(frame13)
+        title_label4.configure(text='Yes',
                                textvariable=self.var_is_detection_ready)
-        self.label14.grid(column=1, padx=10, row=0)
+        title_label4.grid(column=1, padx=10, row=0)
         frame13.pack(ipadx=10, side="top")
         self.frame_status.pack(
             fill="x",
@@ -212,9 +107,9 @@ class VreactableApp:
         frame10.pack(ipadx=10, pady=10, side="top")
         frame14 = ttk.Frame(self.label_frame_detect)
         frame14.configure(height=200, width=200)
-        self.label15 = ttk.Label(frame14)
-        self.label15.configure(text='Websocket IP:')
-        self.label15.grid(column=0, row=0)
+        title_label5 = ttk.Label(frame14)
+        title_label5.configure(text='Websocket IP:')
+        title_label5.grid(column=0, row=0)
         self.entry_websocket_ip = ttk.Entry(frame14)
         self.var_websocket_ip = tk.StringVar(value='ws://localhost:8090')
         self.entry_websocket_ip.configure(textvariable=self.var_websocket_ip)
@@ -275,16 +170,18 @@ class VreactableApp:
         text_cm.configure(text='cm')
         text_cm.grid(column=2, row=0)
         cm_num_field.pack(pady=10, side="top")
+        pass
         
     def draw_button(self, parent, title, callback):
         self.button_generate_aruco = ttk.Button(parent)
         self.button_generate_aruco.configure(text=title)
         self.button_generate_aruco.pack(ipadx=10, pady=10, side="top")
         self.button_generate_aruco.configure(command = callback)
+        pass
         
-    def draw_aruco_generator_frame(self):
+    def draw_aruco_generator_frame(self, parent):
         # aruco generator
-        self.frame_aruco_generator = ttk.Labelframe(self.frame_left)
+        self.frame_aruco_generator = ttk.Labelframe(parent)
         self.frame_aruco_generator.configure(
             height=200, text='Aruco Generator', width=200)
         self.var_num_of_markers = tk.StringVar(value='36')
@@ -296,6 +193,101 @@ class VreactableApp:
         self.draw_button(self.frame_aruco_generator, 'Generate aruco markers', self.on_click_generate_aruco)
         self.frame_aruco_generator.pack(
             expand=False, fill="x", padx=20, pady=5, side="top")
+        pass
+    
+    def draw_charuco_pattern_field(self, parent, rowVar: tk.StringVar, colVar: tk.StringVar, title: str, rowDefault: str, colDefault: str):
+        pattern_field = ttk.Frame(parent)
+        pattern_field.configure(height=200, width=200)
+        field_title = ttk.Label(pattern_field)
+        field_title.configure(text=title)
+        field_title.grid(column=0, row=0)
+        value_field = ttk.Frame(pattern_field)
+        value_field.configure(height=200, width=200)
+        entry_row = ttk.Entry(value_field)
+        entry_row.configure(
+            justify="center",
+            textvariable=rowVar,
+            width=3)
+        entry_row.delete("0", "end")
+        entry_row.insert("0", rowDefault)
+        entry_row.grid(column=0, row=0)
+        label_x = ttk.Label(value_field)
+        label_x.configure(text='x')
+        label_x.grid(column=1, row=0)
+        entry_column = ttk.Entry(value_field)
+        entry_column.configure(
+            justify="center",
+            textvariable=colVar,
+            width=3)
+        entry_column.delete("0", "end")
+        entry_column.insert("0", colDefault)
+        entry_column.grid(column=2, row=0)
+        value_field.grid(column=1, padx=10, row=0)
+        pattern_field.pack(pady=10, side="top")
+        pass
+    
+    def draw_state_field(self, parent, title, variable, default_value, callback):
+        frame = ttk.Frame(parent)
+        frame.configure(height=200, width=200)
+        title_frame = ttk.Frame(frame)
+        title_frame.configure(height=200, width=200)
+        title_label = ttk.Label(title_frame)
+        title_label.configure(
+            compound="center",
+            justify="center",
+            padding=10,
+            text=title)
+        title_label.pack()
+        title_frame.grid(column=0, row=0)
+        value_frame = ttk.Frame(frame)
+        value_frame.configure(height=200, width=200)
+        value_label = ttk.Label(value_frame)
+        value_label.configure(
+            text=default_value, textvariable=variable)
+        value_label.pack()
+        value_frame.grid(column=1, row=0)
+        btn_referesh = ttk.Button(frame)
+        btn_referesh.configure(image=self.img_refresh)
+        btn_referesh.grid(column=2, padx=10, row=0)
+        btn_referesh.configure(
+            command=callback)
+        frame.pack(
+            expand=True, fill="x", padx=10, pady=0, side="top")
+        frame.grid_anchor("center")
+    
+    def draw_calibration_settings(self, parent):
+        self.frame_board_settings = ttk.Labelframe(parent)
+        self.frame_board_settings.configure(
+            height=100, text='CharucoBoard Settings', width=200)
+        self.var_board_pattern_row = tk.StringVar(value='5')
+        self.var_board_pattern_column = tk.StringVar(value='7')
+        self.draw_charuco_pattern_field(
+            self.frame_board_settings, self.var_board_pattern_row, self.var_board_pattern_column, 'Pattern', '5', '7')
+        self.draw_button(self.frame_board_settings, 'Generate charuco board', self.on_click_generate_charuco_board)
+        self.frame_board_settings.pack(
+            expand=True, fill="x", padx=20, pady=10, side="top")
+        pass
+        
+    def draw_calibration_frame(self, parent):
+        self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
+        self.frame_calibration = ttk.Labelframe(parent)
+        self.frame_calibration.configure(text='Calibration', width=200)
+        self.draw_calibration_settings(self.frame_calibration)
+        
+        self.var_sample_image_count = tk.StringVar(value='0')
+        self.draw_state_field(
+            self.frame_calibration, 'Sampled image count:', self.var_sample_image_count, '0', self.on_click_refresh_sampled_count)
+        self.draw_button(self.frame_calibration, 'Capture sample images', self.on_click_capture_sample_images)
+        
+        self.var_is_calibrated = tk.StringVar(value='Yes')
+        self.draw_state_field(
+            self.frame_calibration, 'Is Calibrated:', self.var_is_calibrated, 'Yes', self.on_click_refresh_sampled_count)
+        self.draw_button(
+            self.frame_calibration, 'Calibrate camera', self.on_click_calibrate_camera
+        )
+        self.frame_calibration.pack(
+            expand=False, fill="x", padx=20, pady=5, side="top")
+        pass
 
     def run(self):
         self.mainwindow.mainloop()
