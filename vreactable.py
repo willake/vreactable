@@ -73,14 +73,13 @@ class VreactableApp:
 
         # right frame
         frame_right = ttk.Frame(frame_body)
-        frame_status = self.draw_status_frame(frame_right)
-        frame_detect = self.draw_detection_frame(frame_right)
-        frame_status.grid(row=0, column=0, ipadx=10, ipady=10, pady=10, sticky=tk.EW)
-        frame_detect.grid(row=1, column=0, ipadx=10, ipady=10, pady=10, sticky=tk.EW)
+        frame_detect = self.draw_frame_detector(frame_right)
+        frame_detect.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
         frame_right.grid(row=0, column=1, padx=10)
         frame_right.columnconfigure(0, weight=1)
 
         frame_body.grid(row=1, column=0, pady=5)
+        frame_body.rowconfigure(0, weight=1)
         frame_body.columnconfigure(0, weight=2)
         frame_body.columnconfigure(1, weight=1)
 
@@ -138,7 +137,7 @@ class VreactableApp:
         return frame
 
     def draw_frame_calibration(self, parent):
-        frame = ttk.Labelframe(parent, text="Calibration")
+        frame = ttk.Labelframe(parent, text="Camera Calibratior")
 
         frame_settings = self.draw_frame_calibration_settings(frame)
 
@@ -157,7 +156,9 @@ class VreactableApp:
             frame, "Calibrate camera", self.on_click_calibrate_camera
         )
 
-        frame_settings.grid(row=0, column=0, ipadx=10, ipady=10, pady=5)
+        frame_settings.grid(
+            row=0, column=0, ipadx=10, ipady=10, padx=10, pady=5, sticky=tk.EW
+        )
         rs_field_sample_count.grid(row=1, column=0, pady=5)
         btn_capture.grid(row=2, column=0, pady=5)
         btn_calibrate.grid(row=3, column=0, pady=5)
@@ -165,7 +166,7 @@ class VreactableApp:
 
         return frame
 
-    def draw_status_frame(self, parent):
+    def draw_frame_status(self, parent):
         frame = ttk.Labelframe(parent, text="Status")
 
         s_field_is_calibrated = ui_helper.draw_state_field(
@@ -181,14 +182,16 @@ class VreactableApp:
 
         s_field_is_calibrated.grid(row=0, column=0, pady=5)
         s_field_is_cam_ready.grid(row=1, column=0, pady=5)
-        btn_refresh.grid(row=2, column=0, pady=5)
+        btn_refresh.grid(row=2, column=0, pady=10)
 
         frame.columnconfigure(index=0, weight=1)
 
         return frame
 
-    def draw_detection_frame(self, parent):
-        frame = ttk.Labelframe(parent, text="Detection")
+    def draw_frame_detector(self, parent):
+        frame = ttk.Labelframe(parent, text="Detector")
+
+        frame_status = self.draw_frame_status(frame)
 
         field_camera_index = ui_helper.draw_text_field(
             frame, self.var_camera_index, "Camera index", "0", 5
@@ -198,9 +201,10 @@ class VreactableApp:
         )
         btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
 
-        field_camera_index.grid(row=0, column=0, padx=10, pady=5)
-        field_webocket_ip.grid(row=1, column=0, padx=10, pady=5)
-        btn_detect.grid(row=2, column=0, pady=5)
+        frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
+        field_camera_index.grid(row=1, column=0, padx=10, pady=5)
+        field_webocket_ip.grid(row=2, column=0, padx=10, pady=5)
+        btn_detect.grid(row=3, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
