@@ -28,249 +28,206 @@ class VreactableApp:
         # build ui
         style = Style(theme='darkly')
         self.toplevel_vreactable = style.master
-        self.toplevel_vreactable.configure(height=700, width=600)
-        self.toplevel_vreactable.minsize(0, 200)
+        # self.toplevel_vreactable.configure(height=700, width=600)
+        # self.toplevel_vreactable.minsize(700, 600)
         self.toplevel_vreactable.title("VRectable")
-        
-        self.frame_vreactable = ttk.Frame(self.toplevel_vreactable)
+        self.frame_main = ttk.Frame(self.toplevel_vreactable)
+        self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky='wens')
+
+        self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
         
         # title
-        self.frame_title = ttk.Frame(self.frame_vreactable)
-        self.label_title = ttk.Label(self.frame_title)
-        self.label_title.configure(text='VReactable')
-        self.label_title.pack(side="top")
-        self.frame_title.pack(
-            expand=False,
-            fill="x",
-            padx=20,
-            pady=10,
-            side="top")
+        frame_header = ttk.Frame(self.frame_main)
+        label_title = ttk.Label(frame_header)
+        label_title.configure(text='VReactable')
+        label_title.grid(row=0, column=0, pady=5)
+        frame_header.grid(row=0, column=0, padx=10)
         
         # main frame
-        self.frame_container = ttk.Frame(self.frame_vreactable)
+        frame_body = ttk.Frame(self.frame_main)
         
         # left frame
-        self.frame_left = ttk.Frame(self.frame_container)
-        # aruco generator
-        self.draw_frame_aruco_generator(self.frame_left)
-        # calibration fraem
-        self.draw_frame_calibration(self.frame_left)
-        self.frame_left.grid(column=0, row=0)
+        frame_left = ttk.Frame(frame_body)
+        frame_aruco_generator = self.draw_frame_aruco_generator(frame_left)
+        frame_calibration = self.draw_frame_calibration(frame_left)
+        # organize layout
+        frame_aruco_generator.grid(row=0, column=0, padx=20, pady=5)
+        frame_calibration.grid(row=1, column=0)
+        frame_left.grid(row=0, column=0, padx=10)
         
         # right frame
-        self.frame_right = ttk.Frame(self.frame_container)
-        
-        self.draw_status_frame(self.frame_right)
-        self.draw_detection_frame(self.frame_right)
-        
-        self.frame_right.grid(column=1, padx=10, row=0)
-        self.frame_container.pack(
-            expand=False, fill="both", padx=20, side="top")
-        self.frame_container.columnconfigure(0, weight=2)
-        self.frame_container.columnconfigure(1, weight=1)
-        self.frame_vreactable.pack(expand=True, fill="both", side="top")
-        self.frame_vreactable.pack_propagate(0)
-        self.toplevel_vreactable.pack_propagate(0)
+        frame_right = ttk.Frame(frame_body)
+        frame_status = self.draw_status_frame(frame_right)
+        frame_detect = self.draw_detection_frame(frame_right)
+        frame_status.grid(row=0, column=0)
+        frame_detect.grid(row=1, column=0)
+        frame_right.grid(row=0, column=1, padx=10)
+
+        frame_body.grid(row=1, column=0, pady=5)
+        frame_body.columnconfigure(0, weight=2)
+        frame_body.columnconfigure(1, weight=1)
 
         # Main widget
         self.mainwindow = self.toplevel_vreactable
         
     def draw_text_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
-        text_field = ttk.Frame(parent)
-        field_title = ttk.Label(text_field)
-        field_title.configure(text=title)
-        field_title.grid(column=0, row=0)
-        entry = ttk.Entry(text_field)
+        frame = ttk.Frame(parent)
+        field_title = ttk.Label(frame, text=title)
+        field_title.grid(row=0, column=0)
+        entry = ttk.Entry(frame)
         entry.configure(
             justify="center", textvariable=variable, width=5)
         entry.delete("0", "end")
         entry.insert("0", default_value)
-        entry.grid(column=1, padx=10, row=0)
-        text_field.pack(expand=True, ipadx=10, pady=10, side="top")
-        pass
+        entry.grid(row=0, column=1, padx=10)
+        return frame
     
     def draw_cm_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
-        cm_num_field = ttk.Frame(parent)
-        field_title = ttk.Label(cm_num_field)
-        field_title.configure(text=title)
-        field_title.grid(column=0, row=0)
-        entry = ttk.Entry(cm_num_field)
-        entry.configure(
-            justify="center",
-            textvariable=variable,
-            validate="focusout",
-            width=5)
+        frame = ttk.Frame(parent)
+        field_title = ttk.Label(frame, text=title)
+        entry = ttk.Entry( frame, justify="center", textvariable=variable, validate="focusout", width=5)
         entry.delete("0", "end")
         entry.insert("0", default_value)
-        entry.grid(column=1, padx=10, row=0)
-        text_cm = ttk.Label(cm_num_field)
-        text_cm.configure(text='cm')
-        text_cm.grid(column=2, row=0)
-        cm_num_field.pack(pady=10, side="top")
-        pass
+        text_cm = ttk.Label(frame, text='cm')
+        # organize layout
+        field_title.grid(row=0, column=0)
+        entry.grid(row=0, column=1, padx=10)
+        text_cm.grid(row=0, column=2)
+        return frame
         
     def draw_button(self, parent, title, callback):
-        button = ttk.Button(parent)
-        button.configure(text=title)
-        button.pack(ipadx=10, pady=10, side="top")
-        button.configure(command = callback)
-        pass
-    
-    def draw_icon_button(self, parent, icon, callback):
-        button = ttk.Button(parent)
-        button.configure(image=icon)
-        button.configure(
-            command=callback)
+        button = ttk.Button(parent, text=title, command= callback)
         return button
+        
+    def draw_icon_button(self, parent, icon, callback):
+        button = ttk.Button(parent, image=icon, command=callback)
+        return button 
         
     def draw_frame_aruco_generator(self, parent):
         # aruco generator
-        frame_aruco_generator = ttk.Labelframe(parent)
-        frame_aruco_generator.configure(text='Aruco Generator')
+        frame = ttk.Labelframe(parent, text='Aruco Generator')
         self.var_num_of_markers = tk.StringVar(value='36')
-        self.draw_text_field(frame_aruco_generator, self.var_num_of_markers, "Num of markers", '36')
         self.var_aruco_size = tk.StringVar(value='5')
-        self.draw_cm_number_field(frame_aruco_generator, self.var_aruco_size, "Marker size", '5')
         self.var_aruco_gap_size = tk.StringVar(value='0.5')
-        self.draw_cm_number_field(frame_aruco_generator, self.var_aruco_gap_size, "Gap size", '0.5')
-        self.draw_button(frame_aruco_generator, 'Generate aruco markers', self.on_click_generate_aruco)
-        frame_aruco_generator.pack(
-            expand=False, fill="x", padx=20, pady=5, side="top")
-        pass
+
+        text_field_marker = self.draw_text_field(frame, self.var_num_of_markers, "Num of markers", '36')
+        text_field_marker_size = self.draw_cm_number_field(frame, self.var_aruco_size, "Marker size", '5')
+        text_field_gap_size = self.draw_cm_number_field(frame, self.var_aruco_gap_size, "Gap size", '0.5')
+        btn_generate = self.draw_button(frame, 'Generate aruco markers', self.on_click_generate_aruco)
+        
+        text_field_marker.grid(row=0, column=0)
+        text_field_marker_size.grid(row=1, column=0)
+        text_field_gap_size.grid(row=2, column=0)
+        btn_generate.grid(row=3, column=0, ipadx=10, pady=10)
+        
+        return frame
     
     def draw_charuco_pattern_field(self, parent, rowVar: tk.StringVar, colVar: tk.StringVar, title: str, rowDefault: str, colDefault: str):
-        pattern_field = ttk.Frame(parent)
-        pattern_field.configure(height=200, width=200)
-        field_title = ttk.Label(pattern_field)
-        field_title.configure(text=title)
-        field_title.grid(column=0, row=0)
-        value_field = ttk.Frame(pattern_field)
-        value_field.configure(height=200, width=200)
-        entry_row = ttk.Entry(value_field)
-        entry_row.configure(
-            justify="center",
-            textvariable=rowVar,
-            width=3)
+        frame = ttk.Frame(parent)
+
+        frame_left = ttk.Frame(parent)
+        label_title = ttk.Label(frame, text=title)
+        label_title.grid(row=0, column=0)
+
+        frame_right = ttk.Frame(frame)
+        entry_row = ttk.Entry(frame_right, justify="center", textvariable=rowVar, width=3)
         entry_row.delete("0", "end")
         entry_row.insert("0", rowDefault)
-        entry_row.grid(column=0, row=0)
-        label_x = ttk.Label(value_field)
-        label_x.configure(text='x')
-        label_x.grid(column=1, row=0)
-        entry_column = ttk.Entry(value_field)
-        entry_column.configure(
-            justify="center",
-            textvariable=colVar,
-            width=3)
+        label_x = ttk.Label(frame_right, text='x')
+        entry_column = ttk.Entry(frame_right, justify="center", textvariable=colVar, width=3)
         entry_column.delete("0", "end")
         entry_column.insert("0", colDefault)
-        entry_column.grid(column=2, row=0)
-        value_field.grid(column=1, padx=10, row=0)
-        pattern_field.pack(pady=10, side="top")
-        pass
+
+        entry_row.grid(row=0, column=0)
+        label_x.grid(row=0, column=1)
+        entry_column.grid(row=0, column=2)
+        # organize layout
+        frame_left.grid(row=0, column=0)
+        frame_right.grid(row=0, column=1, padx=10)
+
+        return frame
     
     def draw_refreshable_state_field(self, parent, title, variable, default_value, callback):
         frame = ttk.Frame(parent)
-        frame.configure(height=200, width=200)
-        title_frame = ttk.Frame(frame)
-        title_frame.configure(height=200, width=200)
-        title_label = ttk.Label(title_frame)
-        title_label.configure(
-            compound="center",
-            justify="center",
-            padding=10,
-            text=title)
-        title_label.pack()
-        title_frame.grid(column=0, row=0)
-        value_frame = ttk.Frame(frame)
-        value_frame.configure(height=200, width=200)
-        value_label = ttk.Label(value_frame)
-        value_label.configure(
-            text=default_value, textvariable=variable)
-        value_label.pack()
-        value_frame.grid(column=1, row=0)
+        label_title = ttk.Label(frame, compound="center", justify="center", padding=10, text=title)
+        label_value = ttk.Label(frame, text=default_value, textvariable=variable)
+
         button = self.draw_icon_button(frame, self.img_refresh, callback)
-        button.grid(column=2, padx=10, row=0)
-        frame.pack(
-            expand=True, fill="x", padx=10, pady=0, side="top")
-        frame.grid_anchor("center")
-        pass
+        
+        label_title.grid(row=0, column=0)
+        label_value.grid(row=0, column=1)
+        button.grid(row=0, column=2, padx=10)
+
+        return frame
     
     def draw_state_field(self, parent, title, variable, default_value):
         frame = ttk.Frame(parent)
-        frame.configure(height=200, width=200)
-        title_label = ttk.Label(frame)
-        title_label.configure(text=title)
-        title_label.grid(column=0, row=0)
-        value_label = ttk.Label(frame)
-        value_label.configure(text=default_value,
-                               textvariable=variable)
-        value_label.grid(column=1, padx=10, row=0)
-        frame.pack(ipadx=10, side="top")
-        pass
+        label_title = ttk.Label(frame)
+        label_title.configure(text=title)
+        label_value = ttk.Label(frame, text=default_value, textvariable=variable)
+        label_title.grid(row=0, column=0)
+        label_value.grid(row=0, column=1, padx=10)
+
+        return frame
     
     def draw_frame_calibration_settings(self, parent):
-        frame_board_settings = ttk.Labelframe(parent)
-        frame_board_settings.configure(
-            height=100, text='CharucoBoard Settings', width=200)
+        frame = ttk.Labelframe(parent, text='CharucoBoard Settings')
         self.var_board_pattern_row = tk.StringVar(value='5')
         self.var_board_pattern_column = tk.StringVar(value='7')
-        self.draw_charuco_pattern_field(
-            frame_board_settings, self.var_board_pattern_row, self.var_board_pattern_column, 'Pattern', '5', '7')
-        self.draw_button(frame_board_settings, 'Generate charuco board', self.on_click_generate_charuco_board)
-        frame_board_settings.pack(
-            expand=True, fill="x", padx=20, pady=10, side="top")
-        pass
+        charuco_pattern_field = self.draw_charuco_pattern_field(
+            frame, self.var_board_pattern_row, self.var_board_pattern_column, 'Pattern', '5', '7')
+        btn_generate = self.draw_button(frame, 'Generate charuco board', self.on_click_generate_charuco_board)
+        
+        charuco_pattern_field.grid(row=0, column=0)
+        btn_generate.grid(row=1, column=0)
+
+        return frame
         
     def draw_frame_calibration(self, parent):
-        self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
-        frame_calibration = ttk.Labelframe(parent)
-        frame_calibration.configure(text='Calibration')
-        self.draw_frame_calibration_settings(frame_calibration)
-        
+        frame = ttk.Labelframe(parent, text='Calibration')
         self.var_sample_image_count = tk.StringVar(value='0')
-        self.draw_refreshable_state_field(
-            frame_calibration, 'Sampled image count:', self.var_sample_image_count, '0', self.on_click_refresh_sampled_count)
-        self.draw_button(frame_calibration, 'Capture sample images', self.on_click_capture_sample_images)
 
-        self.draw_button(
-            frame_calibration, 'Calibrate camera', self.on_click_calibrate_camera
-        )
-        frame_calibration.pack(
-            expand=False, fill="x", padx=20, pady=5, side="top")
-        pass
+        frame_settings = self.draw_frame_calibration_settings(frame)
+        
+        rs_field_sample_count = self.draw_refreshable_state_field(
+            frame, 'Sampled image count:', self.var_sample_image_count, '0', self.on_click_refresh_sampled_count)
+        btn_capture = self.draw_button(frame, 'Capture sample images', self.on_click_capture_sample_images)
+        btn_calibrate = self.draw_button(frame, 'Calibrate camera', self.on_click_calibrate_camera)
+
+        frame_settings.grid(row=0, column=0)
+        rs_field_sample_count.grid(row=1, column=0)
+        btn_capture.grid(row=2, column=0)
+        btn_calibrate.grid(row=3, column=0)
+
+        return frame
     
     def draw_status_frame(self, parent):
-        frame_status = ttk.Labelframe(parent)
-        frame_status.configure(text='Status')
-        
+        frame = ttk.Labelframe(parent, text='Status')
         self.var_is_calibrated = tk.StringVar(value='No')
         self.var_is_camera_ready = tk.StringVar(value='No')
         
-        self.draw_state_field(frame_status, 'Is Calibrated: ', self.var_is_calibrated, 'No')
-        self.draw_state_field(frame_status, 'Is Camera ready:', self.var_is_camera_ready, 'No')
+        s_field_is_calibrated = self.draw_state_field(frame, 'Is Calibrated: ', self.var_is_calibrated, 'No')
+        s_field_is_cam_ready = self.draw_state_field(frame, 'Is Camera ready:', self.var_is_camera_ready, 'No')
         
-        button_refresh = self.draw_icon_button(frame_status, self.img_refresh, self.refresh_status)
-        button_refresh.pack(ipadx=0, pady=5, side="top")
+        btn_refresh = self.draw_icon_button(frame, self.img_refresh, self.refresh_status)
 
-        frame_status.pack(
-            fill="x",
-            ipady=10,
-            padx=10,
-            pady=10,
-            side="top")
+        s_field_is_calibrated.grid(row=0, column=0)
+        s_field_is_cam_ready.grid(row=1, column=0)
+        btn_refresh.grid(row=2, column=0, pady=5)
+
+        return frame
     
     def draw_detection_frame(self, parent):
-        frame_detect = ttk.Labelframe(parent)
-        frame_detect.configure(text='Detection')
-        
+        frame = ttk.Labelframe(parent, text='Detection')
         self.var_websocket_ip = tk.StringVar(value='ws://localhost:8090')
         
-        self.draw_text_field(frame_detect, self.var_websocket_ip, 'Websocket IP', 'ws://localhost:8090')
-        self.draw_button(frame_detect, 'Detect', self.on_click_detect)
-        frame_detect.pack(
-            expand=True, fill="both", padx=10, side="top")
-        pass
+        field_webocket_ip = self.draw_text_field(frame, self.var_websocket_ip, 'Websocket IP', 'ws://localhost:8090')
+        btn_detect = self.draw_button(frame, 'Detect', self.on_click_detect)
+        
+        field_webocket_ip.grid(row=0, column=0)
+        btn_detect.grid(row=1, column=0)
+
+        return frame
     
     def run(self):
         self.mainwindow.mainloop()
