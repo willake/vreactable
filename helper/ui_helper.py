@@ -3,7 +3,7 @@ from tkinter import ttk
 
 
 def draw_text_field(
-    self, parent, variable: tk.StringVar, title: str, default_value: str, width: int = 5
+    parent, variable: tk.StringVar, title: str, default_value: str, width: int = 5
 ):
     frame = ttk.Frame(parent)
     field_title = ttk.Label(frame, text=title)
@@ -18,7 +18,7 @@ def draw_text_field(
 
 
 def draw_cm_number_field(
-    self, parent, variable: tk.StringVar, title: str, default_value: str
+    parent, variable: tk.StringVar, title: str, default_value: str
 ):
     frame = ttk.Frame(parent)
     field_title = ttk.Label(frame, text=title)
@@ -36,18 +36,17 @@ def draw_cm_number_field(
     return frame
 
 
-def draw_button(self, parent, title, callback):
+def draw_button(parent, title, callback):
     button = ttk.Button(parent, text=title, command=callback)
     return button
 
 
-def draw_icon_button(self, parent, icon, callback):
+def draw_icon_button(parent, icon, callback):
     button = ttk.Button(parent, image=icon, command=callback)
     return button
 
 
 def draw_charuco_pattern_field(
-    self,
     parent,
     rowVar: tk.StringVar,
     colVar: tk.StringVar,
@@ -83,7 +82,7 @@ def draw_charuco_pattern_field(
 
 
 def draw_refreshable_state_field(
-    self, parent, title, variable, default_value, callback
+    parent, title, icon, variable, default_value, callback
 ):
     frame = ttk.Frame(parent)
     label_title = ttk.Label(
@@ -91,7 +90,7 @@ def draw_refreshable_state_field(
     )
     label_value = ttk.Label(frame, text=default_value, textvariable=variable)
 
-    button = self.draw_icon_button(frame, self.img_refresh, callback)
+    button = draw_icon_button(frame, icon, callback)
 
     label_title.grid(row=0, column=0)
     label_value.grid(row=0, column=1)
@@ -100,7 +99,7 @@ def draw_refreshable_state_field(
     return frame
 
 
-def draw_state_field(self, parent, title, variable, default_value):
+def draw_state_field(parent, title, variable, default_value):
     frame = ttk.Frame(parent)
     label_title = ttk.Label(frame)
     label_title.configure(text=title)

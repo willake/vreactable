@@ -76,115 +76,6 @@ class VreactableApp:
         # Main widget
         self.mainwindow = self.toplevel_vreactable
 
-    def draw_text_field(
-        self,
-        parent,
-        variable: tk.StringVar,
-        title: str,
-        default_value: str,
-        width: int = 5,
-    ):
-        frame = ttk.Frame(parent)
-        field_title = ttk.Label(frame, text=title)
-        field_title.grid(row=0, column=0)
-        entry = ttk.Entry(frame)
-        entry.configure(justify="center", textvariable=variable, width=width)
-        entry.delete("0", "end")
-        entry.insert("0", default_value)
-        entry.grid(row=0, column=1, padx=10)
-        frame.columnconfigure(0, weight=1)
-        return frame
-
-    def draw_cm_number_field(
-        self, parent, variable: tk.StringVar, title: str, default_value: str
-    ):
-        frame = ttk.Frame(parent)
-        field_title = ttk.Label(frame, text=title)
-        entry = ttk.Entry(
-            frame, justify="center", textvariable=variable, validate="focusout", width=5
-        )
-        entry.delete("0", "end")
-        entry.insert("0", default_value)
-        text_cm = ttk.Label(frame, text="cm")
-        # organize layout
-        field_title.grid(row=0, column=0)
-        entry.grid(row=0, column=1, padx=10)
-        text_cm.grid(row=0, column=2)
-        frame.columnconfigure(0, weight=1)
-        return frame
-
-    def draw_button(self, parent, title, callback):
-        button = ttk.Button(parent, text=title, command=callback)
-        return button
-
-    def draw_icon_button(self, parent, icon, callback):
-        button = ttk.Button(parent, image=icon, command=callback)
-        return button
-
-    def draw_charuco_pattern_field(
-        self,
-        parent,
-        rowVar: tk.StringVar,
-        colVar: tk.StringVar,
-        title: str,
-        rowDefault: str,
-        colDefault: str,
-    ):
-        frame = ttk.Frame(parent)
-
-        frame_left = ttk.Frame(parent)
-        label_title = ttk.Label(frame, text=title)
-        label_title.grid(row=0, column=0)
-
-        frame_right = ttk.Frame(frame)
-        entry_row = ttk.Entry(
-            frame_right, justify="center", textvariable=rowVar, width=3
-        )
-        entry_row.delete("0", "end")
-        entry_row.insert("0", rowDefault)
-        label_x = ttk.Label(frame_right, text="x")
-        entry_column = ttk.Entry(
-            frame_right, justify="center", textvariable=colVar, width=3
-        )
-        entry_column.delete("0", "end")
-        entry_column.insert("0", colDefault)
-
-        entry_row.grid(row=0, column=0)
-        label_x.grid(row=0, column=1)
-        entry_column.grid(row=0, column=2)
-        # organize layout
-        frame_left.grid(row=0, column=0)
-        frame_right.grid(row=0, column=1, padx=10)
-
-        return frame
-
-    def draw_refreshable_state_field(
-        self, parent, title, variable, default_value, callback
-    ):
-        frame = ttk.Frame(parent)
-        label_title = ttk.Label(
-            frame, compound="center", justify="center", padding=10, text=title
-        )
-        label_value = ttk.Label(frame, text=default_value, textvariable=variable)
-
-        button = self.draw_icon_button(frame, self.img_refresh, callback)
-
-        label_title.grid(row=0, column=0)
-        label_value.grid(row=0, column=1)
-        button.grid(row=0, column=2, padx=10)
-
-        return frame
-
-    def draw_state_field(self, parent, title, variable, default_value):
-        frame = ttk.Frame(parent)
-        label_title = ttk.Label(frame)
-        label_title.configure(text=title)
-        label_value = ttk.Label(frame, text=default_value, textvariable=variable)
-        label_title.grid(row=0, column=0)
-        label_value.grid(row=0, column=1, padx=10)
-
-        return frame
-
     def draw_frame_aruco_generator(self, parent):
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
@@ -192,16 +83,16 @@ class VreactableApp:
         self.var_aruco_size = tk.StringVar(value="5")
         self.var_aruco_gap_size = tk.StringVar(value="0.5")
 
-        text_field_marker = self.draw_text_field(
+        text_field_marker = ui_helper.draw_text_field(
             frame, self.var_num_of_markers, "Num of markers", "36"
         )
-        text_field_marker_size = self.draw_cm_number_field(
+        text_field_marker_size = ui_helper.draw_cm_number_field(
             frame, self.var_aruco_size, "Marker size", "5"
         )
-        text_field_gap_size = self.draw_cm_number_field(
+        text_field_gap_size = ui_helper.draw_cm_number_field(
             frame, self.var_aruco_gap_size, "Gap size", "0.5"
         )
-        btn_generate = self.draw_button(
+        btn_generate = ui_helper.draw_button(
             frame, "Generate aruco markers", self.on_click_generate_aruco
         )
 
@@ -218,7 +109,7 @@ class VreactableApp:
         self.var_board_pattern_row = tk.StringVar(value="5")
         self.var_board_pattern_column = tk.StringVar(value="7")
 
-        charuco_pattern_field = self.draw_charuco_pattern_field(
+        charuco_pattern_field = ui_helper.draw_charuco_pattern_field(
             frame,
             self.var_board_pattern_row,
             self.var_board_pattern_column,
@@ -226,7 +117,7 @@ class VreactableApp:
             "5",
             "7",
         )
-        btn_generate = self.draw_button(
+        btn_generate = ui_helper.draw_button(
             frame, "Generate charuco board", self.on_click_generate_charuco_board
         )
 
@@ -243,17 +134,18 @@ class VreactableApp:
 
         frame_settings = self.draw_frame_calibration_settings(frame)
 
-        rs_field_sample_count = self.draw_refreshable_state_field(
+        rs_field_sample_count = ui_helper.draw_refreshable_state_field(
             frame,
             "Sampled image count:",
+            self.img_refresh,
             self.var_sample_image_count,
             "0",
             self.on_click_refresh_sampled_count,
         )
-        btn_capture = self.draw_button(
+        btn_capture = ui_helper.draw_button(
             frame, "Capture sample images", self.on_click_capture_sample_images
         )
-        btn_calibrate = self.draw_button(
+        btn_calibrate = ui_helper.draw_button(
             frame, "Calibrate camera", self.on_click_calibrate_camera
         )
 
@@ -270,14 +162,14 @@ class VreactableApp:
         self.var_is_calibrated = tk.StringVar(value="No")
         self.var_is_camera_ready = tk.StringVar(value="No")
 
-        s_field_is_calibrated = self.draw_state_field(
+        s_field_is_calibrated = ui_helper.draw_state_field(
             frame, "Is Calibrated: ", self.var_is_calibrated, "No"
         )
-        s_field_is_cam_ready = self.draw_state_field(
+        s_field_is_cam_ready = ui_helper.draw_state_field(
             frame, "Is Camera ready:", self.var_is_camera_ready, "No"
         )
 
-        btn_refresh = self.draw_icon_button(
+        btn_refresh = ui_helper.draw_icon_button(
             frame, self.img_refresh, self.refresh_status
         )
 
@@ -293,10 +185,10 @@ class VreactableApp:
         frame = ttk.Labelframe(parent, text="Detection")
         self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
 
-        field_webocket_ip = self.draw_text_field(
+        field_webocket_ip = ui_helper.draw_text_field(
             frame, self.var_websocket_ip, "Websocket IP", "ws://localhost:8090", 20
         )
-        btn_detect = self.draw_button(frame, "Detect", self.on_click_detect)
+        btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
 
         field_webocket_ip.grid(row=0, column=0, padx=10, pady=5)
         btn_detect.grid(row=1, column=0, pady=5)
