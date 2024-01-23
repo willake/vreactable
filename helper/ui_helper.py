@@ -96,15 +96,22 @@ def draw_refreshable_state_field(
     label_value.grid(row=0, column=1)
     button.grid(row=0, column=2, padx=10)
 
+    frame.columnconfigure(index=0, weight=1)
+    frame.columnconfigure(index=1, weight=1)
+    frame.columnconfigure(index=2, weight=1)
+
     return frame
 
 
-def draw_state_field(parent, title, variable, default_value):
+def draw_state_label(parent, title, variable, default_value):
     frame = ttk.Frame(parent)
     label_title = ttk.Label(frame)
     label_title.configure(text=title)
     label_value = ttk.Label(frame, text=default_value, textvariable=variable)
     label_title.grid(row=0, column=0)
     label_value.grid(row=0, column=1, padx=10)
+
+    frame.columnconfigure(index=0, weight=1)
+    frame.columnconfigure(index=1, weight=1)
 
     return frame
