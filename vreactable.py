@@ -38,12 +38,23 @@ class VreactableApp:
 
         self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
 
+        self.var_num_of_markers = tk.StringVar(value="36")
+        self.var_aruco_size = tk.StringVar(value="5")
+        self.var_aruco_gap_size = tk.StringVar(value="0.5")
+        self.var_sample_image_count = tk.StringVar(value="0")
+        self.var_board_pattern_row = tk.StringVar(value="5")
+        self.var_board_pattern_column = tk.StringVar(value="7")
+        self.var_camera_index = tk.IntVar(value=0)
+        self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
+
         # title
         frame_header = ttk.Frame(self.frame_main)
         label_title = ttk.Label(frame_header)
         label_title.configure(text="VReactable")
         label_title.grid(row=0, column=0, pady=5)
         frame_header.grid(row=0, column=0, padx=10)
+        self.var_is_calibrated = tk.StringVar(value="False")
+        self.var_is_camera_ready = tk.StringVar(value="False")
 
         # main frame
         frame_body = ttk.Frame(self.frame_main)
@@ -76,12 +87,12 @@ class VreactableApp:
         # Main widget
         self.mainwindow = self.toplevel_vreactable
 
+        self.update_num_sampled_images()
+        self.refresh_status()
+
     def draw_frame_aruco_generator(self, parent):
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
-        self.var_num_of_markers = tk.StringVar(value="36")
-        self.var_aruco_size = tk.StringVar(value="5")
-        self.var_aruco_gap_size = tk.StringVar(value="0.5")
 
         text_field_marker = ui_helper.draw_text_field(
             frame, self.var_num_of_markers, "Num of markers", "36"
@@ -106,8 +117,6 @@ class VreactableApp:
 
     def draw_frame_calibration_settings(self, parent):
         frame = ttk.Labelframe(parent, text="CharucoBoard Settings")
-        self.var_board_pattern_row = tk.StringVar(value="5")
-        self.var_board_pattern_column = tk.StringVar(value="7")
 
         charuco_pattern_field = ui_helper.draw_charuco_pattern_field(
             frame,
@@ -130,7 +139,6 @@ class VreactableApp:
 
     def draw_frame_calibration(self, parent):
         frame = ttk.Labelframe(parent, text="Calibration")
-        self.var_sample_image_count = tk.StringVar(value="0")
 
         frame_settings = self.draw_frame_calibration_settings(frame)
 
@@ -159,14 +167,12 @@ class VreactableApp:
 
     def draw_status_frame(self, parent):
         frame = ttk.Labelframe(parent, text="Status")
-        self.var_is_calibrated = tk.StringVar(value="No")
-        self.var_is_camera_ready = tk.StringVar(value="No")
 
         s_field_is_calibrated = ui_helper.draw_state_field(
-            frame, "Is Calibrated: ", self.var_is_calibrated, "No"
+            frame, "Is camera calibrated: ", self.var_is_calibrated, "False"
         )
         s_field_is_cam_ready = ui_helper.draw_state_field(
-            frame, "Is Camera ready:", self.var_is_camera_ready, "No"
+            frame, "Is camera ready:", self.var_is_camera_ready, "False"
         )
 
         btn_refresh = ui_helper.draw_icon_button(
@@ -183,15 +189,18 @@ class VreactableApp:
 
     def draw_detection_frame(self, parent):
         frame = ttk.Labelframe(parent, text="Detection")
-        self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
 
+        field_camera_index = ui_helper.draw_text_field(
+            frame, self.var_camera_index, "Camera index", "0", 5
+        )
         field_webocket_ip = ui_helper.draw_text_field(
             frame, self.var_websocket_ip, "Websocket IP", "ws://localhost:8090", 20
         )
         btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
 
-        field_webocket_ip.grid(row=0, column=0, padx=10, pady=5)
-        btn_detect.grid(row=1, column=0, pady=5)
+        field_camera_index.grid(row=0, column=0, padx=10, pady=5)
+        field_webocket_ip.grid(row=1, column=0, padx=10, pady=5)
+        btn_detect.grid(row=2, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
@@ -235,8 +244,7 @@ class VreactableApp:
         pass
 
     def on_click_refresh_sampled_count(self):
-        numImgs = helper.countImages(SAMPLE_FOLDER)
-        self.var_sample_image_count.set(str(numImgs))
+        self.update_num_sampled_images()
         pass
 
     def on_click_capture_sample_images(self):
@@ -263,17 +271,38 @@ class VreactableApp:
         pass
 
     def on_click_detect(self):
-        print("Start detecting")
+        print("Try start detecting")
+        if self.is_detector_ready() is False:
+            showinfo(
+                title="Detector is not ready",
+                message=f"Detector is not ready yet. Please check status panel.",
+            )
+            return
         ip = self.var_websocket_ip.get()
-        calibFilePath = f"{pathlib.Path().resolve()}\\resources\\clibration\\calib.npz"
+        calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
         detector.detect_arucos(calibFilePath, ip)
         pass
 
-    def update_num_sampled_images():
+    def update_num_sampled_images(self):
+        numImgs = helper.countImages(SAMPLE_FOLDER)
+        self.var_sample_image_count.set(str(numImgs))
         pass
 
     def refresh_status(self):
+        calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
+
+        self.var_is_calibrated.set(str(helper.isFileExit(calibFilePath)))
+        self.var_is_camera_ready.set(
+            str(helper.isCameraAvailable(self.var_camera_index.get()))
+        )
         pass
+
+    def is_detector_ready(self):
+        if self.var_is_calibrated.get() == "False":
+            return False
+        if self.var_is_camera_ready.get() == "False":
+            return False
+        return True
 
 
 if __name__ == "__main__":

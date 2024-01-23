@@ -1,5 +1,6 @@
 import os
 import pathlib
+import cv2
 
 
 def getRootPath():
@@ -30,10 +31,22 @@ def validatePath(path):
         os.makedirs(path)
 
 
-def checkCalibFileExit(path):
+def isFileExit(path):
     if os.path.exists(path):
         return True
     else:
+        return False
+
+
+def isCameraAvailable(index):
+    try:
+        cap = cv2.VideoCapture(index)
+        if not cap.isOpened():
+            return False
+        cap.release()
+        return True
+    except Exception as e:
+        # print(e)
         return False
 
 
