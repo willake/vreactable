@@ -265,7 +265,7 @@ class VreactableApp:
     def on_click_detect(self):
         print("Start detecting")
         ip = self.var_websocket_ip.get()
-        calibFilePath = f"{pathlib.Path().resolve()}/resources/calib.npz"
+        calibFilePath = f"{pathlib.Path().resolve()}\\resources\\clibration\\calib.npz"
         detector.detect_arucos(calibFilePath, ip)
         pass
 
