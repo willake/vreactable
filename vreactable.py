@@ -2,7 +2,7 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector import detector
+from detector.detector import CubeDetector
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
@@ -27,6 +27,7 @@ ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 
 class VreactableApp:
     def __init__(self, master=None):
+        self.detector = CubeDetector(self.detect_callback)
         # build ui
         style = Style(theme="darkly")
         self.toplevel_vreactable = style.master
@@ -341,7 +342,7 @@ class VreactableApp:
             return
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        detector.detect_arucos(calibFilePath, ip)
+        self.detector.detect_arucos(calibFilePath, ip)
         pass
 
     def update_num_sampled_images(self):
@@ -364,6 +365,25 @@ class VreactableApp:
         if self.var_is_camera_ready.get() == "False":
             return False
         return True
+
+    def detect_callback(self, detectedMarkerIds, detectedPositions, detectedRotations):
+        for index in range(6):
+            x = detectedPositions[0][0]
+            y = detectedPositions[1][0] * -1
+            z = detectedPositions[2][0]
+
+            roll = detectedRotations[0]
+            pitch = detectedRotations[1]
+            yaw = detectedRotations[2]
+
+            self.var_cube_active_marker_ids[index].set(str(detectedMarkerIds[index]))
+            self.var_cube_positions[index].set(
+                f"[{helper.format(x)};{helper.format(y)};{helper.format(z)}]"
+            )
+            self.var_cube_rotations[index].set(
+                f"[{helper.format(roll)};{helper.format(pitch)};{helper.format(-yaw)}]"
+            )
+        pass
 
 
 if __name__ == "__main__":
