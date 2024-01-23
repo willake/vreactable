@@ -47,6 +47,10 @@ class VreactableApp:
         self.var_camera_index = tk.IntVar(value=0)
         self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
 
+        self.var_cube_active_marker_ids = [tk.StringVar(value="-")] * 6
+        self.var_cube_positions = [tk.StringVar(value="(0.00, 0.00, 0.00)")] * 6
+        self.var_cube_rotations = [tk.StringVar(value="(0.00, 0.00, 0.00)")] * 6
+
         # title
         frame_header = ttk.Frame(self.frame_main)
         label_title = ttk.Label(frame_header)
@@ -59,29 +63,39 @@ class VreactableApp:
         # main frame
         frame_body = ttk.Frame(self.frame_main)
 
-        # left frame
-        frame_left = ttk.Frame(frame_body)
-        frame_aruco_generator = self.draw_frame_aruco_generator(frame_left)
-        frame_calibration = self.draw_frame_calibration(frame_left)
+        # frame 1
+        frame_1 = ttk.Frame(frame_body)
+        frame_aruco_generator = self.draw_frame_aruco_generator(frame_1)
+        frame_calibration = self.draw_frame_calibration(frame_1)
         # organize layout
         frame_aruco_generator.grid(
             row=0, column=0, ipadx=15, ipady=5, pady=10, sticky=tk.EW
         )
         frame_calibration.grid(row=1, column=0, ipadx=15, ipady=5, pady=1, sticky=tk.EW)
-        frame_left.grid(row=0, column=0, padx=10)
-        frame_left.columnconfigure(0, weight=1)
+        frame_1.grid(row=0, column=0, padx=10)
+        frame_1.columnconfigure(0, weight=1)
 
-        # right frame
-        frame_right = ttk.Frame(frame_body)
-        frame_detect = self.draw_frame_detector(frame_right)
+        # frame 2
+        frame_2 = ttk.Frame(frame_body)
+        frame_detect = self.draw_frame_detector(frame_2)
         frame_detect.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
-        frame_right.grid(row=0, column=1, padx=10)
-        frame_right.columnconfigure(0, weight=1)
+        frame_2.grid(row=0, column=1, padx=10)
+        frame_2.columnconfigure(0, weight=1)
+
+        # frame 3
+        frame_3 = ttk.Frame(frame_body)
+        frame_detection_inspector = self.draw_frame_detection_inspector(frame_3)
+        frame_detection_inspector.grid(
+            row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW
+        )
+        frame_3.grid(row=0, column=2, padx=10)
+        frame_3.columnconfigure(0, weight=1)
 
         frame_body.grid(row=1, column=0, pady=5)
         frame_body.rowconfigure(0, weight=1)
         frame_body.columnconfigure(0, weight=2)
         frame_body.columnconfigure(1, weight=1)
+        frame_body.columnconfigure(2, weight=2)
 
         # Main widget
         self.mainwindow = self.toplevel_vreactable
@@ -169,10 +183,10 @@ class VreactableApp:
     def draw_frame_status(self, parent):
         frame = ttk.Labelframe(parent, text="Status")
 
-        s_field_is_calibrated = ui_helper.draw_state_field(
+        s_field_is_calibrated = ui_helper.draw_state_label(
             frame, "Is camera calibrated: ", self.var_is_calibrated, "False"
         )
-        s_field_is_cam_ready = ui_helper.draw_state_field(
+        s_field_is_cam_ready = ui_helper.draw_state_label(
             frame, "Is camera ready:", self.var_is_camera_ready, "False"
         )
 
@@ -207,6 +221,49 @@ class VreactableApp:
         btn_detect.grid(row=3, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
+
+        return frame
+
+    def draw_cube_status(self, parent, cube_index):
+        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}")
+        label_active_code = ui_helper.draw_state_label(
+            frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
+        )
+        label_position = ui_helper.draw_state_label(
+            frame, "Position", self.var_cube_positions[cube_index], "(0.00, 0.00, 0.00)"
+        )
+        label_rotation = ui_helper.draw_state_label(
+            frame, "Rotation", self.var_cube_rotations[cube_index], "(0.00, 0.00, 0.00)"
+        )
+
+        label_active_code.grid(row=0, column=0, ipadx=5, pady=10)
+        label_position.grid(row=1, column=0, ipadx=5, pady=5)
+        label_rotation.grid(row=2, column=0, ipadx=5, pady=5)
+
+        frame.columnconfigure(index=0, weight=1)
+        return frame
+
+    def draw_frame_detection_inspector(self, parent):
+        frame = ttk.LabelFrame(parent, text="Detection Inspector")
+
+        for index in range(6):
+            status_cube = self.draw_cube_status(frame, index)
+            status_cube.grid(
+                row=int(index / 3),
+                column=int(index % 3),
+                ipadx=10,
+                ipady=10,
+                padx=10,
+                pady=10,
+            )
+            pass
+
+        frame.rowconfigure(index=0, weight=1)
+        frame.rowconfigure(index=1, weight=1)
+        frame.rowconfigure(index=2, weight=1)
+        frame.columnconfigure(index=0, weight=1)
+        frame.columnconfigure(index=1, weight=1)
+        frame.columnconfigure(index=2, weight=1)
 
         return frame
 
