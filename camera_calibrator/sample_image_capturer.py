@@ -18,21 +18,24 @@ SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
 
 CHARUCO_BOARD = aruco.CharucoBoard(
-    size=PATTERN, 
-    squareLength=SQUARE_LENGTH, 
-    markerLength=MARKER_LENGTH, 
-    dictionary=ARUCO_DICT)
+    size=PATTERN,
+    squareLength=SQUARE_LENGTH,
+    markerLength=MARKER_LENGTH,
+    dictionary=ARUCO_DICT,
+)
+
 
 def validatePath(path):
     if os.path.exists(path) == False:
         os.makedirs(path)
+
 
 # validate the detectable images
 def detect(windowName, imageCopy, goodAmount, badAmount):
     # prepare object points
     detectorParams = aruco.DetectorParameters()
     detector = aruco.CharucoDetector(board=CHARUCO_BOARD, detectorParams=detectorParams)
-    
+
     # Increase contrast using histogram equalization
     # lab = cv2.cvtColor(imageCopy, cv2.COLOR_BGR2LAB)
     # l, a, b = cv2.split(lab)
@@ -48,7 +51,9 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # find the chess board corners
     charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(gray)
 
-    isFound = (charucoIds is not None) and len(charucoIds) == (PATTERN[0] - 1) * (PATTERN[1] - 1)
+    isFound = (charucoIds is not None) and len(charucoIds) == (PATTERN[0] - 1) * (
+        PATTERN[1] - 1
+    )
     # set instructions text for setting next image
     cv2.putText(
         imageCopy,
@@ -80,8 +85,9 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
 
     # if found, add object points, image points (after refining them)
     if isFound:
-        imageCopy = aruco.drawDetectedCornersCharuco(imageCopy, charucoCorners, charucoIds)
-        
+        imageCopy = aruco.drawDetectedCornersCharuco(
+            imageCopy, charucoCorners, charucoIds
+        )
 
         # set instructions text for setting next image
         cv2.putText(
@@ -134,7 +140,9 @@ def run(outputFolder):
         key = cv2.waitKey(33)
         if key == ord("s"):
             # save screenshot
-            cv2.imwrite(f"{outputFolder}\\screenshot_{goodAmount + badAmount}.jpg", frame)
+            cv2.imwrite(
+                f"{outputFolder}\\screenshot_{goodAmount + badAmount}.jpg", frame
+            )
             if result:
                 goodAmount += 1
             else:
@@ -147,10 +155,12 @@ def run(outputFolder):
 
     cv2.destroyAllWindows()
 
+
 def capture_sample_images(sampleFolder):
     helper.validatePath(sampleFolder)
     run(sampleFolder)
 
+
 if __name__ == "__main__":
-    sampleFolder = os.path.join(helper.getRootPath(), 'resources\\calibration\\samples')
+    sampleFolder = os.path.join(helper.getRootPath(), "resources\\calibration\\samples")
     capture_sample_images(sampleFolder)
