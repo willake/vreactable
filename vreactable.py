@@ -32,7 +32,7 @@ class VreactableApp:
         # self.toplevel_vreactable.minsize(700, 600)
         self.toplevel_vreactable.title("VRectable")
         self.frame_main = ttk.Frame(self.toplevel_vreactable)
-        self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky='wens')
+        self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
 
         self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
         
@@ -51,17 +51,19 @@ class VreactableApp:
         frame_aruco_generator = self.draw_frame_aruco_generator(frame_left)
         frame_calibration = self.draw_frame_calibration(frame_left)
         # organize layout
-        frame_aruco_generator.grid(row=0, column=0, padx=20, pady=5)
-        frame_calibration.grid(row=1, column=0)
+        frame_aruco_generator.grid(row=0, column=0, ipadx=15, ipady=5, pady= 10, sticky=tk.EW)
+        frame_calibration.grid(row=1, column=0, ipadx=15, ipady=5, pady= 1, sticky=tk.EW)
         frame_left.grid(row=0, column=0, padx=10)
+        frame_left.columnconfigure(0, weight=1)
         
         # right frame
         frame_right = ttk.Frame(frame_body)
         frame_status = self.draw_status_frame(frame_right)
         frame_detect = self.draw_detection_frame(frame_right)
-        frame_status.grid(row=0, column=0)
-        frame_detect.grid(row=1, column=0)
+        frame_status.grid(row=0, column=0, ipadx= 10, ipady=10, pady= 10, sticky=tk.EW)
+        frame_detect.grid(row=1, column=0, ipadx= 10, ipady=10, pady= 10, sticky=tk.EW)
         frame_right.grid(row=0, column=1, padx=10)
+        frame_right.columnconfigure(0, weight=1)
 
         frame_body.grid(row=1, column=0, pady=5)
         frame_body.columnconfigure(0, weight=2)
@@ -70,16 +72,17 @@ class VreactableApp:
         # Main widget
         self.mainwindow = self.toplevel_vreactable
         
-    def draw_text_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
+    def draw_text_field(self, parent, variable: tk.StringVar, title: str, default_value: str, width: int = 5):
         frame = ttk.Frame(parent)
         field_title = ttk.Label(frame, text=title)
         field_title.grid(row=0, column=0)
         entry = ttk.Entry(frame)
         entry.configure(
-            justify="center", textvariable=variable, width=5)
+            justify="center", textvariable=variable, width=width)
         entry.delete("0", "end")
         entry.insert("0", default_value)
         entry.grid(row=0, column=1, padx=10)
+        frame.columnconfigure(0, weight=1)
         return frame
     
     def draw_cm_number_field(self, parent, variable: tk.StringVar, title: str, default_value: str):
@@ -93,6 +96,7 @@ class VreactableApp:
         field_title.grid(row=0, column=0)
         entry.grid(row=0, column=1, padx=10)
         text_cm.grid(row=0, column=2)
+        frame.columnconfigure(0, weight=1)
         return frame
         
     def draw_button(self, parent, title, callback):
@@ -102,25 +106,6 @@ class VreactableApp:
     def draw_icon_button(self, parent, icon, callback):
         button = ttk.Button(parent, image=icon, command=callback)
         return button 
-        
-    def draw_frame_aruco_generator(self, parent):
-        # aruco generator
-        frame = ttk.Labelframe(parent, text='Aruco Generator')
-        self.var_num_of_markers = tk.StringVar(value='36')
-        self.var_aruco_size = tk.StringVar(value='5')
-        self.var_aruco_gap_size = tk.StringVar(value='0.5')
-
-        text_field_marker = self.draw_text_field(frame, self.var_num_of_markers, "Num of markers", '36')
-        text_field_marker_size = self.draw_cm_number_field(frame, self.var_aruco_size, "Marker size", '5')
-        text_field_gap_size = self.draw_cm_number_field(frame, self.var_aruco_gap_size, "Gap size", '0.5')
-        btn_generate = self.draw_button(frame, 'Generate aruco markers', self.on_click_generate_aruco)
-        
-        text_field_marker.grid(row=0, column=0)
-        text_field_marker_size.grid(row=1, column=0)
-        text_field_gap_size.grid(row=2, column=0)
-        btn_generate.grid(row=3, column=0, ipadx=10, pady=10)
-        
-        return frame
     
     def draw_charuco_pattern_field(self, parent, rowVar: tk.StringVar, colVar: tk.StringVar, title: str, rowDefault: str, colDefault: str):
         frame = ttk.Frame(parent)
@@ -170,16 +155,39 @@ class VreactableApp:
 
         return frame
     
+    def draw_frame_aruco_generator(self, parent):
+        # aruco generator
+        frame = ttk.Labelframe(parent, text='Aruco Generator')
+        self.var_num_of_markers = tk.StringVar(value='36')
+        self.var_aruco_size = tk.StringVar(value='5')
+        self.var_aruco_gap_size = tk.StringVar(value='0.5')
+
+        text_field_marker = self.draw_text_field(frame, self.var_num_of_markers, "Num of markers", '36')
+        text_field_marker_size = self.draw_cm_number_field(frame, self.var_aruco_size, "Marker size", '5')
+        text_field_gap_size = self.draw_cm_number_field(frame, self.var_aruco_gap_size, "Gap size", '0.5')
+        btn_generate = self.draw_button(frame, 'Generate aruco markers', self.on_click_generate_aruco)
+        
+        text_field_marker.grid(row=0, column=0, pady=5)
+        text_field_marker_size.grid(row=1, column=0, pady=5)
+        text_field_gap_size.grid(row=2, column=0, pady=5)
+        btn_generate.grid(row=3, column=0, ipadx=10, pady=5)
+
+        frame.columnconfigure(0, weight=1)
+        return frame
+    
     def draw_frame_calibration_settings(self, parent):
         frame = ttk.Labelframe(parent, text='CharucoBoard Settings')
         self.var_board_pattern_row = tk.StringVar(value='5')
         self.var_board_pattern_column = tk.StringVar(value='7')
+
         charuco_pattern_field = self.draw_charuco_pattern_field(
             frame, self.var_board_pattern_row, self.var_board_pattern_column, 'Pattern', '5', '7')
         btn_generate = self.draw_button(frame, 'Generate charuco board', self.on_click_generate_charuco_board)
         
-        charuco_pattern_field.grid(row=0, column=0)
-        btn_generate.grid(row=1, column=0)
+        charuco_pattern_field.grid(row=0, column=0, pady=5)
+        btn_generate.grid(row=1, column=0, pady=5)
+        
+        frame.columnconfigure(index=0, weight=1)
 
         return frame
         
@@ -194,10 +202,11 @@ class VreactableApp:
         btn_capture = self.draw_button(frame, 'Capture sample images', self.on_click_capture_sample_images)
         btn_calibrate = self.draw_button(frame, 'Calibrate camera', self.on_click_calibrate_camera)
 
-        frame_settings.grid(row=0, column=0)
-        rs_field_sample_count.grid(row=1, column=0)
-        btn_capture.grid(row=2, column=0)
-        btn_calibrate.grid(row=3, column=0)
+        frame_settings.grid(row=0, column=0, ipadx=10, ipady=10, pady=5)
+        rs_field_sample_count.grid(row=1, column=0, pady=5)
+        btn_capture.grid(row=2, column=0, pady=5)
+        btn_calibrate.grid(row=3, column=0, pady=5)
+        frame.columnconfigure(index=0, weight=1)
 
         return frame
     
@@ -211,9 +220,11 @@ class VreactableApp:
         
         btn_refresh = self.draw_icon_button(frame, self.img_refresh, self.refresh_status)
 
-        s_field_is_calibrated.grid(row=0, column=0)
-        s_field_is_cam_ready.grid(row=1, column=0)
+        s_field_is_calibrated.grid(row=0, column=0, pady=5)
+        s_field_is_cam_ready.grid(row=1, column=0, pady=5)
         btn_refresh.grid(row=2, column=0, pady=5)
+
+        frame.columnconfigure(index=0, weight=1)
 
         return frame
     
@@ -221,11 +232,13 @@ class VreactableApp:
         frame = ttk.Labelframe(parent, text='Detection')
         self.var_websocket_ip = tk.StringVar(value='ws://localhost:8090')
         
-        field_webocket_ip = self.draw_text_field(frame, self.var_websocket_ip, 'Websocket IP', 'ws://localhost:8090')
+        field_webocket_ip = self.draw_text_field(frame, self.var_websocket_ip, 'Websocket IP', 'ws://localhost:8090', 20)
         btn_detect = self.draw_button(frame, 'Detect', self.on_click_detect)
         
-        field_webocket_ip.grid(row=0, column=0)
-        btn_detect.grid(row=1, column=0)
+        field_webocket_ip.grid(row=0, column=0, padx= 10, pady= 5)
+        btn_detect.grid(row=1, column=0, pady= 5)
+
+        frame.columnconfigure(index=0, weight=1)
 
         return frame
     
