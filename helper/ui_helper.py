@@ -105,8 +105,7 @@ def draw_refreshable_state_field(
 
 def draw_state_label(parent, title, variable, default_value):
     frame = ttk.Frame(parent)
-    label_title = ttk.Label(frame)
-    label_title.configure(text=title)
+    label_title = ttk.Label(frame, text=title)
     label_value = ttk.Label(frame, text=default_value, textvariable=variable)
     label_title.grid(row=0, column=0)
     label_value.grid(row=0, column=1, padx=10)
@@ -115,3 +114,8 @@ def draw_state_label(parent, title, variable, default_value):
     frame.columnconfigure(index=1, weight=1)
 
     return frame
+
+
+def draw_check_box(parent, title, variable):
+    checkbutton = ttk.Checkbutton(parent, text=title, variable=variable)
+    return checkbutton

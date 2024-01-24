@@ -45,6 +45,12 @@ class VreactableApp:
         self.var_sample_image_count = tk.StringVar(value="0")
         self.var_camera_index = tk.IntVar(value=0)
         self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
+        self.var_lock_x = tk.BooleanVar(value=False)
+        self.var_lock_y = tk.BooleanVar(value=False)
+        self.var_lock_z = tk.BooleanVar(value=False)
+        self.var_lock_roll = tk.BooleanVar(value=False)
+        self.var_lock_pitch = tk.BooleanVar(value=False)
+        self.var_lock_yaw = tk.BooleanVar(value=False)
 
         self.var_cube_active_marker_ids = [tk.StringVar(value="-")] * 6
         self.var_cube_positions = [tk.StringVar(value="(0.00, 0.00, 0.00)")] * 6
@@ -175,10 +181,57 @@ class VreactableApp:
 
         return frame
 
+    def draw_frame_detector_lock_settings(self, parent):
+        frame = ttk.LabelFrame(parent, text="Lock settings")
+
+        label_position = ttk.Label(frame, text="Position")
+        frame_position = ttk.Frame(frame)
+        checkbox_x = ui_helper.draw_check_box(frame_position, "x", self.var_lock_x)
+        checkbox_y = ui_helper.draw_check_box(frame_position, "y", self.var_lock_y)
+        checkbox_z = ui_helper.draw_check_box(frame_position, "z", self.var_lock_z)
+        checkbox_x.grid(row=0, column=0, pady=5)
+        checkbox_y.grid(row=0, column=1, pady=5)
+        checkbox_z.grid(row=0, column=2, pady=5)
+        frame_position.columnconfigure(index=0, weight=1)
+        frame_position.columnconfigure(index=1, weight=1)
+        frame_position.columnconfigure(index=2, weight=1)
+
+        label_rotation = ttk.Label(frame, text="Rotation")
+        frame_rotation = ttk.Frame(frame)
+        checkbox_roll = ui_helper.draw_check_box(
+            frame_rotation, "roll", self.var_lock_roll
+        )
+        checkbox_pitch = ui_helper.draw_check_box(
+            frame_rotation, "pitch", self.var_lock_pitch
+        )
+        checkbox_yaw = ui_helper.draw_check_box(
+            frame_rotation, "yaw", self.var_lock_yaw
+        )
+        checkbox_roll.grid(row=0, column=0, pady=5)
+        checkbox_pitch.grid(row=0, column=1, pady=5)
+        checkbox_yaw.grid(row=0, column=2, pady=5)
+        frame_rotation.columnconfigure(index=0, weight=1)
+        frame_rotation.columnconfigure(index=1, weight=1)
+        frame_rotation.columnconfigure(index=2, weight=1)
+
+        label_position.grid(row=0, column=0, pady=5)
+        frame_position.grid(row=1, column=0, pady=5, sticky=tk.EW)
+        label_rotation.grid(row=2, column=0, pady=5)
+        frame_rotation.grid(row=3, column=0, pady=5, sticky=tk.EW)
+
+        frame.rowconfigure(index=0, weight=1)
+        frame.rowconfigure(index=1, weight=1)
+        frame.rowconfigure(index=2, weight=1)
+        frame.rowconfigure(index=3, weight=1)
+        frame.columnconfigure(index=0, weight=1)
+        return frame
+
     def draw_frame_detector(self, parent):
         frame = ttk.Labelframe(parent, text="Detector")
 
         frame_status = self.draw_frame_status(frame)
+
+        frame_lock_settings = self.draw_frame_detector_lock_settings(frame)
 
         field_camera_index = ui_helper.draw_text_field(
             frame, self.var_camera_index, "Camera index", "0", 5
@@ -189,9 +242,10 @@ class VreactableApp:
         btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
 
         frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
-        field_camera_index.grid(row=1, column=0, padx=10, pady=5)
-        field_webocket_ip.grid(row=2, column=0, padx=10, pady=5)
-        btn_detect.grid(row=3, column=0, pady=5)
+        frame_lock_settings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
+        field_camera_index.grid(row=2, column=0, padx=10, pady=5)
+        field_webocket_ip.grid(row=3, column=0, padx=10, pady=5)
+        btn_detect.grid(row=4, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
