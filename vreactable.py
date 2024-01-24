@@ -366,17 +366,24 @@ class VreactableApp:
             return False
         return True
 
-    def detect_callback(self, detectedMarkerIds, detectedPositions, detectedRotations):
+    def detect_callback(self, markerIds, positions, rotations):
+        if len(markerIds) == 0:
+            return
+        
         for index in range(6):
-            x = detectedPositions[0][0]
-            y = detectedPositions[1][0] * -1
-            z = detectedPositions[2][0]
+            if markerIds[index] < 0:
+                continue
+            position = positions[index]
+            rotation = rotations[index]
+            x = position[0][0]
+            y = position[1][0] * -1
+            z = position[2][0]
 
-            roll = detectedRotations[0]
-            pitch = detectedRotations[1]
-            yaw = detectedRotations[2]
+            roll = rotation[0]
+            pitch = rotation[1]
+            yaw = rotation[2]
 
-            self.var_cube_active_marker_ids[index].set(str(detectedMarkerIds[index]))
+            self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
             self.var_cube_positions[index].set(
                 f"[{helper.format(x)};{helper.format(y)};{helper.format(z)}]"
             )
