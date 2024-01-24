@@ -24,6 +24,7 @@ CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 CHARUCO_BOARD_PATTERN = (5, 7)
+VERSION = "v1.3"
 
 
 class VreactableApp:
@@ -34,7 +35,7 @@ class VreactableApp:
         self.toplevel_vreactable = style.master
         # self.toplevel_vreactable.configure(height=700, width=600)
         # self.toplevel_vreactable.minsize(700, 600)
-        self.toplevel_vreactable.title("VRectable")
+        self.toplevel_vreactable.title(f"VRectable {VERSION}")
         self.frame_main = ttk.Frame(self.toplevel_vreactable)
         self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
 
@@ -58,8 +59,7 @@ class VreactableApp:
 
         # title
         frame_header = ttk.Frame(self.frame_main)
-        label_title = ttk.Label(frame_header)
-        label_title.configure(text="VReactable")
+        label_title = ttk.Label(frame_header, text=f"VReactable {VERSION}")
         label_title.grid(row=0, column=0, pady=5)
         frame_header.grid(row=0, column=0, padx=10)
         self.var_is_calibrated = tk.StringVar(value="False")
