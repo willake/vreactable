@@ -6,7 +6,6 @@ import os
 import pathlib
 from detector import sender
 import math
-from vreactable import VreactableApp
 
 # ChAruco board configs
 PATTERN = (5, 7)
@@ -49,7 +48,7 @@ def wrapAngle(angle):
 
 
 class CubeDetector:
-    def __init__(self, app: VreactableApp, detect_callback):
+    def __init__(self, app, detect_callback):
         self.websocket = None
         self.app = app
         self.detect_callback = detect_callback

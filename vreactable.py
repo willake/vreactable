@@ -28,7 +28,7 @@ CHARUCO_BOARD_PATTERN = (5, 7)
 
 class VreactableApp:
     def __init__(self, master=None):
-        self.detector = CubeDetector(self.detect_callback)
+        self.detector = CubeDetector(self, self.detect_callback)
         # build ui
         style = Style(theme="darkly")
         self.toplevel_vreactable = style.master
@@ -295,7 +295,12 @@ class VreactableApp:
         return frame
 
     def run(self):
+        self.update_frame()
         self.mainwindow.mainloop()
+        pass
+
+    def update_frame(self):
+        self.mainwindow.after(1000, self.update_frame)
         pass
 
     def on_click_generate_aruco(self):
