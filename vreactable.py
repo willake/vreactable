@@ -391,22 +391,15 @@ class VreactableApp:
         for index in range(6):
             if markerIds[index] < 0:
                 continue
-            position = positions[index]
-            rotation = rotations[index]
-            x = position[0][0]
-            y = position[1][0] * -1
-            z = position[2][0]
-
-            roll = rotation[0]
-            pitch = rotation[1]
-            yaw = rotation[2]
+            p = positions[index]
+            r = rotations[index]
 
             self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
             self.var_cube_positions[index].set(
-                f"[{helper.format(x)};{helper.format(y)};{helper.format(z)}]"
+                f"[{helper.format(p[0])};{helper.format(p[1])};{helper.format(p[2])}]"
             )
             self.var_cube_rotations[index].set(
-                f"[{helper.format(roll)};{helper.format(pitch)};{helper.format(-yaw)}]"
+                f"[{helper.format(r[0])};{helper.format(r[1])};{helper.format(-r[2])}]"
             )
         pass
 

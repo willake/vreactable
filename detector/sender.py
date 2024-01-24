@@ -25,18 +25,11 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
         for id, p, r in zip(markerIds, positions, rotations):
             if id > -1:
                 markerId = id[0]
-                x = p[0][0]
-                y = p[1][0] * -1
-                z = p[2][0]
-
-                roll = r[0]
-                pitch = r[1]
-                yaw = r[2]
 
                 data += f"Box{markerId}"
-                data += f"[{format(x)};{format(y)};{format(z)}]"
+                data += f"[{format(p[0])};{format(p[1])};{format(p[2])}]"
                 data += f"/"
-                data += f"[{format(0)};{format(0)};{format(-yaw)}]"
+                data += f"[{format(r[0])};{format(r[1])};{format(-r[2])}]"
                 data += f"Box{markerId}end/"
 
     message = {"raw": data}
