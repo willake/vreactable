@@ -23,6 +23,7 @@ SAMPLE_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["SampleFolder"
 CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+CHARUCO_BOARD_PATTERN = (5, 7)
 
 
 class VreactableApp:
@@ -39,12 +40,9 @@ class VreactableApp:
 
         self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
 
-        self.var_num_of_markers = tk.StringVar(value="36")
         self.var_aruco_size = tk.StringVar(value="5")
         self.var_aruco_gap_size = tk.StringVar(value="0.5")
         self.var_sample_image_count = tk.StringVar(value="0")
-        self.var_board_pattern_row = tk.StringVar(value="5")
-        self.var_board_pattern_column = tk.StringVar(value="7")
         self.var_camera_index = tk.IntVar(value=0)
         self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
 
@@ -108,9 +106,6 @@ class VreactableApp:
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
 
-        text_field_marker = ui_helper.draw_text_field(
-            frame, self.var_num_of_markers, "Num of markers", "36"
-        )
         text_field_marker_size = ui_helper.draw_cm_number_field(
             frame, self.var_aruco_size, "Marker size", "5"
         )
@@ -121,40 +116,19 @@ class VreactableApp:
             frame, "Generate aruco markers", self.on_click_generate_aruco
         )
 
-        text_field_marker.grid(row=0, column=0, pady=5)
-        text_field_marker_size.grid(row=1, column=0, pady=5)
-        text_field_gap_size.grid(row=2, column=0, pady=5)
-        btn_generate.grid(row=3, column=0, ipadx=10, pady=5)
+        text_field_marker_size.grid(row=0, column=0, pady=5)
+        text_field_gap_size.grid(row=1, column=0, pady=5)
+        btn_generate.grid(row=2, column=0, ipadx=10, pady=5)
 
         frame.columnconfigure(0, weight=1)
-        return frame
-
-    def draw_frame_calibration_settings(self, parent):
-        frame = ttk.Labelframe(parent, text="CharucoBoard Settings")
-
-        charuco_pattern_field = ui_helper.draw_charuco_pattern_field(
-            frame,
-            self.var_board_pattern_row,
-            self.var_board_pattern_column,
-            "Pattern",
-            "5",
-            "7",
-        )
-        btn_generate = ui_helper.draw_button(
-            frame, "Generate charuco board", self.on_click_generate_charuco_board
-        )
-
-        charuco_pattern_field.grid(row=0, column=0, pady=5)
-        btn_generate.grid(row=1, column=0, pady=5)
-
-        frame.columnconfigure(index=0, weight=1)
-
         return frame
 
     def draw_frame_calibration(self, parent):
         frame = ttk.Labelframe(parent, text="Camera Calibratior")
 
-        frame_settings = self.draw_frame_calibration_settings(frame)
+        btn_generate = ui_helper.draw_button(
+            frame, "Generate charuco board", self.on_click_generate_charuco_board
+        )
 
         rs_field_sample_count = ui_helper.draw_refreshable_state_field(
             frame,
@@ -171,9 +145,7 @@ class VreactableApp:
             frame, "Calibrate camera", self.on_click_calibrate_camera
         )
 
-        frame_settings.grid(
-            row=0, column=0, ipadx=10, ipady=10, padx=10, pady=5, sticky=tk.EW
-        )
+        btn_generate.grid(row=0, column=0, pady=5)
         rs_field_sample_count.grid(row=1, column=0, pady=5)
         btn_capture.grid(row=2, column=0, pady=5)
         btn_calibrate.grid(row=3, column=0, pady=5)
@@ -277,7 +249,7 @@ class VreactableApp:
             markerFolder=MARKER_FOLDER,
             packedFolder=PACKED_FOLDER,
             arucoDict=ARUCO_DICT,
-            numMarkers=int(self.var_num_of_markers.get()),
+            numMarkers=36,
             markerSizecm=float(self.var_aruco_size.get()),
             gapSizecm=float(self.var_aruco_gap_size.get()),
         )
@@ -288,14 +260,10 @@ class VreactableApp:
         pass
 
     def on_click_generate_charuco_board(self):
-        pattern = (
-            int(self.var_board_pattern_row.get()),
-            int(self.var_board_pattern_column.get()),
-        )
         generator.generateCharucoBoard(
             outputFolder=CHARUCO_FOLDER,
             arucoDict=ARUCO_DICT,
-            pattern=pattern,
+            pattern=CHARUCO_BOARD_PATTERN,
             markerSizecm=float(self.var_aruco_size.get()),
             gapSizecm=float(self.var_aruco_gap_size.get()),
         )
@@ -319,15 +287,11 @@ class VreactableApp:
         pass
 
     def on_click_calibrate_camera(self):
-        pattern = (
-            int(self.var_board_pattern_row.get()),
-            int(self.var_board_pattern_column.get()),
-        )
         calibrator.calibrate(
             sampleFolder=SAMPLE_FOLDER,
             calibFolder=CALIB_FOLDER,
             arucoDict=ARUCO_DICT,
-            pattern=pattern,
+            pattern=CHARUCO_BOARD_PATTERN,
         )
         self.refresh_status()
         pass
@@ -369,7 +333,7 @@ class VreactableApp:
     def detect_callback(self, markerIds, positions, rotations):
         if len(markerIds) == 0:
             return
-        
+
         for index in range(6):
             if markerIds[index] < 0:
                 continue
