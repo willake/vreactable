@@ -24,7 +24,7 @@ CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 CHARUCO_BOARD_PATTERN = (5, 7)
-VERSION = "v1.3"
+VERSION = "v2.3"
 
 
 class VreactableApp:
@@ -54,8 +54,8 @@ class VreactableApp:
         self.var_lock_yaw = tk.BooleanVar(value=False)
 
         self.var_cube_active_marker_ids = [tk.StringVar(value="-")] * 6
-        self.var_cube_positions = [tk.StringVar(value="(0.00, 0.00, 0.00)")] * 6
-        self.var_cube_rotations = [tk.StringVar(value="(0.00, 0.00, 0.00)")] * 6
+        self.var_cube_positions = [tk.StringVar(value="[0.00; 0.00; 0.00]")] * 6
+        self.var_cube_rotations = [tk.StringVar(value="[0.00; 0.00; 0.00]")] * 6
 
         # title
         frame_header = ttk.Frame(self.frame_main)
@@ -257,10 +257,10 @@ class VreactableApp:
             frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
         )
         label_position = ui_helper.draw_state_label(
-            frame, "Position", self.var_cube_positions[cube_index], "(0.00, 0.00, 0.00)"
+            frame, "Position", self.var_cube_positions[cube_index], "[0.00; 0.00; 0.00]"
         )
         label_rotation = ui_helper.draw_state_label(
-            frame, "Rotation", self.var_cube_rotations[cube_index], "(0.00, 0.00, 0.00)"
+            frame, "Rotation", self.var_cube_rotations[cube_index], "[0.00; 0.00; 0.00]"
         )
 
         label_active_code.grid(row=0, column=0, ipadx=5, pady=10)
@@ -394,18 +394,21 @@ class VreactableApp:
             return
 
         for index in range(6):
-            if markerIds[index] < 0:
-                continue
-            p = positions[index]
-            r = rotations[index]
+            if markerIds[index] > -1:
+                p = positions[index]
+                r = rotations[index]
 
-            self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
-            self.var_cube_positions[index].set(
-                f"[{helper.format(p[0])};{helper.format(p[1])};{helper.format(p[2])}]"
-            )
-            self.var_cube_rotations[index].set(
-                f"[{helper.format(r[0])};{helper.format(r[1])};{helper.format(-r[2])}]"
-            )
+                self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
+                self.var_cube_positions[index].set(
+                    f"[{helper.format(p[0])}; {helper.format(p[1])}; {helper.format(p[2])}]"
+                )
+                self.var_cube_rotations[index].set(
+                    f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
+                )
+            else:
+                self.var_cube_active_marker_ids[index].set("-")
+                self.var_cube_positions[index].set(f"[0.00; 0.00; 0.00]")
+                self.var_cube_rotations[index].set(f"[0.00; 0.00; 0.00]")
         pass
 
 
