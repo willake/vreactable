@@ -431,3 +431,4 @@ class VreactableApp:
 if __name__ == "__main__":
     app = VreactableApp()
     app.run()
+    app.detect_thread.join()
