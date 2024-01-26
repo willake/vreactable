@@ -56,9 +56,10 @@ class VreactableApp:
         self.var_lock_pitch = tk.BooleanVar(value=False)
         self.var_lock_yaw = tk.BooleanVar(value=False)
 
-        self.var_cube_active_marker_ids = [tk.StringVar(value="-")] * 6
-        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]")] * 6
-        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]")] * 6
+        # tk.StringVar(value="[0; 0; 0]") * 6 will not working, they will all point to same address
+        self.var_cube_active_marker_ids = [tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-")]
+        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
+        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
 
         # title
         frame_header = ttk.Frame(self.frame_main)
