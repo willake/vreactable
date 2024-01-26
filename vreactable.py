@@ -8,6 +8,7 @@ from helper import helper, ui_helper
 import pathlib
 import os
 import configparser
+import sys
 from threading import *
 
 config = configparser.ConfigParser()
@@ -56,8 +57,8 @@ class VreactableApp:
         self.var_lock_yaw = tk.BooleanVar(value=False)
 
         self.var_cube_active_marker_ids = [tk.StringVar(value="-")] * 6
-        self.var_cube_positions = [tk.StringVar(value="[0.00; 0.00; 0.00]")] * 6
-        self.var_cube_rotations = [tk.StringVar(value="[0.00; 0.00; 0.00]")] * 6
+        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]")] * 6
+        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]")] * 6
 
         # title
         frame_header = ttk.Frame(self.frame_main)
@@ -254,22 +255,26 @@ class VreactableApp:
         return frame
 
     def draw_cube_status(self, parent, cube_index):
-        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}")
+        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}", width=230, height=100)
         label_active_code = ui_helper.draw_state_label(
             frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
         )
         label_position = ui_helper.draw_state_label(
-            frame, "Position", self.var_cube_positions[cube_index], "[0.00; 0.00; 0.00]"
+            frame, "Position", self.var_cube_positions[cube_index], "[0; 0; 0]"
         )
         label_rotation = ui_helper.draw_state_label(
-            frame, "Rotation", self.var_cube_rotations[cube_index], "[0.00; 0.00; 0.00]"
+            frame, "Rotation", self.var_cube_rotations[cube_index], "[0; 0; 0]"
         )
 
+        label_active_code.configure(width=220)
+        label_position.configure(width=220)
+        label_rotation.configure(width=220)
         label_active_code.grid(row=0, column=0, ipadx=5, pady=10)
         label_position.grid(row=1, column=0, ipadx=5, pady=5)
         label_rotation.grid(row=2, column=0, ipadx=5, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
+        frame.grid_propagate(False)
         return frame
 
     def draw_frame_detection_inspector(self, parent):
@@ -417,8 +422,8 @@ class VreactableApp:
                 )
             else:
                 self.var_cube_active_marker_ids[index].set("-")
-                self.var_cube_positions[index].set(f"[0.00; 0.00; 0.00]")
-                self.var_cube_rotations[index].set(f"[0.00; 0.00; 0.00]")
+                self.var_cube_positions[index].set(f"[0; 0; 0]")
+                self.var_cube_rotations[index].set(f"[0; 0; 0]")
         pass
 
 
