@@ -1,0 +1,622 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.3">
+  <object class="tk.Toplevel" id="toplevel_vreactable" named="True">
+    <property name="height">600</property>
+    <property name="minsize">0|200</property>
+    <property name="title" translatable="yes">VRectable</property>
+    <property name="width">600</property>
+    <containerlayout manager="pack">
+      <property name="propagate">false</property>
+    </containerlayout>
+    <child>
+      <object class="ttk.Frame" id="frame_vreactable" named="True">
+        <property name="height">200</property>
+        <property name="width">400</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">both</property>
+          <property name="side">top</property>
+        </layout>
+        <containerlayout manager="pack">
+          <property name="propagate">false</property>
+        </containerlayout>
+        <child>
+          <object class="ttk.Frame" id="frame_title" named="True">
+            <layout manager="pack">
+              <property name="expand">false</property>
+              <property name="fill">x</property>
+              <property name="padx">20</property>
+              <property name="pady">10</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="ttk.Label" id="label_title" named="True">
+                <property name="text" translatable="yes">VReactable</property>
+                <layout manager="pack">
+                  <property name="side">top</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Frame" id="frame_container" named="True">
+            <property name="height">200</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="expand">false</property>
+              <property name="fill">both</property>
+              <property name="padx">20</property>
+              <property name="side">top</property>
+            </layout>
+            <containerlayout manager="grid">
+              <property type="col" id="0" name="weight">2</property>
+              <property type="col" id="1" name="weight">1</property>
+            </containerlayout>
+            <child>
+              <object class="ttk.Frame" id="frame_left" named="True">
+                <property name="height">200</property>
+                <property name="width">300</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="ttk.Labelframe" id="frame_aruco_generator" named="True">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Aruco Generator</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="expand">false</property>
+                      <property name="fill">x</property>
+                      <property name="padx">20</property>
+                      <property name="pady">5</property>
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Frame" id="frame1">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label3">
+                            <property name="text" translatable="yes">Num of markers</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Entry" id="entry_num_of_markers" named="True">
+                            <property name="justify">center</property>
+                            <property name="text" translatable="yes">36</property>
+                            <property name="textvariable">string:var_num_of_markers</property>
+                            <property name="width">5</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame6">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label5">
+                            <property name="text" translatable="yes">Size</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Entry" id="entry_aruco_size" named="True">
+                            <property name="justify">center</property>
+                            <property name="text" translatable="yes">5</property>
+                            <property name="textvariable">string:var_aruco_size</property>
+                            <property name="validate">focusout</property>
+                            <property name="width">5</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Label" id="label6">
+                            <property name="text" translatable="yes">cm</property>
+                            <layout manager="grid">
+                              <property name="column">2</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame5">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label7">
+                            <property name="text" translatable="yes">Gap size</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Entry" id="entry_aruco_gap_size" named="True">
+                            <property name="justify">center</property>
+                            <property name="text" translatable="yes">0.5</property>
+                            <property name="textvariable">string:var_aruco_gap_size</property>
+                            <property name="validate">focusout</property>
+                            <property name="width">5</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Label" id="label8">
+                            <property name="text" translatable="yes">cm</property>
+                            <layout manager="grid">
+                              <property name="column">2</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="button_generate_aruco" named="True">
+                        <property name="command" type="command" cbtype="simple">on_click_generate_aruco</property>
+                        <property name="text" translatable="yes">Generate aruco markers</property>
+                        <layout manager="pack">
+                          <property name="ipadx">20</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Labelframe" id="frame_calibration" named="True">
+                    <property name="text" translatable="yes">Calibration</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="expand">false</property>
+                      <property name="fill">x</property>
+                      <property name="padx">20</property>
+                      <property name="pady">5</property>
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Labelframe" id="frame_board_settings" named="True">
+                        <property name="height">100</property>
+                        <property name="text" translatable="yes">CharucoBoard Settings</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="expand">true</property>
+                          <property name="fill">x</property>
+                          <property name="padx">20</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Frame" id="frame4">
+                            <property name="height">200</property>
+                            <property name="width">200</property>
+                            <layout manager="pack">
+                              <property name="pady">10</property>
+                              <property name="side">top</property>
+                            </layout>
+                            <child>
+                              <object class="ttk.Label" id="label4">
+                                <property name="text" translatable="yes">Pattern</property>
+                                <layout manager="grid">
+                                  <property name="column">0</property>
+                                  <property name="row">0</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="ttk.Frame" id="frame_pattern" named="True">
+                                <property name="height">200</property>
+                                <property name="width">200</property>
+                                <layout manager="grid">
+                                  <property name="column">1</property>
+                                  <property name="padx">10</property>
+                                  <property name="row">0</property>
+                                </layout>
+                                <child>
+                                  <object class="ttk.Entry" id="entry_row" named="True">
+                                    <property name="justify">center</property>
+                                    <property name="text" translatable="yes">5</property>
+                                    <property name="textvariable">string:var_board_pattern_row</property>
+                                    <property name="width">3</property>
+                                    <layout manager="grid">
+                                      <property name="column">0</property>
+                                      <property name="row">0</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Label" id="label_x" named="True">
+                                    <property name="text" translatable="yes">x</property>
+                                    <layout manager="grid">
+                                      <property name="column">1</property>
+                                      <property name="row">0</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="ttk.Entry" id="entry_column" named="True">
+                                    <property name="justify">center</property>
+                                    <property name="text" translatable="yes">7</property>
+                                    <property name="textvariable">string:var_board_pattern_column</property>
+                                    <property name="width">3</property>
+                                    <layout manager="grid">
+                                      <property name="column">2</property>
+                                      <property name="row">0</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Button" id="button_generate_charuco_board" named="True">
+                            <property name="command" type="command" cbtype="simple">on_click_generate_charuco_board</property>
+                            <property name="text" translatable="yes">Generate charuco board</property>
+                            <layout manager="pack">
+                              <property name="ipadx">20</property>
+                              <property name="pady">10</property>
+                              <property name="side">top</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame_sample_images_count" named="True">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="expand">true</property>
+                          <property name="fill">x</property>
+                          <property name="padx">10</property>
+                          <property name="pady">0</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <containerlayout manager="grid">
+                          <property name="anchor">center</property>
+                        </containerlayout>
+                        <child>
+                          <object class="ttk.Frame" id="frame2" named="True">
+                            <property name="height">200</property>
+                            <property name="width">200</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                            <child>
+                              <object class="ttk.Label" id="label1" named="True">
+                                <property name="compound">center</property>
+                                <property name="justify">center</property>
+                                <property name="padding">10</property>
+                                <property name="text" translatable="yes">Sampled image count:</property>
+                                <layout manager="pack" />
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Frame" id="frame3" named="True">
+                            <property name="height">200</property>
+                            <property name="width">200</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
+                            <child>
+                              <object class="ttk.Label" id="label2" named="True">
+                                <property name="text" translatable="yes">0</property>
+                                <property name="textvariable">string:var_sample_image_count</property>
+                                <layout manager="pack" />
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Button" id="btn_referesh" named="True">
+                            <property name="command" type="command" cbtype="simple">on_click_refresh_sampled_count</property>
+                            <property name="image">refresh.png</property>
+                            <layout manager="grid">
+                              <property name="column">2</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="button_sample_images" named="True">
+                        <property name="command" type="command" cbtype="simple">on_click_capture_sample_images</property>
+                        <property name="text" translatable="yes">Capture sample images</property>
+                        <layout manager="pack">
+                          <property name="ipadx">20</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame_is_calibrated" named="True">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="expand">true</property>
+                          <property name="fill">x</property>
+                          <property name="padx">10</property>
+                          <property name="pady">0</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <containerlayout manager="grid">
+                          <property name="anchor">center</property>
+                        </containerlayout>
+                        <child>
+                          <object class="ttk.Frame" id="frame_is_calibrated_l" named="True">
+                            <property name="height">200</property>
+                            <property name="width">200</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                            <child>
+                              <object class="ttk.Label" id="label_is_calibrated" named="True">
+                                <property name="compound">center</property>
+                                <property name="justify">center</property>
+                                <property name="padding">10</property>
+                                <property name="text" translatable="yes">Is Calibrated:</property>
+                                <layout manager="pack" />
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Frame" id="frame_is_calibrated_r" named="True">
+                            <property name="height">200</property>
+                            <property name="width">200</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
+                            <child>
+                              <object class="ttk.Label" id="label_is_calibrated_value" named="True">
+                                <property name="text" translatable="yes">Yes</property>
+                                <property name="textvariable">string:var_is_calibrated</property>
+                                <layout manager="pack" />
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="button_calibrate" named="True">
+                        <property name="command" type="command" cbtype="simple">on_click_calibrate_camera</property>
+                        <property name="text" translatable="yes">Calibrate camera</property>
+                        <layout manager="pack">
+                          <property name="ipadx">20</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Frame" id="frame_right" named="True">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="grid">
+                  <property name="column">1</property>
+                  <property name="padx">10</property>
+                  <property name="row">0</property>
+                </layout>
+                <child>
+                  <object class="ttk.Labelframe" id="frame_status" named="True">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Status</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="ipady">10</property>
+                      <property name="padx">10</property>
+                      <property name="pady">10</property>
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Frame" id="frame12">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="ipadx">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label11" named="True">
+                            <property name="text" translatable="yes">Is Calibrated:</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Label" id="label12" named="True">
+                            <property name="text" translatable="yes">Yes</property>
+                            <property name="textvariable">string:var_is_detection_ready</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame13">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="ipadx">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label13" named="True">
+                            <property name="text" translatable="yes">Is Camera ready:</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Label" id="label14" named="True">
+                            <property name="text" translatable="yes">Yes</property>
+                            <property name="textvariable">string:var_is_detection_ready</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Labelframe" id="label_frame_detect" named="True">
+                    <property name="height">200</property>
+                    <property name="text" translatable="yes">Detection</property>
+                    <property name="width">200</property>
+                    <layout manager="pack">
+                      <property name="expand">true</property>
+                      <property name="fill">both</property>
+                      <property name="padx">10</property>
+                      <property name="side">top</property>
+                    </layout>
+                    <child>
+                      <object class="ttk.Frame" id="frame10">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="ipadx">10</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label_detection_ready" named="True">
+                            <property name="text" translatable="yes">Is Detection Ready:</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Label" id="label_is_detection_ready" named="True">
+                            <property name="text" translatable="yes">Yes</property>
+                            <property name="textvariable">string:var_is_detection_ready</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Frame" id="frame14">
+                        <property name="height">200</property>
+                        <property name="width">200</property>
+                        <layout manager="pack">
+                          <property name="ipadx">10</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                        <child>
+                          <object class="ttk.Label" id="label15" named="True">
+                            <property name="text" translatable="yes">Websocket IP:</property>
+                            <layout manager="grid">
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="ttk.Entry" id="entry_websocket_ip" named="True">
+                            <property name="text" translatable="yes">ws://localhost:8090</property>
+                            <property name="textvariable">string:var_websocket_ip</property>
+                            <layout manager="grid">
+                              <property name="column">1</property>
+                              <property name="padx">10</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="ttk.Button" id="button_detect" named="True">
+                        <property name="command" type="command" cbtype="simple">on_click_detect</property>
+                        <property name="text" translatable="yes">Detect</property>
+                        <layout manager="pack">
+                          <property name="ipadx">30</property>
+                          <property name="ipady">2</property>
+                          <property name="pady">10</property>
+                          <property name="side">top</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
