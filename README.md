@@ -4,6 +4,8 @@ VReactable is an interface connects the VR world and Reality. The tool runs on a
 
 ![Overview](./assets/readme/overview_optimized.gif)
 
+![Overview](./assets/readme/overview.PNG)
+
 ## Prerequisite
 
 To use this tool, there are 3 components need to be prepared.
@@ -41,7 +43,9 @@ To use Chataigne, first download the [1.9.7](https://benjamin.kuperberg.fr/chata
 
 Next, download Resonite on Steam. Open Resonite and create a world. Import the VReactable inventory by copy `resrec:///G-HKU-Mixed-Reality/R-6586E3FF28427F32F9B8D2ADA8408D8DCEF6AE7894A49781AADAA08F7DB1FE57` and `Ctrl+V` in the game. Right click the object and save it to the inventory. Note that if it is not savable, it is because the current foloder is not a savable location.
 
-![Screenshot](./assets/readme/screenshot.png)
+![Visualizer-1](./assets/readme/visualizer-1_optimized.gif)
+![Visualizer-2](./assets/readme/visualizer-2_optimized.gif)
+![VReactable](./assets/readme/vreactable-tool_optimized.gif)
 
 ## Start Tracking
 
