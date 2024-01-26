@@ -2,12 +2,14 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector import detector
+from detector.detector import CubeDetector
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
 import os
 import configparser
+import sys
+from threading import *
 
 config = configparser.ConfigParser()
 config.read("./config.ini")
@@ -23,34 +25,45 @@ SAMPLE_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["SampleFolder"
 CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
+CHARUCO_BOARD_PATTERN = (5, 7)
+VERSION = "v2.3"
 
 
 class VreactableApp:
     def __init__(self, master=None):
+        self.detector = CubeDetector(self, self.detect_callback)
+        self.detect_thread = None
         # build ui
         style = Style(theme="darkly")
         self.toplevel_vreactable = style.master
         # self.toplevel_vreactable.configure(height=700, width=600)
         # self.toplevel_vreactable.minsize(700, 600)
-        self.toplevel_vreactable.title("VRectable")
+        self.toplevel_vreactable.title(f"VRectable {VERSION}")
         self.frame_main = ttk.Frame(self.toplevel_vreactable)
         self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
 
         self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
 
-        self.var_num_of_markers = tk.StringVar(value="36")
         self.var_aruco_size = tk.StringVar(value="5")
         self.var_aruco_gap_size = tk.StringVar(value="0.5")
         self.var_sample_image_count = tk.StringVar(value="0")
-        self.var_board_pattern_row = tk.StringVar(value="5")
-        self.var_board_pattern_column = tk.StringVar(value="7")
         self.var_camera_index = tk.IntVar(value=0)
         self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
+        self.var_lock_x = tk.BooleanVar(value=False)
+        self.var_lock_y = tk.BooleanVar(value=False)
+        self.var_lock_z = tk.BooleanVar(value=False)
+        self.var_lock_roll = tk.BooleanVar(value=False)
+        self.var_lock_pitch = tk.BooleanVar(value=False)
+        self.var_lock_yaw = tk.BooleanVar(value=False)
+
+        # tk.StringVar(value="[0; 0; 0]") * 6 will not working, they will all point to same address
+        self.var_cube_active_marker_ids = [tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-")]
+        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
+        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
 
         # title
         frame_header = ttk.Frame(self.frame_main)
-        label_title = ttk.Label(frame_header)
-        label_title.configure(text="VReactable")
+        label_title = ttk.Label(frame_header, text=f"VReactable {VERSION}")
         label_title.grid(row=0, column=0, pady=5)
         frame_header.grid(row=0, column=0, padx=10)
         self.var_is_calibrated = tk.StringVar(value="False")
@@ -59,29 +72,39 @@ class VreactableApp:
         # main frame
         frame_body = ttk.Frame(self.frame_main)
 
-        # left frame
-        frame_left = ttk.Frame(frame_body)
-        frame_aruco_generator = self.draw_frame_aruco_generator(frame_left)
-        frame_calibration = self.draw_frame_calibration(frame_left)
+        # frame 1
+        frame_1 = ttk.Frame(frame_body)
+        frame_aruco_generator = self.draw_frame_aruco_generator(frame_1)
+        frame_calibration = self.draw_frame_calibration(frame_1)
         # organize layout
         frame_aruco_generator.grid(
             row=0, column=0, ipadx=15, ipady=5, pady=10, sticky=tk.EW
         )
         frame_calibration.grid(row=1, column=0, ipadx=15, ipady=5, pady=1, sticky=tk.EW)
-        frame_left.grid(row=0, column=0, padx=10)
-        frame_left.columnconfigure(0, weight=1)
+        frame_1.grid(row=0, column=0, padx=10)
+        frame_1.columnconfigure(0, weight=1)
 
-        # right frame
-        frame_right = ttk.Frame(frame_body)
-        frame_detect = self.draw_frame_detector(frame_right)
+        # frame 2
+        frame_2 = ttk.Frame(frame_body)
+        frame_detect = self.draw_frame_detector(frame_2)
         frame_detect.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
-        frame_right.grid(row=0, column=1, padx=10)
-        frame_right.columnconfigure(0, weight=1)
+        frame_2.grid(row=0, column=1, padx=10)
+        frame_2.columnconfigure(0, weight=1)
+
+        # frame 3
+        frame_3 = ttk.Frame(frame_body)
+        frame_detection_inspector = self.draw_frame_detection_inspector(frame_3)
+        frame_detection_inspector.grid(
+            row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW
+        )
+        frame_3.grid(row=0, column=2, padx=10)
+        frame_3.columnconfigure(0, weight=1)
 
         frame_body.grid(row=1, column=0, pady=5)
         frame_body.rowconfigure(0, weight=1)
         frame_body.columnconfigure(0, weight=2)
         frame_body.columnconfigure(1, weight=1)
+        frame_body.columnconfigure(2, weight=2)
 
         # Main widget
         self.mainwindow = self.toplevel_vreactable
@@ -93,9 +116,6 @@ class VreactableApp:
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
 
-        text_field_marker = ui_helper.draw_text_field(
-            frame, self.var_num_of_markers, "Num of markers", "36"
-        )
         text_field_marker_size = ui_helper.draw_cm_number_field(
             frame, self.var_aruco_size, "Marker size", "5"
         )
@@ -106,40 +126,19 @@ class VreactableApp:
             frame, "Generate aruco markers", self.on_click_generate_aruco
         )
 
-        text_field_marker.grid(row=0, column=0, pady=5)
-        text_field_marker_size.grid(row=1, column=0, pady=5)
-        text_field_gap_size.grid(row=2, column=0, pady=5)
-        btn_generate.grid(row=3, column=0, ipadx=10, pady=5)
+        text_field_marker_size.grid(row=0, column=0, pady=5)
+        text_field_gap_size.grid(row=1, column=0, pady=5)
+        btn_generate.grid(row=2, column=0, ipadx=10, pady=5)
 
         frame.columnconfigure(0, weight=1)
-        return frame
-
-    def draw_frame_calibration_settings(self, parent):
-        frame = ttk.Labelframe(parent, text="CharucoBoard Settings")
-
-        charuco_pattern_field = ui_helper.draw_charuco_pattern_field(
-            frame,
-            self.var_board_pattern_row,
-            self.var_board_pattern_column,
-            "Pattern",
-            "5",
-            "7",
-        )
-        btn_generate = ui_helper.draw_button(
-            frame, "Generate charuco board", self.on_click_generate_charuco_board
-        )
-
-        charuco_pattern_field.grid(row=0, column=0, pady=5)
-        btn_generate.grid(row=1, column=0, pady=5)
-
-        frame.columnconfigure(index=0, weight=1)
-
         return frame
 
     def draw_frame_calibration(self, parent):
         frame = ttk.Labelframe(parent, text="Camera Calibratior")
 
-        frame_settings = self.draw_frame_calibration_settings(frame)
+        btn_generate = ui_helper.draw_button(
+            frame, "Generate charuco board", self.on_click_generate_charuco_board
+        )
 
         rs_field_sample_count = ui_helper.draw_refreshable_state_field(
             frame,
@@ -156,9 +155,7 @@ class VreactableApp:
             frame, "Calibrate camera", self.on_click_calibrate_camera
         )
 
-        frame_settings.grid(
-            row=0, column=0, ipadx=10, ipady=10, padx=10, pady=5, sticky=tk.EW
-        )
+        btn_generate.grid(row=0, column=0, pady=5)
         rs_field_sample_count.grid(row=1, column=0, pady=5)
         btn_capture.grid(row=2, column=0, pady=5)
         btn_calibrate.grid(row=3, column=0, pady=5)
@@ -169,10 +166,10 @@ class VreactableApp:
     def draw_frame_status(self, parent):
         frame = ttk.Labelframe(parent, text="Status")
 
-        s_field_is_calibrated = ui_helper.draw_state_field(
+        s_field_is_calibrated = ui_helper.draw_state_label(
             frame, "Is camera calibrated: ", self.var_is_calibrated, "False"
         )
-        s_field_is_cam_ready = ui_helper.draw_state_field(
+        s_field_is_cam_ready = ui_helper.draw_state_label(
             frame, "Is camera ready:", self.var_is_camera_ready, "False"
         )
 
@@ -188,10 +185,57 @@ class VreactableApp:
 
         return frame
 
+    def draw_frame_detector_lock_settings(self, parent):
+        frame = ttk.LabelFrame(parent, text="Lock settings")
+
+        label_position = ttk.Label(frame, text="Position")
+        frame_position = ttk.Frame(frame)
+        checkbox_x = ui_helper.draw_check_box(frame_position, "x", self.var_lock_x)
+        checkbox_y = ui_helper.draw_check_box(frame_position, "y", self.var_lock_y)
+        checkbox_z = ui_helper.draw_check_box(frame_position, "z", self.var_lock_z)
+        checkbox_x.grid(row=0, column=0, pady=5)
+        checkbox_y.grid(row=0, column=1, pady=5)
+        checkbox_z.grid(row=0, column=2, pady=5)
+        frame_position.columnconfigure(index=0, weight=1)
+        frame_position.columnconfigure(index=1, weight=1)
+        frame_position.columnconfigure(index=2, weight=1)
+
+        label_rotation = ttk.Label(frame, text="Rotation")
+        frame_rotation = ttk.Frame(frame)
+        checkbox_roll = ui_helper.draw_check_box(
+            frame_rotation, "roll", self.var_lock_roll
+        )
+        checkbox_pitch = ui_helper.draw_check_box(
+            frame_rotation, "pitch", self.var_lock_pitch
+        )
+        checkbox_yaw = ui_helper.draw_check_box(
+            frame_rotation, "yaw", self.var_lock_yaw
+        )
+        checkbox_roll.grid(row=0, column=0, pady=5)
+        checkbox_pitch.grid(row=0, column=1, pady=5)
+        checkbox_yaw.grid(row=0, column=2, pady=5)
+        frame_rotation.columnconfigure(index=0, weight=1)
+        frame_rotation.columnconfigure(index=1, weight=1)
+        frame_rotation.columnconfigure(index=2, weight=1)
+
+        label_position.grid(row=0, column=0, pady=5)
+        frame_position.grid(row=1, column=0, pady=5, sticky=tk.EW)
+        label_rotation.grid(row=2, column=0, pady=5)
+        frame_rotation.grid(row=3, column=0, pady=5, sticky=tk.EW)
+
+        frame.rowconfigure(index=0, weight=1)
+        frame.rowconfigure(index=1, weight=1)
+        frame.rowconfigure(index=2, weight=1)
+        frame.rowconfigure(index=3, weight=1)
+        frame.columnconfigure(index=0, weight=1)
+        return frame
+
     def draw_frame_detector(self, parent):
         frame = ttk.Labelframe(parent, text="Detector")
 
         frame_status = self.draw_frame_status(frame)
+
+        frame_lock_settings = self.draw_frame_detector_lock_settings(frame)
 
         field_camera_index = ui_helper.draw_text_field(
             frame, self.var_camera_index, "Camera index", "0", 5
@@ -202,16 +246,69 @@ class VreactableApp:
         btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
 
         frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
-        field_camera_index.grid(row=1, column=0, padx=10, pady=5)
-        field_webocket_ip.grid(row=2, column=0, padx=10, pady=5)
-        btn_detect.grid(row=3, column=0, pady=5)
+        frame_lock_settings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
+        field_camera_index.grid(row=2, column=0, padx=10, pady=5)
+        field_webocket_ip.grid(row=3, column=0, padx=10, pady=5)
+        btn_detect.grid(row=4, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
         return frame
 
+    def draw_cube_status(self, parent, cube_index):
+        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}", width=230, height=100)
+        label_active_code = ui_helper.draw_state_label_unpropagated(
+            frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
+        )
+        label_position = ui_helper.draw_state_label_unpropagated(
+            frame, "Position", self.var_cube_positions[cube_index], "[0; 0; 0]"
+        )
+        label_rotation = ui_helper.draw_state_label_unpropagated(
+            frame, "Rotation", self.var_cube_rotations[cube_index], "[0; 0; 0]"
+        )
+
+        label_active_code.configure(width=220)
+        label_position.configure(width=220)
+        label_rotation.configure(width=220)
+        label_active_code.grid(row=0, column=0, ipadx=5, pady=10)
+        label_position.grid(row=1, column=0, ipadx=5, pady=5)
+        label_rotation.grid(row=2, column=0, ipadx=5, pady=5)
+
+        frame.columnconfigure(index=0, weight=1)
+        frame.grid_propagate(False)
+        return frame
+
+    def draw_frame_detection_inspector(self, parent):
+        frame = ttk.LabelFrame(parent, text="Detection Inspector")
+
+        for index in range(6):
+            status_cube = self.draw_cube_status(frame, index)
+            status_cube.grid(
+                row=int(index / 3),
+                column=int(index % 3),
+                ipadx=10,
+                ipady=10,
+                padx=10,
+                pady=10,
+            )
+            pass
+
+        frame.rowconfigure(index=0, weight=1)
+        frame.rowconfigure(index=1, weight=1)
+        frame.rowconfigure(index=2, weight=1)
+        frame.columnconfigure(index=0, weight=1)
+        frame.columnconfigure(index=1, weight=1)
+        frame.columnconfigure(index=2, weight=1)
+
+        return frame
+
     def run(self):
+        #self.update_frame()
         self.mainwindow.mainloop()
+        pass
+
+    def update_frame(self):
+        self.mainwindow.after(1000, self.update_frame)
         pass
 
     def on_click_generate_aruco(self):
@@ -219,7 +316,7 @@ class VreactableApp:
             markerFolder=MARKER_FOLDER,
             packedFolder=PACKED_FOLDER,
             arucoDict=ARUCO_DICT,
-            numMarkers=int(self.var_num_of_markers.get()),
+            numMarkers=36,
             markerSizecm=float(self.var_aruco_size.get()),
             gapSizecm=float(self.var_aruco_gap_size.get()),
         )
@@ -230,14 +327,10 @@ class VreactableApp:
         pass
 
     def on_click_generate_charuco_board(self):
-        pattern = (
-            int(self.var_board_pattern_row.get()),
-            int(self.var_board_pattern_column.get()),
-        )
         generator.generateCharucoBoard(
             outputFolder=CHARUCO_FOLDER,
             arucoDict=ARUCO_DICT,
-            pattern=pattern,
+            pattern=CHARUCO_BOARD_PATTERN,
             markerSizecm=float(self.var_aruco_size.get()),
             gapSizecm=float(self.var_aruco_gap_size.get()),
         )
@@ -261,21 +354,23 @@ class VreactableApp:
         pass
 
     def on_click_calibrate_camera(self):
-        pattern = (
-            int(self.var_board_pattern_row.get()),
-            int(self.var_board_pattern_column.get()),
-        )
         calibrator.calibrate(
             sampleFolder=SAMPLE_FOLDER,
             calibFolder=CALIB_FOLDER,
             arucoDict=ARUCO_DICT,
-            pattern=pattern,
+            pattern=CHARUCO_BOARD_PATTERN,
         )
         self.refresh_status()
         pass
 
     def on_click_detect(self):
         print("Try start detecting")
+        if self.detect_thread != None and self.detect_thread.is_alive():
+            showinfo(
+                title="Detector is running already",
+                message=f"Detector is running already. Please press Q in detector window to close it.",
+            )
+            return
         if self.is_detector_ready() is False:
             showinfo(
                 title="Detector is not ready",
@@ -284,7 +379,9 @@ class VreactableApp:
             return
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        detector.detect_arucos(calibFilePath, ip)
+        self.detect_thread = Thread(target=self.detector.detect_arucos, args=(calibFilePath, ip))
+        self.detect_thread.start()
+        #self.detector.detect_arucos(calibFilePath, ip)
         pass
 
     def update_num_sampled_images(self):
@@ -308,7 +405,31 @@ class VreactableApp:
             return False
         return True
 
+    def detect_callback(self, markerIds, positions, rotations):
+        if len(markerIds) == 0:
+            return
+
+        for index in range(6):
+            if markerIds[index] > -1:
+                p = positions[index]
+                r = rotations[index]
+
+                self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
+                self.var_cube_positions[index].set(
+                    f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
+                )
+                self.var_cube_rotations[index].set(
+                    f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
+                )
+            else:
+                self.var_cube_active_marker_ids[index].set("-")
+                self.var_cube_positions[index].set(f"[0; 0; 0]")
+                self.var_cube_rotations[index].set(f"[0; 0; 0]")
+        pass
+
 
 if __name__ == "__main__":
     app = VreactableApp()
     app.run()
+    if app.detect_thread != None:
+        app.detect_thread.join()

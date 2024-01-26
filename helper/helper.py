@@ -7,6 +7,10 @@ def getRootPath():
     return pathlib.Path().resolve()
 
 
+def format(v):
+    return "{:.0f}".format(round(v, 1))
+
+
 def clearFolder(folderPath):
     if os.path.exists(folderPath) == False:
         return
