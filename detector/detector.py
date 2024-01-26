@@ -168,19 +168,19 @@ class CubeDetector:
             # post prcoess data
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
-                    filteredTvecs[0] = 0 if self.app.var_lock_x else filteredTvecs[0][0]
-                    filteredTvecs[1] = (
-                        0 if self.app.var_lock_y else filteredTvecs[1][0] * -1
+                    filteredTvecs[i][0] = 0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
+                    filteredTvecs[i][1] = (
+                        0.0 if self.app.var_lock_y.get() else filteredTvecs[i][1][0] * -1
                     )
-                    filteredTvecs[2] = 0 if self.app.var_lock_z else filteredTvecs[2][0]
-                    filteredRotations[0] = (
-                        0 if self.app.var_lock_roll else filteredRotations[0]
+                    filteredTvecs[i][2] = 0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    filteredRotations[i][0] = (
+                        0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
                     )
-                    filteredRotations[1] = (
-                        0 if self.app.var_lock_pitch else filteredRotations[1]
+                    filteredRotations[i][1] = (
+                        0.0 if self.app.var_lock_pitch.get() else filteredRotations[i][1]
                     )
-                    filteredRotations[2] = (
-                        0 if self.app.var_lock_yaw else filteredRotations[2]
+                    filteredRotations[i][2] = (
+                        0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]
                     )
 
             # send data

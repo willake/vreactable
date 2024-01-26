@@ -27,7 +27,7 @@ def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations)
                 markerId = id[0]
 
                 data += f"Box{markerId}"
-                data += f"[{format(p[0])};{format(p[1])};{format(p[2])}]"
+                data += f"[{format(p[0][0])};{format(p[1][0])};{format(p[2][0])}]"
                 data += f"/"
                 data += f"[{format(r[0])};{format(r[1])};{format(-r[2])}]"
                 data += f"Box{markerId}end/"

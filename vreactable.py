@@ -400,7 +400,7 @@ class VreactableApp:
 
                 self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
                 self.var_cube_positions[index].set(
-                    f"[{helper.format(p[0])}; {helper.format(p[1])}; {helper.format(p[2])}]"
+                    f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
                 )
                 self.var_cube_rotations[index].set(
                     f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
