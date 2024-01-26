@@ -51,7 +51,7 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 
 By clicking the `Detect` button on VReactable software, the tracking will start and send data to Resonite.
 
-> Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or increasing the contrast. To do so, either use the driver of your webcam or OBS can help. Making background dark is also very helpful.
+> Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or lowering the exposure and increasing the gain. To do so, either use the driver of your webcam or OBS can help. Making the background dark is also very helpful.
 
 ![Tracking](./assets/readme/tracking_optimized.gif)
 ![Tracking Dark](./assets/readme/tracking_dark_optimized.gif)
