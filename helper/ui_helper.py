@@ -102,8 +102,7 @@ def draw_refreshable_state_field(
 
     return frame
 
-
-def draw_state_label(parent, title, variable, default_value):
+def draw_state_label_unpropagated(parent, title, variable, default_value):
     frame = ttk.Frame(parent, width=180, height=20)
     label_title = ttk.Label(frame, text=title, width=100)
     label_value = ttk.Label(frame, text=default_value, textvariable=variable, width=100)
@@ -113,6 +112,18 @@ def draw_state_label(parent, title, variable, default_value):
     frame.columnconfigure(index=0, weight=1)
     frame.columnconfigure(index=1, weight=1)
     frame.grid_propagate(False)
+
+    return frame
+
+def draw_state_label(parent, title, variable, default_value):
+    frame = ttk.Frame(parent)
+    label_title = ttk.Label(frame, text=title)
+    label_value = ttk.Label(frame, text=default_value, textvariable=variable)
+    label_title.grid(row=0, column=0)
+    label_value.grid(row=0, column=1, padx=5)
+
+    frame.columnconfigure(index=0, weight=1)
+    frame.columnconfigure(index=1, weight=1)
 
     return frame
 

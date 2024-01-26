@@ -257,13 +257,13 @@ class VreactableApp:
 
     def draw_cube_status(self, parent, cube_index):
         frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}", width=230, height=100)
-        label_active_code = ui_helper.draw_state_label(
+        label_active_code = ui_helper.draw_state_label_unpropagated(
             frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
         )
-        label_position = ui_helper.draw_state_label(
+        label_position = ui_helper.draw_state_label_unpropagated(
             frame, "Position", self.var_cube_positions[cube_index], "[0; 0; 0]"
         )
-        label_rotation = ui_helper.draw_state_label(
+        label_rotation = ui_helper.draw_state_label_unpropagated(
             frame, "Rotation", self.var_cube_rotations[cube_index], "[0; 0; 0]"
         )
 
@@ -431,4 +431,5 @@ class VreactableApp:
 if __name__ == "__main__":
     app = VreactableApp()
     app.run()
-    app.detect_thread.join()
+    if app.detect_thread != None:
+        app.detect_thread.join()
