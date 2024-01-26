@@ -2,7 +2,7 @@
 
 VReactable is an interface connects the VR world and Reality. The tool runs on an VR platform named Resonite, which is a platform that users can customize their own space and writing scripts in the space. VReactable provides a tangible interface that users can manipulate a Resonite world by moving cubes in real world. This brings an oppotunity for users to interact with VR users in a different way.
 
-![Overview](./assets//readme/overview_optimized.gif)
+![Overview](./assets/readme/overview_optimized.gif)
 
 ## Prerequisite
 
@@ -18,13 +18,15 @@ When camera is located, it is required to calibrate camera parameters. First, we
 
 Now it is ready for calibration. Click the button `Capture sample images`, a window will show up. Then, present your Charuco Board in the camera view. When all the markers are tracked, press `S` on your keyboard to save the sample image. Take at least 20 images from different angles and distances can have a best quality of camera parameters.
 
-![Sampling](./assets//readme/sampling_optimized.gif)
+![Sampling](./assets/readme/sampling_optimized.gif)
 
 Lastly, press Calibrate camera to start calibration. In the end a `cali.npz` file should be seen at `${projectfolder}\resources\calibration`.
 
 #### Aruco markers
 
 Camera is ready, then you will need to have markers for tracking. Open `VReactable.exe`. There is a section called `Aruco Generator`. Usually users do not need to adjust any settings. By clicking button `Generate Aruco markers`, a set of Aruco markers will be generated in `${projectfolder}\resources\aruco\markers`. An easy printing version will be at `${projectfolder}\resources\aruco\packed`. For the markers, it will be more handy if they are attached to a cube.
+
+![Markers](./assets/readme/markers.png)
 
 -- placeholder for placing image --
 The setup includes a camera and 36 aruco tags.
@@ -45,8 +47,8 @@ By clicking the `Detect` button on VReactable software, the tracking will start 
 
 > Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or increasing the contrast. To do so, either use the driver of your webcam or OBS can help. Making background dark is also very helpful.
 
-![Tracking](./assets//readme/tracking_optimized.gif)
-![Tracking Dark](./assets//readme/tracking_dark_optimized.gif)
+![Tracking](./assets/readme/tracking_optimized.gif)
+![Tracking Dark](./assets/readme/tracking_dark_optimized.gif)
 
 ## More questions?
 
