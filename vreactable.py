@@ -8,6 +8,7 @@ from helper import helper, ui_helper
 import pathlib
 import os
 import configparser
+from threading import *
 
 config = configparser.ConfigParser()
 config.read("./config.ini")
@@ -30,6 +31,7 @@ VERSION = "v2.3"
 class VreactableApp:
     def __init__(self, master=None):
         self.detector = CubeDetector(self, self.detect_callback)
+        self.detect_thread = None
         # build ui
         style = Style(theme="darkly")
         self.toplevel_vreactable = style.master
@@ -295,7 +297,7 @@ class VreactableApp:
         return frame
 
     def run(self):
-        self.update_frame()
+        #self.update_frame()
         self.mainwindow.mainloop()
         pass
 
@@ -357,6 +359,12 @@ class VreactableApp:
 
     def on_click_detect(self):
         print("Try start detecting")
+        if self.detect_thread != None and self.detect_thread.is_alive():
+            showinfo(
+                title="Detector is running already",
+                message=f"Detector is running already. Please press Q in detector window to close it.",
+            )
+            return
         if self.is_detector_ready() is False:
             showinfo(
                 title="Detector is not ready",
@@ -365,7 +373,9 @@ class VreactableApp:
             return
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        self.detector.detect_arucos(calibFilePath, ip)
+        self.detect_thread = Thread(target=self.detector.detect_arucos, args=(calibFilePath, ip))
+        self.detect_thread.start()
+        #self.detector.detect_arucos(calibFilePath, ip)
         pass
 
     def update_num_sampled_images(self):
