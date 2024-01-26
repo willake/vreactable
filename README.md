@@ -4,6 +4,8 @@ VReactable is an interface connects the VR world and Reality. The tool runs on a
 
 ![Overview](./assets/readme/overview_optimized.gif)
 
+![VReactable](./assets/readme/vreactable-python_optimized.gif)
+
 ![Overview](./assets/readme/overview.PNG)
 
 ## Prerequisite
@@ -52,6 +54,8 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 By clicking the `Detect` button on VReactable software, the tracking will start and send data to Resonite.
 
 > Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or lowering the exposure and increasing the gain. To do so, either use the driver of your webcam or OBS can help. Making the background dark is also very helpful.
+
+![OBS Camera Settings](./assets/readme/obs.png)
 
 ![Tracking](./assets/readme/tracking_optimized.gif)
 ![Tracking Dark](./assets/readme/tracking_dark_optimized.gif)
