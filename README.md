@@ -92,7 +92,6 @@ To build an executable file from the code. You can run `build.bat` (Windows only
 
 ```
 pyinstaller -F vreactable.py
-
 ```
 
 The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
