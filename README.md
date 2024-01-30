@@ -10,7 +10,7 @@ VReactable is an interface connects the VR world and Reality. The tool runs on a
 
 ## Installation
 
-You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/).
+You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/). In the downloaded version, there is a `calib.npz` file inside `resources/calibration`. It is a calibrated parameter file we made. The camera we used is Logitech C310 webcam, which means if the user is using the same camera, the calibration process is skippable. Otherwise, it is required to do the calibration again to make the parameters fit different camera.
 
 ## Prerequisite
 
@@ -28,7 +28,7 @@ Now it is ready for calibration. Click the button `Capture sample images`, a win
 
 ![Sampling](./assets/readme/sampling_optimized.gif)
 
-Lastly, press Calibrate camera to start calibration. In the end a `cali.npz` file should be seen at `${projectfolder}\resources\calibration`.
+Lastly, press Calibrate camera to start calibration. In the end a `calib.npz` file should be seen at `${projectfolder}\resources\calibration`. Note that you do not need to recalibrate the camera if you change the location because the calibration parameters the tool records does not contain position and rotation data.
 
 #### Aruco markers
 
@@ -55,7 +55,9 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 
 ## Start Tracking
 
-By clicking the `Detect` button on VReactable software, the tracking will start and send data to Resonite.
+By clicking the `Start Tracking` button on VReactable software, the tracking will start and send data to Resonite.
+
+> For the status section of the tracker. `Is camera calibrated` indicates that whether the tool found a file named `calibration.npz` inisde `resources/calibration`. As for `Is camera ready`, it check whether the selected camera index is available. Camera index is the index of connected camera. If you have more than 1 camera connected, remeber to select the right index. Also make sure that the camera is not used by another software.
 
 > Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or lowering the exposure and increasing the gain. To do so, either use the driver of your webcam or OBS can help. Making the background dark is also very helpful.
 
@@ -86,16 +88,14 @@ The code can be ran by typing
 python vreactable.py
 ```
 
-To build an executable file from the code. You can run `build.bat` (Windows only) or run
+To build an executable file from the code. You can run `build.bat` (Windows only) or run the following command.
 
 ```
 pyinstaller -F vreactable.py
 
-# remember to copy config.ini and assets folder to the dist folder after building the software.
-
 ```
 
-The file will appear in the `dist` folder.
+The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
 
 ## What need to improved (Technical)
 

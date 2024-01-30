@@ -57,9 +57,30 @@ class VreactableApp:
         self.var_lock_yaw = tk.BooleanVar(value=False)
 
         # tk.StringVar(value="[0; 0; 0]") * 6 will not working, they will all point to same address
-        self.var_cube_active_marker_ids = [tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-")]
-        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
-        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
+        self.var_cube_active_marker_ids = [
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+        ]
+        self.var_cube_positions = [
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+        ]
+        self.var_cube_rotations = [
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+        ]
 
         # title
         frame_header = ttk.Frame(self.frame_main)
@@ -231,7 +252,7 @@ class VreactableApp:
         return frame
 
     def draw_frame_detector(self, parent):
-        frame = ttk.Labelframe(parent, text="Detector")
+        frame = ttk.Labelframe(parent, text="Tracker")
 
         frame_status = self.draw_frame_status(frame)
 
@@ -243,7 +264,9 @@ class VreactableApp:
         field_webocket_ip = ui_helper.draw_text_field(
             frame, self.var_websocket_ip, "Websocket IP", "ws://localhost:8090", 20
         )
-        btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
+        btn_detect = ui_helper.draw_button(
+            frame, "Start Tracking", self.on_click_detect
+        )
 
         frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frame_lock_settings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
@@ -303,7 +326,7 @@ class VreactableApp:
         return frame
 
     def run(self):
-        #self.update_frame()
+        # self.update_frame()
         self.mainwindow.mainloop()
         pass
 
@@ -379,9 +402,11 @@ class VreactableApp:
             return
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        self.detect_thread = Thread(target=self.detector.detect_arucos, args=(calibFilePath, ip))
+        self.detect_thread = Thread(
+            target=self.detector.detect_arucos, args=(calibFilePath, ip)
+        )
         self.detect_thread.start()
-        #self.detector.detect_arucos(calibFilePath, ip)
+        # self.detector.detect_arucos(calibFilePath, ip)
         pass
 
     def update_num_sampled_images(self):
