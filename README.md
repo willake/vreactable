@@ -57,7 +57,7 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 
 By clicking the `Start Tracking` button on VReactable software, the tracking will start and send data to Resonite.
 
-> For the status section of the tracker. `Is camera calibrated` indicates that whether the tool found a file named `calibration.npz` inisde `resources/calibration`. As for `Is camera ready`, it check whether the selected camera index is available. Camera index is the index of connected camera. If you have more than 1 camera connected, remeber to select the right index. Also make sure that the camera is not used by another software.
+> For the status section of the tracker. `Is camera calibrated` indicates that whether the tool found a file named `calib.npz` inisde `resources/calibration`. As for `Is camera ready`, it check whether the selected camera index is available. Camera index is the index of connected camera. If you have more than 1 camera connected, remeber to select the right index. Also make sure that the camera is not used by another software.
 
 > Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or lowering the exposure and increasing the gain. To do so, either use the driver of your webcam or OBS can help. Making the background dark is also very helpful.
 
