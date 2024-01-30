@@ -8,6 +8,10 @@ VReactable is an interface connects the VR world and Reality. The tool runs on a
 
 ![Overview](./assets/readme/overview.PNG)
 
+## Installation
+
+You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/).
+
 ## Prerequisite
 
 To use this tool, there are 3 components need to be prepared.
@@ -63,7 +67,22 @@ By clicking the `Detect` button on VReactable software, the tracking will start 
 ## More questions?
 
 If the question is regarding resonite, a possible solution is to visit [Resonite discord](https://discord.gg/resonite).
+If it is a question about the code, you can contact me by emailing huienlin.game@gmail.com
 
 ## What need to improved (Technical)
 
 - Run VReactable and OpenCV detector on different threads, so that you can force close OpenCV window when VReactable is closed.
+
+## How to run from source code (Technical)
+The environement I ran this code is Python `3.11.7`. If you are new to Python, I would recommend look into pyenv (If you are using Windows, there is a [specific version for Windows](https://github.com/pyenv-win/pyenv-win).) 
+
+The code can be ran by typing 
+```
+python vreactable.py
+```
+
+To build an executable file from the code.
+```
+pyinstaller -f vreactable.py
+```
+The file will appear in the `dist` folder.
