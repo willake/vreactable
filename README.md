@@ -67,11 +67,12 @@ By clicking the `Detect` button on VReactable software, the tracking will start 
 ## More questions?
 
 If the question is regarding resonite, a possible solution is to visit [Resonite discord](https://discord.gg/resonite).
+
 If it is a question about the code, you can contact me by emailing huienlin.game@gmail.com
 
 ## How to run from source code (Technical)
 
-The environement I ran this code is Python `3.11.7`. If you are new to Python, I would recommend look into pyenv (If you are using Windows, there is a [specific version for Windows](https://github.com/pyenv-win/pyenv-win).)
+The environement I ran this code is Python `3.10.11`. If you are new to Python, I would recommend looking into pyenv for installing python. It provides a easier way to manage different versions of Python and also prevent corrupting the environment, which happens very often. (If you are using Windows, there is a [specific version for Windows](https://github.com/pyenv-win/pyenv-win).)
 
 To install required packages, run
 
@@ -85,10 +86,13 @@ The code can be ran by typing
 python vreactable.py
 ```
 
-To build an executable file from the code.
+To build an executable file from the code. You can run `build.bat` (Windows only) or run
 
 ```
-pyinstaller -f vreactable.py
+pyinstaller -F vreactable.py
+
+# remember to copy config.ini and assets folder to the dist folder after building the software.
+
 ```
 
 The file will appear in the `dist` folder.
