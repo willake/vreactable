@@ -102,9 +102,9 @@ VReactable is a research project at [Hogeschool voor de Kunsten Utrecht](https:/
 The right of this project and the code is belongs to HKU. While referencing this project, It will be necceessary to mention HKU and the people participate in developing this tool.
 
 ### Developers
-[Hui En Lin](https://hui-en.me)
-[David Jak](https://linktr.ee/Davidoo379)
-[Tom Zevering](http://snuuf.com/)
+**Cube Tracker developer** [Hui En Lin](https://hui-en.me)
+**Resonite Tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379)
+**Interaction Designer** [Tom Zevering](http://snuuf.com/)
 
 The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
 
