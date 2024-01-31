@@ -96,6 +96,8 @@ To build an executable file from the code. You can run `build.bat` (Windows only
 pyinstaller -F vreactable.py
 ```
 
+The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
+
 ## Credits
 VReactable is a research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.  
 
@@ -105,9 +107,6 @@ The right of this project and the code is belongs to HKU. While referencing this
 **Cube tracker developer** [Hui En Lin](https://hui-en.me)  <br>
 **Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379)  <br>
 **Interaction designer** [Tom Zevering](http://snuuf.com/)
-
-The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
-
 ## What need to improved (Technical)
 
 - Run VReactable and OpenCV detector on different threads, so that you can force close OpenCV window when VReactable is closed.
