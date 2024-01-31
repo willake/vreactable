@@ -2,7 +2,7 @@
 
 VReactable is an interface connects the VR world and Reality. The tool runs on an VR platform named Resonite, which is a platform that users can customize their own space and writing scripts in the space. VReactable provides a tangible interface that users can manipulate a Resonite world by moving cubes in real world. This brings an oppotunity for users to interact with VR users in a different way.
 
-This repository is the marker tracking tool for VReactable. To use this tool, you will required to download [Chataigne](https://github.com/willake/vreactable) and [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
+This repository is the marker tracking tool for VReactable. To use this tool, you are required to download [Chataigne](https://github.com/willake/vreactable) and [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
 
 ![Overview](./assets/readme/overview_optimized.gif)
 
