@@ -57,7 +57,7 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 
 ## Start Tracking
 
-By clicking the `Start Tracking` button on VReactable software, the tracking will start and send data to Resonite.
+Set the websocket IP to the same as your Chataigne server. If it is running in the same device as the tracker. The ip should be `ws://localhost:${your_port}`. If it is 8090 then the ip would be `ws://localhost:8090`. By clicking the `Start Tracking` button on VReactable software, the tracking will start and send data to Resonite.
 
 > For the status section of the tracker. `Is camera calibrated` indicates that whether the tool found a file named `calib.npz` inisde `resources/calibration`. As for `Is camera ready`, it check whether the selected camera index is available. Camera index is the index of connected camera. If you have more than 1 camera connected, remeber to select the right index. Also make sure that the camera is not used by another software.
 
