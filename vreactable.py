@@ -2,7 +2,7 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector.detector import CubeDetector
+from detector.detector import CubeTracker
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
@@ -31,8 +31,8 @@ VERSION = "v2.3"
 
 class VreactableApp:
     def __init__(self, master=None):
-        self.detector = CubeDetector(self, self.detect_callback)
-        self.detect_thread = None
+        self.tracker = CubeTracker(self, self.tracking_callback)
+        self.tracking_thread = None
         # build ui
         style = Style(theme="darkly")
         self.toplevel_vreactable = style.master
@@ -107,15 +107,15 @@ class VreactableApp:
 
         # frame 2
         frame_2 = ttk.Frame(frame_body)
-        frame_detect = self.draw_frame_detector(frame_2)
-        frame_detect.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
+        frame_tracker = self.draw_frame_tracker(frame_2)
+        frame_tracker.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
         frame_2.grid(row=0, column=1, padx=10)
         frame_2.columnconfigure(0, weight=1)
 
         # frame 3
         frame_3 = ttk.Frame(frame_body)
-        frame_detection_inspector = self.draw_frame_detection_inspector(frame_3)
-        frame_detection_inspector.grid(
+        frame_tracking_inspector = self.draw_frame_tracking_inspector(frame_3)
+        frame_tracking_inspector.grid(
             row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW
         )
         frame_3.grid(row=0, column=2, padx=10)
@@ -206,7 +206,7 @@ class VreactableApp:
 
         return frame
 
-    def draw_frame_detector_lock_settings(self, parent):
+    def draw_frame_tracker_lock_settings(self, parent):
         frame = ttk.LabelFrame(parent, text="Lock settings")
 
         label_position = ttk.Label(frame, text="Position")
@@ -251,12 +251,12 @@ class VreactableApp:
         frame.columnconfigure(index=0, weight=1)
         return frame
 
-    def draw_frame_detector(self, parent):
+    def draw_frame_tracker(self, parent):
         frame = ttk.Labelframe(parent, text="Tracker")
 
         frame_status = self.draw_frame_status(frame)
 
-        frame_lock_settings = self.draw_frame_detector_lock_settings(frame)
+        frame_lock_settings = self.draw_frame_tracker_lock_settings(frame)
 
         field_camera_index = ui_helper.draw_text_field(
             frame, self.var_camera_index, "Camera index", "0", 5
@@ -264,15 +264,15 @@ class VreactableApp:
         field_webocket_ip = ui_helper.draw_text_field(
             frame, self.var_websocket_ip, "Websocket IP", "ws://localhost:8090", 20
         )
-        btn_detect = ui_helper.draw_button(
-            frame, "Start Tracking", self.on_click_detect
+        btn_start_tracking = ui_helper.draw_button(
+            frame, "Start Tracking", self.on_click_start_tracking
         )
 
         frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frame_lock_settings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
         field_camera_index.grid(row=2, column=0, padx=10, pady=5)
         field_webocket_ip.grid(row=3, column=0, padx=10, pady=5)
-        btn_detect.grid(row=4, column=0, pady=5)
+        btn_start_tracking.grid(row=4, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
@@ -301,8 +301,8 @@ class VreactableApp:
         frame.grid_propagate(False)
         return frame
 
-    def draw_frame_detection_inspector(self, parent):
-        frame = ttk.LabelFrame(parent, text="Detection Inspector")
+    def draw_frame_tracking_inspector(self, parent):
+        frame = ttk.LabelFrame(parent, text="Tracking Inspector")
 
         for index in range(6):
             status_cube = self.draw_cube_status(frame, index)
@@ -386,28 +386,28 @@ class VreactableApp:
         self.refresh_status()
         pass
 
-    def on_click_detect(self):
-        print("Try start detecting")
-        if self.detect_thread != None and self.detect_thread.is_alive():
+    def on_click_start_tracking(self):
+        print("Try start tracking")
+        if self.tracking_thread != None and self.tracking_thread.is_alive():
             showinfo(
-                title="Detector is running already",
-                message=f"Detector is running already. Please press Q in detector window to close it.",
+                title="Tracker is running already",
+                message=f"Tracker is running already. Please press Q in Tracker window to close it.",
             )
             return
-        if self.is_detector_ready() is False:
+        if self.is_tracker_ready() is False:
             showinfo(
-                title="Detector is not ready",
-                message=f"Detector is not ready yet. Please check status panel.",
+                title="Tracker is not ready",
+                message=f"Tracker is not ready yet. Please check status panel.",
             )
             return
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        self.detect_thread = Thread(
-            target=self.detector.detect_arucos,
+        self.tracking_thread = Thread(
+            target=self.tracker.track_arucos,
             args=(calibFilePath, ip, self.var_camera_index.get()),
         )
         # run tracking in different threads
-        self.detect_thread.start()
+        self.tracking_thread.start()
         pass
 
     def update_num_sampled_images(self):
@@ -424,14 +424,14 @@ class VreactableApp:
         )
         pass
 
-    def is_detector_ready(self):
+    def is_tracker_ready(self):
         if self.var_is_calibrated.get() == "False":
             return False
         if self.var_is_camera_ready.get() == "False":
             return False
         return True
 
-    def detect_callback(self, markerIds, positions, rotations):
+    def tracking_callback(self, markerIds, positions, rotations):
         if len(markerIds) == 0:
             return
 
@@ -457,5 +457,5 @@ class VreactableApp:
 if __name__ == "__main__":
     app = VreactableApp()
     app.run()
-    if app.detect_thread != None:
-        app.detect_thread.join()
+    if app.tracking_thread != None:
+        app.tracking_thread.join()
