@@ -2,7 +2,7 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector.detector import CubeTracker
+from tracker.tracker import CubeTracker
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
