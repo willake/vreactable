@@ -102,7 +102,7 @@ class VreactableApp:
             row=0, column=0, ipadx=15, ipady=5, pady=10, sticky=tk.EW
         )
         frame_calibration.grid(row=1, column=0, ipadx=15, ipady=5, pady=1, sticky=tk.EW)
-        frame_1.grid(row=0, column=0, padx=10)
+        frame_1.grid(row=0, column=0, padx=10, sticky=tk.N)
         frame_1.columnconfigure(0, weight=1)
 
         # frame 2
