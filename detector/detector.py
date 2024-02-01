@@ -64,7 +64,7 @@ class CubeTracker:
 
     # private
     def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
-        cap = cv2.VideoCapture(cameraIndex)
+        cap = cv2.VideoCapture(cameraIndex, cv2.CAP_DSHOW)
 
         if not cap.isOpened():
             print("error: cannot open camera")

@@ -44,7 +44,9 @@ def isFileExit(path):
 
 def isCameraAvailable(index):
     try:
-        cap = cv2.VideoCapture(index)
+        # cv2.CAP_DSHOW makes this code only work on Windows, but it helps the camera to show up instantly.
+        # Otherwise it takes years to open the camera
+        cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
         if not cap.isOpened():
             return False
         cap.release()
