@@ -3,7 +3,6 @@ from cv2 import aruco
 import glob
 import os
 import numpy as np
-import pathlib
 from helper import helper
 import camera_calibrator.sample_image_capturer as sample_image_capturer
 

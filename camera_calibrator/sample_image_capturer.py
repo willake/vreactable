@@ -133,7 +133,7 @@ def run(outputFolder):
         result = detect("camera", frameCopy, goodAmount, badAmount)
 
         key = cv2.waitKey(33)
-        if key == ord("s"):
+        if key == ord("s") or key == ord("S"):
             # save screenshot
             cv2.imwrite(
                 f"{outputFolder}\\screenshot_{goodAmount + badAmount}.jpg", frame
@@ -142,7 +142,7 @@ def run(outputFolder):
                 goodAmount += 1
             else:
                 badAmount += 1
-        elif key == ord("q"):
+        elif key == ord("q") or key == ord("Q"):
             break
 
     # release everything if job is finished
