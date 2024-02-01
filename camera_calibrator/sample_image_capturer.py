@@ -25,11 +25,6 @@ CHARUCO_BOARD = aruco.CharucoBoard(
 )
 
 
-def validatePath(path):
-    if os.path.exists(path) == False:
-        os.makedirs(path)
-
-
 # validate the detectable images
 def detect(windowName, imageCopy, goodAmount, badAmount):
     # prepare object points
@@ -156,11 +151,11 @@ def run(outputFolder):
     cv2.destroyAllWindows()
 
 
-def capture_sample_images(sampleFolder):
+def captureSampleImages(sampleFolder):
     helper.validatePath(sampleFolder)
     run(sampleFolder)
 
 
 if __name__ == "__main__":
     sampleFolder = os.path.join(helper.getRootPath(), "resources\\calibration\\samples")
-    capture_sample_images(sampleFolder)
+    captureSampleImages(sampleFolder)

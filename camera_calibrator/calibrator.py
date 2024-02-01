@@ -5,6 +5,7 @@ import os
 import numpy as np
 import pathlib
 from helper import helper
+import sample_image_capturer
 
 SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100
@@ -14,64 +15,76 @@ ids_all = []
 # image_size = None # Determined at runtime
 
 
-def calibrate(sampleFolder, calibFolder, arucoDict, pattern):
-    images = glob.glob(f"{sampleFolder}\\*.jpg")
-    detectorParams = aruco.DetectorParameters()
-    charucoBoard = aruco.CharucoBoard(
-        size=pattern,
-        squareLength=SQUARE_LENGTH,
-        markerLength=MARKER_LENGTH,
-        dictionary=arucoDict,
-    )
-    objPoints = charucoBoard.getChessboardCorners()
+class Calibrator:
+    def __init__(self, sampleFolder, calibFolder, arucoDict, pattern, onFinish):
+        self.sampleFolder = sampleFolder
+        self.calibFolder = calibFolder
+        self.arucoDict = arucoDict
+        self.pattern = pattern
+        self.onFinish = onFinish
+        pass
 
-    detector = aruco.CharucoDetector(board=charucoBoard, detectorParams=detectorParams)
-    # Loop through images glob
-    for iname in images:
-        img = cv2.imread(iname)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    def startCalibration(self):
+        sample_image_capturer.captureSampleImages(self.sampleFolder)
+        self.__calibrate__()
+        pass
 
-        charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(
-            gray
+    def __calibrate__(self):
+        images = glob.glob(f"{self.sampleFolder}\\*.jpg")
+        detectorParams = aruco.DetectorParameters()
+        charucoBoard = aruco.CharucoBoard(
+            size=self.pattern,
+            squareLength=SQUARE_LENGTH,
+            markerLength=MARKER_LENGTH,
+            dictionary=self.arucoDict,
         )
 
-        img = aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
-        corners_all.append(charucoCorners)
-        ids_all.append(charucoIds)
+        detector = aruco.CharucoDetector(
+            board=charucoBoard, detectorParams=detectorParams
+        )
+        # Loop through images glob
+        for iname in images:
+            img = cv2.imread(iname)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        cv2.imshow("calibrator", img)
+            charucoCorners, charucoIds, markerCorners, markerIds = detector.detectBoard(
+                gray
+            )
 
-        cv2.waitKey(0)
+            img = aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
+            corners_all.append(charucoCorners)
+            ids_all.append(charucoIds)
 
-    image_size = None
+            cv2.imshow("calibrator", img)
 
-    if image_size is None:
-        image_size = gray.shape[::-1]
+            cv2.waitKey(0)
 
-    calibration, cameraMatrix, distCoeffs, rvecs, tvecs = aruco.calibrateCameraCharuco(
-        charucoCorners=corners_all,
-        charucoIds=ids_all,
-        board=charucoBoard,
-        imageSize=image_size,
-        cameraMatrix=None,
-        distCoeffs=None,
-    )
+        image_size = None
 
-    print(cameraMatrix)
-    print(distCoeffs)
+        if image_size is None:
+            image_size = gray.shape[::-1]
 
-    helper.validatePath(calibFolder)
-    np.savez(
-        os.path.join(calibFolder, "calib"),
-        cameraMatrix=cameraMatrix,
-        distCoeffs=distCoeffs,
-    )
+        (
+            calibration,
+            cameraMatrix,
+            distCoeffs,
+            rvecs,
+            tvecs,
+        ) = aruco.calibrateCameraCharuco(
+            charucoCorners=corners_all,
+            charucoIds=ids_all,
+            board=charucoBoard,
+            imageSize=image_size,
+            cameraMatrix=None,
+            distCoeffs=None,
+        )
 
+        print(cameraMatrix)
+        print(distCoeffs)
 
-if __name__ == "__main__":
-    calibrate(
-        sampleFolder=f"{helper.getRootPath()}\\resources\\calibration\\samples",
-        calibFolder=f"{helper.getRootPath()}\\resources\\clibration",
-        arucoDict=aruco.getPredefinedDictionary(aruco.DICT_6X6_50),
-        pattern=(5, 7),
-    )
+        helper.validatePath(self.calibFolder)
+        np.savez(
+            os.path.join(self.calibFolder, "calib"),
+            cameraMatrix=cameraMatrix,
+            distCoeffs=distCoeffs,
+        )
