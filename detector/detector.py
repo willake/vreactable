@@ -40,25 +40,25 @@ def wrapAngle(angle):
     Returns:
         float: Wrapped angle in the range -180 to 180 degrees.
     """
-    wrapped_angle = (angle + 180) % 360
+    wrappedAngle = (angle + 180) % 360
 
-    if wrapped_angle > 180:
-        wrapped_angle = wrapped_angle - 360
-    return wrapped_angle
+    if wrappedAngle > 180:
+        wrappedAngle = wrappedAngle - 360
+    return wrappedAngle
 
 
 class CubeTracker:
-    def __init__(self, app, tracking_callback):
+    def __init__(self, app, onTrack):
         self.websocket = None
         self.app = app
-        self.detect_callback = tracking_callback
+        self.onTrack = onTrack
         pass
 
-    def track_arucos(self, calibFilePath: str, ip: str, cameraIndex: int):
+    def startTrackingMarkers(self, calibFilePath: str, ip: str, cameraIndex: int):
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.websocket = sender.setup_websocket_client(ip)
+        self.websocket = sender.setupWebsocketClient(ip)
         print("Websocket is set...")
         self.__run__(cameraMatrix, distCoeffs, cameraIndex)
 
@@ -75,7 +75,7 @@ class CubeTracker:
             isCaptured, frame = cap.read()
 
             if isCaptured:
-                self.__track_frame__(frame, cameraMatrix, distCoeffs)
+                self.__trackFrame__(frame, cameraMatrix, distCoeffs)
 
             key = cv2.waitKey(math.floor(1000 / 30))
             if key == ord("q"):
@@ -84,7 +84,7 @@ class CubeTracker:
         cv2.destroyAllWindows()
 
     # private
-    def __track_frame__(self, frame, cameraMatrix, distCoeffs):
+    def __trackFrame__(self, frame, cameraMatrix, distCoeffs):
         global isLastObjectGone
         imageCopy = copy.copy(frame)
         detectorParams = aruco.DetectorParameters()
@@ -129,15 +129,13 @@ class CubeTracker:
                 proj_matrix = np.hstack((rot_mat, tvecs[i]))
                 eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
 
-                roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
+                rollDegree, pitchDegree, yawDegrees = eulerAngles
 
-                roll_degrees = wrapAngle(roll_degrees[0])
-                pitch_degrees = pitch_degrees[0]
-                yaw_degrees = yaw_degrees[0]
+                rollDegree = wrapAngle(rollDegree[0])
+                pitchDegree = pitchDegree[0]
+                yawDegrees = yawDegrees[0]
 
-                rotation = np.array(
-                    [roll_degrees, pitch_degrees, yaw_degrees], np.float32
-                )
+                rotation = np.array([rollDegree, pitchDegree, yawDegrees], np.float32)
                 # filter by rotations so there will be only 1 marker on a box being detected
                 cubeIndex = int(markerIds[i] / 6)
                 # pitch diff with platform
@@ -192,16 +190,16 @@ class CubeTracker:
                     )
 
             # send data
-            sender.send_object_data(
+            sender.sendCubeData(
                 self.websocket, filteredMarkerIds, filteredTvecs, filteredRotations
             )
 
-            self.detect_callback(filteredMarkerIds, filteredTvecs, filteredRotations)
+            self.onTrack(filteredMarkerIds, filteredTvecs, filteredRotations)
             isLastObjectGone = False
 
         else:
             if isLastObjectGone is False:
-                sender.send_object_data(self.websocket, [], [], [])
+                sender.sendCubeData(self.websocket, [], [], [])
                 isLastObjectGone = True
             cv2.putText(
                 imageCopy,

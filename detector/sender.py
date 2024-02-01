@@ -1,10 +1,8 @@
 import websocket
 import json
-import numpy as np
-import math
 
 
-def setup_websocket_client(ip: str):
+def setupWebsocketClient(ip: str):
     ws = websocket.create_connection(ip)
     # ws = websocket.create_connection("ws://10.2.40.112:8080/")
     return ws
@@ -14,10 +12,7 @@ def format(v):
     return "{:.0f}".format(round(v, 1))
 
 
-lastIds = []
-
-
-def send_object_data(ws: websocket.WebSocket(), markerIds, positions, rotations):
+def sendCubeData(ws: websocket.WebSocket(), markerIds, positions, rotations):
     data = ""
     if len(markerIds) == 0:
         data = "empty"
