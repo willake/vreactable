@@ -403,10 +403,11 @@ class VreactableApp:
         ip = self.var_websocket_ip.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
         self.detect_thread = Thread(
-            target=self.detector.detect_arucos, args=(calibFilePath, ip)
+            target=self.detector.detect_arucos,
+            args=(calibFilePath, ip, self.var_camera_index.get()),
         )
+        # run tracking in different threads
         self.detect_thread.start()
-        # self.detector.detect_arucos(calibFilePath, ip)
         pass
 
     def update_num_sampled_images(self):

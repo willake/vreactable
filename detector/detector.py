@@ -54,17 +54,17 @@ class CubeDetector:
         self.detect_callback = detect_callback
         pass
 
-    def detect_arucos(self, calibFilePath: str, ip: str):
+    def detect_arucos(self, calibFilePath: str, ip: str, cameraIndex: int):
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
         self.websocket = sender.setup_websocket_client(ip)
         print("Websocket is set...")
-        self.__run__(cameraMatrix, distCoeffs)
+        self.__run__(cameraMatrix, distCoeffs, cameraIndex)
 
     # private
-    def __run__(self, cameraMatrix, distCoeffs):
-        cap = cv2.VideoCapture(0)
+    def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
+        cap = cv2.VideoCapture(cameraIndex)
 
         if not cap.isOpened():
             print("error: cannot open camera")
@@ -168,16 +168,24 @@ class CubeDetector:
             # post prcoess data
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
-                    filteredTvecs[i][0] = 0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
-                    filteredTvecs[i][1] = (
-                        0.0 if self.app.var_lock_y.get() else filteredTvecs[i][1][0] * -1
+                    filteredTvecs[i][0] = (
+                        0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
                     )
-                    filteredTvecs[i][2] = 0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    filteredTvecs[i][1] = (
+                        0.0
+                        if self.app.var_lock_y.get()
+                        else filteredTvecs[i][1][0] * -1
+                    )
+                    filteredTvecs[i][2] = (
+                        0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    )
                     filteredRotations[i][0] = (
                         0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
                     )
                     filteredRotations[i][1] = (
-                        0.0 if self.app.var_lock_pitch.get() else filteredRotations[i][1]
+                        0.0
+                        if self.app.var_lock_pitch.get()
+                        else filteredRotations[i][1]
                     )
                     filteredRotations[i][2] = (
                         0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]
