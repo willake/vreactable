@@ -49,7 +49,7 @@ def wrapAngle(angle):
 
 class CubeTracker:
     def __init__(self, app, onTrack):
-        self.websocket = None
+        self.client = None
         self.app = app
         self.onTrack = onTrack
         pass
@@ -58,7 +58,7 @@ class CubeTracker:
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.websocket = sender.setupWebsocketClient(ip)
+        self.client = sender.Client(ip)
         print("Websocket is set...")
         self.__run__(cameraMatrix, distCoeffs, cameraIndex)
 
@@ -124,10 +124,10 @@ class CubeTracker:
                     OBJ_POINTS, markerCorners[i], cameraMatrix, distCoeffs
                 )
                 # Convert rotation vector to rotation matrix
-                rot_mat, _ = cv2.Rodrigues(rvecs[i])
+                rotMat, _ = cv2.Rodrigues(rvecs[i])
 
-                proj_matrix = np.hstack((rot_mat, tvecs[i]))
-                eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
+                projMat = np.hstack((rotMat, tvecs[i]))
+                eulerAngles = cv2.decomposeProjectionMatrix(projMat)[6]
 
                 rollDegree, pitchDegree, yawDegrees = eulerAngles
 
@@ -190,8 +190,8 @@ class CubeTracker:
                     )
 
             # send data
-            sender.sendCubeData(
-                self.websocket, filteredMarkerIds, filteredTvecs, filteredRotations
+            self.client.sendCubeData(
+                filteredMarkerIds, filteredTvecs, filteredRotations
             )
 
             self.onTrack(filteredMarkerIds, filteredTvecs, filteredRotations)
@@ -199,7 +199,7 @@ class CubeTracker:
 
         else:
             if isLastObjectGone is False:
-                sender.sendCubeData(self.websocket, [], [], [])
+                self.client.sendCubeData([], [], [])
                 isLastObjectGone = True
             cv2.putText(
                 imageCopy,
