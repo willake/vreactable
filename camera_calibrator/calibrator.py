@@ -57,8 +57,6 @@ def calibrate(sampleFolder, calibFolder, arucoDict, pattern):
         distCoeffs=None,
     )
 
-    # cv2.solvePnP(OBJ_POINTS, )
-
     print(cameraMatrix)
     print(distCoeffs)
 
@@ -68,13 +66,6 @@ def calibrate(sampleFolder, calibFolder, arucoDict, pattern):
         cameraMatrix=cameraMatrix,
         distCoeffs=distCoeffs,
     )
-
-    # fileName = "inputs/images"
-    # cap = cv2.VideoCapture(fileName)
-
-    # while cap.isOpened():
-    #     if cv2.waitKey(1) == 27:
-    #         break
 
 
 if __name__ == "__main__":

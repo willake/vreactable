@@ -101,13 +101,16 @@ The file will appear in the `dist` folder. Remember to copy `config.ini` and the
 ## What need to improved (Technical)
 
 - Run VReactable and OpenCV detector on different threads, so that you can force close OpenCV window when VReactable is closed.
+- `cv2.CAP_DSHOW` is added to `cv2.VideoCapute()`. It dramatically decreases the camera open time, but it makes the code only work on Windows. If you would like to further develop this tool for more platforms. Consider remove it or add a check if it is on Windows.
 
 ## Credits
-VReactable is a research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.  
+
+VReactable is a research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.
 
 The right of this project and the code is belongs to HKU. While referencing this project, It will be necceessary to mention HKU and the people participate in developing this tool.
 
 ### Developers
-**Cube tracker developer** [Hui En Lin](https://hui-en.me)  <br>
-**Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379)  <br>
+
+**Cube tracker developer** [Hui En Lin](https://hui-en.me) <br>
+**Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379) <br>
 **Interaction designer** [Tom Zevering](http://snuuf.com/)

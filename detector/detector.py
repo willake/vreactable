@@ -47,24 +47,24 @@ def wrapAngle(angle):
     return wrapped_angle
 
 
-class CubeDetector:
-    def __init__(self, app, detect_callback):
+class CubeTracker:
+    def __init__(self, app, tracking_callback):
         self.websocket = None
         self.app = app
-        self.detect_callback = detect_callback
+        self.detect_callback = tracking_callback
         pass
 
-    def detect_arucos(self, calibFilePath: str, ip: str):
+    def track_arucos(self, calibFilePath: str, ip: str, cameraIndex: int):
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
         self.websocket = sender.setup_websocket_client(ip)
         print("Websocket is set...")
-        self.__run__(cameraMatrix, distCoeffs)
+        self.__run__(cameraMatrix, distCoeffs, cameraIndex)
 
     # private
-    def __run__(self, cameraMatrix, distCoeffs):
-        cap = cv2.VideoCapture(0)
+    def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
+        cap = cv2.VideoCapture(cameraIndex, cv2.CAP_DSHOW)
 
         if not cap.isOpened():
             print("error: cannot open camera")
@@ -75,7 +75,7 @@ class CubeDetector:
             isCaptured, frame = cap.read()
 
             if isCaptured:
-                self.__detect_frame__(frame, cameraMatrix, distCoeffs)
+                self.__track_frame__(frame, cameraMatrix, distCoeffs)
 
             key = cv2.waitKey(math.floor(1000 / 30))
             if key == ord("q"):
@@ -84,7 +84,7 @@ class CubeDetector:
         cv2.destroyAllWindows()
 
     # private
-    def __detect_frame__(self, frame, cameraMatrix, distCoeffs):
+    def __track_frame__(self, frame, cameraMatrix, distCoeffs):
         global isLastObjectGone
         imageCopy = copy.copy(frame)
         detectorParams = aruco.DetectorParameters()
@@ -168,16 +168,24 @@ class CubeDetector:
             # post prcoess data
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
-                    filteredTvecs[i][0] = 0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
-                    filteredTvecs[i][1] = (
-                        0.0 if self.app.var_lock_y.get() else filteredTvecs[i][1][0] * -1
+                    filteredTvecs[i][0] = (
+                        0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
                     )
-                    filteredTvecs[i][2] = 0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    filteredTvecs[i][1] = (
+                        0.0
+                        if self.app.var_lock_y.get()
+                        else filteredTvecs[i][1][0] * -1
+                    )
+                    filteredTvecs[i][2] = (
+                        0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    )
                     filteredRotations[i][0] = (
                         0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
                     )
                     filteredRotations[i][1] = (
-                        0.0 if self.app.var_lock_pitch.get() else filteredRotations[i][1]
+                        0.0
+                        if self.app.var_lock_pitch.get()
+                        else filteredRotations[i][1]
                     )
                     filteredRotations[i][2] = (
                         0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]

@@ -119,7 +119,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
 def run(outputFolder):
     goodAmount = 0
     badAmount = 0
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     if not cap.isOpened():
         print("error: cannot open camera")
