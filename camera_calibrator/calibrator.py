@@ -5,7 +5,7 @@ import os
 import numpy as np
 import pathlib
 from helper import helper
-import sample_image_capturer
+import camera_calibrator.sample_image_capturer as sample_image_capturer
 
 SQUARE_LENGTH = 100
 MARKER_LENGTH = 0.85 * 100

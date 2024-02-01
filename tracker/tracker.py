@@ -4,7 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
-from detector import sender
+from tracker.sender import Client
 import math
 
 # ChAruco board configs
@@ -58,7 +58,7 @@ class CubeTracker:
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.client = sender.Client(ip)
+        self.client = Client(ip)
         print("Websocket is set...")
         self.__run__(cameraMatrix, distCoeffs, cameraIndex)
 

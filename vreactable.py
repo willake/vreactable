@@ -33,7 +33,6 @@ VERSION = "v2.3"
 class VreactableApp:
     def __init__(self, master=None):
         self.calibrator = Calibrator(
-            self,
             SAMPLE_FOLDER,
             CALIB_FOLDER,
             ARUCO_DICT,
