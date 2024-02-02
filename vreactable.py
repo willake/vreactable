@@ -2,7 +2,8 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector.detector import CubeTracker
+from camera_calibrator.calibrator import Calibrator
+from tracker.tracker import CubeTracker
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
@@ -31,6 +32,14 @@ VERSION = "v2.3"
 
 class VreactableApp:
     def __init__(self, master=None):
+        self.calibrator = Calibrator(
+            SAMPLE_FOLDER,
+            CALIB_FOLDER,
+            ARUCO_DICT,
+            CHARUCO_BOARD_PATTERN,
+            self.onCalibrationFinish,
+            self.onCalibrationFail
+        )
         self.tracker = CubeTracker(self, self.onTrack)
         self.trackingThread = None
 
@@ -167,25 +176,25 @@ class VreactableApp:
             frame, "Generate charuco board", self.onClickGenerateCharucoBoard
         )
 
-        rsSampleCount = ui_helper.drawRefreshableState(
-            frame,
-            "Sampled image count:",
-            self.imgRefresh,
-            self.varSampleImageCount,
-            "0",
-            self.onClickRefreshSampledCount,
-        )
-        btnCapture = ui_helper.drawButton(
-            frame, "Capture sample images", self.onClickCaptureSampleImages
-        )
+        # rsSampleCount = ui_helper.drawRefreshableState(
+        #     frame,
+        #     "Sampled image count:",
+        #     self.imgRefresh,
+        #     self.varSampleImageCount,
+        #     "0",
+        #     self.onClickRefreshSampledCount,
+        # )
+        # btnCapture = ui_helper.drawButton(
+        #     frame, "Capture sample images", self.onClickCaptureSampleImages
+        # )
         btnCalibrate = ui_helper.drawButton(
             frame, "Calibrate camera", self.onClickCalibrateCamera
         )
 
         btnGenerate.grid(row=0, column=0, pady=5)
-        rsSampleCount.grid(row=1, column=0, pady=5)
-        btnCapture.grid(row=2, column=0, pady=5)
-        btnCalibrate.grid(row=3, column=0, pady=5)
+        # rsSampleCount.grid(row=1, column=0, pady=5)
+        # btnCapture.grid(row=2, column=0, pady=5)
+        btnCalibrate.grid(row=1, column=0, pady=5)
         frame.columnconfigure(index=0, weight=1)
 
         return frame
@@ -370,7 +379,7 @@ class VreactableApp:
         pass
 
     def onClickCaptureSampleImages(self):
-        sample_image_capturer.capture_sample_images(SAMPLE_FOLDER)
+        sample_image_capturer.captureSampleImages(SAMPLE_FOLDER)
         self.updateNumSampledImages()
         showinfo(
             title="Capture Sample Images",
@@ -379,13 +388,7 @@ class VreactableApp:
         pass
 
     def onClickCalibrateCamera(self):
-        calibrator.calibrate(
-            sampleFolder=SAMPLE_FOLDER,
-            calibFolder=CALIB_FOLDER,
-            arucoDict=ARUCO_DICT,
-            pattern=CHARUCO_BOARD_PATTERN,
-        )
-        self.refreshStatus()
+        self.calibrator.startCalibration()
         pass
 
     def onClickStartTracking(self):
@@ -454,6 +457,20 @@ class VreactableApp:
                 self.varCubePositions[index].set(f"[0; 0; 0]")
                 self.varCubeRotations[index].set(f"[0; 0; 0]")
         pass
+
+    def onCalibrationFinish(self):
+        showinfo(
+            title="Calibration Success",
+            message=f"Camera is successfully calibrated. Now you can start tracking!",
+        )
+        self.refreshStatus()
+        pass
+    
+    def onCalibrationFail(self, reason):
+        showerror(
+            title="Calibration Failed",
+            message=f"Camera calibration failed. Reason: {reason}"
+        )
 
 
 if __name__ == "__main__":

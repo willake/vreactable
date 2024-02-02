@@ -39,7 +39,7 @@ def packImages(
     x, y = gapSize, gapSize
 
     # Counter to keep track of the current image being processed
-    image_counter = 1
+    imageCounter = 1
 
     # Create the first A4-sized image
     currentImage = Image.new("RGB", (a4Width, a4Height), "white")
@@ -60,11 +60,11 @@ def packImages(
         # Create a new A4-sized image if the current image is filled
         if x + arucoImg.size[1] + gapSize > a4Width:
             # Save the current image
-            output_path = os.path.join(
-                outputFolder, f"packed_aruco_markers_{image_counter}.jpg"
+            outputPath = os.path.join(
+                outputFolder, f"packed_aruco_markers_{imageCounter}.jpg"
             )
 
-            currentImage.save(output_path)
+            currentImage.save(outputPath)
 
             # Create a new A4-sized image
             currentImage = Image.new("RGB", (a4Width, a4Height), "white")
@@ -77,7 +77,7 @@ def packImages(
             x, y = gapSize, gapSize
 
             # Increment the image counter
-            image_counter += 1
+            imageCounter += 1
 
         # Paste the ArUco marker image onto the current A4 sheet
         currentImage.paste(arucoImg, (x, y))
@@ -124,10 +124,10 @@ def packImages(
 
         # Save the last image if it contains content
         if currentImage:
-            output_path = os.path.join(
-                outputFolder, f"packed_aruco_markers_{image_counter}.jpg"
+            outputPath = os.path.join(
+                outputFolder, f"packed_aruco_markers_{imageCounter}.jpg"
             )
-            currentImage.save(output_path)
+            currentImage.save(outputPath)
 
 
 def generatePackedArucoMarkers(
