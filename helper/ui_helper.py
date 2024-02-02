@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def draw_text_field(
+def drawTextField(
     parent, variable: tk.StringVar, title: str, default_value: str, width: int = 5
 ):
     frame = ttk.Frame(parent)
@@ -14,12 +14,10 @@ def draw_text_field(
     entry.insert("0", default_value)
     entry.grid(row=0, column=1, padx=10)
     frame.columnconfigure(0, weight=1)
-    return frame
+    return frame, entry
 
 
-def draw_cm_number_field(
-    parent, variable: tk.StringVar, title: str, default_value: str
-):
+def drawCMNumberField(parent, variable: tk.StringVar, title: str, default_value: str):
     frame = ttk.Frame(parent)
     field_title = ttk.Label(frame, text=title)
     entry = ttk.Entry(
@@ -33,20 +31,20 @@ def draw_cm_number_field(
     entry.grid(row=0, column=1, padx=10)
     text_cm.grid(row=0, column=2)
     frame.columnconfigure(0, weight=1)
-    return frame
+    return frame, entry
 
 
-def draw_button(parent, title, callback):
+def drawButton(parent, title, callback):
     button = ttk.Button(parent, text=title, command=callback)
     return button
 
 
-def draw_icon_button(parent, icon, callback):
+def drawIconButton(parent, icon, callback):
     button = ttk.Button(parent, image=icon, command=callback)
     return button
 
 
-def draw_charuco_pattern_field(
+def drawCharucoPatternField(
     parent,
     rowVar: tk.StringVar,
     colVar: tk.StringVar,
@@ -81,19 +79,17 @@ def draw_charuco_pattern_field(
     return frame
 
 
-def draw_refreshable_state_field(
-    parent, title, icon, variable, default_value, callback
-):
+def drawRefreshableState(parent, title, icon, variable, defaultValue, callback):
     frame = ttk.Frame(parent)
-    label_title = ttk.Label(
+    labelTitle = ttk.Label(
         frame, compound="center", justify="center", padding=10, text=title
     )
-    label_value = ttk.Label(frame, text=default_value, textvariable=variable)
+    labelValue = ttk.Label(frame, text=defaultValue, textvariable=variable)
 
-    button = draw_icon_button(frame, icon, callback)
+    button = drawIconButton(frame, icon, callback)
 
-    label_title.grid(row=0, column=0)
-    label_value.grid(row=0, column=1)
+    labelTitle.grid(row=0, column=0)
+    labelValue.grid(row=0, column=1)
     button.grid(row=0, column=2, padx=10)
 
     frame.columnconfigure(index=0, weight=1)
@@ -102,12 +98,13 @@ def draw_refreshable_state_field(
 
     return frame
 
-def draw_state_label_unpropagated(parent, title, variable, default_value):
+
+def drawStateUnpropagated(parent, title, variable, defaultValue):
     frame = ttk.Frame(parent, width=180, height=20)
-    label_title = ttk.Label(frame, text=title, width=100)
-    label_value = ttk.Label(frame, text=default_value, textvariable=variable, width=100)
-    label_title.grid(row=0, column=0)
-    label_value.grid(row=0, column=1, padx=5)
+    labelTitle = ttk.Label(frame, text=title, width=100)
+    labelValue = ttk.Label(frame, text=defaultValue, textvariable=variable, width=100)
+    labelTitle.grid(row=0, column=0)
+    labelValue.grid(row=0, column=1, padx=5)
 
     frame.columnconfigure(index=0, weight=1)
     frame.columnconfigure(index=1, weight=1)
@@ -115,12 +112,13 @@ def draw_state_label_unpropagated(parent, title, variable, default_value):
 
     return frame
 
-def draw_state_label(parent, title, variable, default_value):
+
+def drawState(parent, title, variable, defaultValue):
     frame = ttk.Frame(parent)
-    label_title = ttk.Label(frame, text=title)
-    label_value = ttk.Label(frame, text=default_value, textvariable=variable)
-    label_title.grid(row=0, column=0)
-    label_value.grid(row=0, column=1, padx=5)
+    labelTitle = ttk.Label(frame, text=title)
+    labelValue = ttk.Label(frame, text=defaultValue, textvariable=variable)
+    labelTitle.grid(row=0, column=0)
+    labelValue.grid(row=0, column=1, padx=5)
 
     frame.columnconfigure(index=0, weight=1)
     frame.columnconfigure(index=1, weight=1)
@@ -128,6 +126,10 @@ def draw_state_label(parent, title, variable, default_value):
     return frame
 
 
-def draw_check_box(parent, title, variable):
+def drawCheckBox(parent, title, variable):
     checkbutton = ttk.Checkbutton(parent, text=title, variable=variable)
     return checkbutton
+
+def drawComboBox(parent, options, variable):
+    comboBox = ttk.Combobox(parent, values=options, textvariable=variable, width= 30)
+    return comboBox

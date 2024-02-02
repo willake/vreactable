@@ -2,7 +2,9 @@ import pathlib
 from tkinter.messagebox import showerror, showwarning, showinfo
 from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
-from detector.detector import CubeDetector
+from camera_calibrator.calibrator import Calibrator
+from tracker.tracker import CubeTracker
+from aruco_generators.generator import MarkerGenerator
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
@@ -26,202 +28,257 @@ CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 CHARUCO_BOARD_PATTERN = (5, 7)
-VERSION = "v2.3"
+VERSION = config["VERSION"]["Version"]
 
 
 class VreactableApp:
     def __init__(self, master=None):
-        self.detector = CubeDetector(self, self.detect_callback)
-        self.detect_thread = None
-        # build ui
+        self.generator = MarkerGenerator(self.onGenerateFail)
+        self.calibrator = Calibrator(
+            SAMPLE_FOLDER,
+            CALIB_FOLDER,
+            ARUCO_DICT,
+            CHARUCO_BOARD_PATTERN,
+            self.onCalibrationFinish,
+            self.onCalibrationFail
+        )
+        self.tracker = CubeTracker(self, self.onTrack, self.onTrackingFinish, self.onTrackingFail)
+        self.trackingThread = None
+        self.calibrationThread = None
+
+        # start building GUI
         style = Style(theme="darkly")
-        self.toplevel_vreactable = style.master
-        # self.toplevel_vreactable.configure(height=700, width=600)
-        # self.toplevel_vreactable.minsize(700, 600)
-        self.toplevel_vreactable.title(f"VRectable {VERSION}")
-        self.frame_main = ttk.Frame(self.toplevel_vreactable)
-        self.frame_main.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
+        self.root = style.master
+        self.root.title(f"VRectable Cube Tracker {VERSION}")
+        self.frameMain = ttk.Frame(self.root)
+        self.frameMain.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
 
-        self.img_refresh = tk.PhotoImage(file="assets/refresh.png")
-
-        self.var_aruco_size = tk.StringVar(value="5")
-        self.var_aruco_gap_size = tk.StringVar(value="0.5")
-        self.var_sample_image_count = tk.StringVar(value="0")
-        self.var_camera_index = tk.IntVar(value=0)
-        self.var_websocket_ip = tk.StringVar(value="ws://localhost:8090")
-        self.var_lock_x = tk.BooleanVar(value=False)
-        self.var_lock_y = tk.BooleanVar(value=False)
-        self.var_lock_z = tk.BooleanVar(value=False)
-        self.var_lock_roll = tk.BooleanVar(value=False)
-        self.var_lock_pitch = tk.BooleanVar(value=False)
-        self.var_lock_yaw = tk.BooleanVar(value=False)
+        # the image asset
+        self.imgRefresh = tk.PhotoImage(file="assets/refresh.png")
+        
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+        
+        self.varArucoSize = tk.StringVar(value="5")
+        self.varArucoGapSize = tk.StringVar(value="0.5")
+        self.varPrintPaperWidth = tk.StringVar(value="21.0") # 21.0cm x 29.7cm is A4
+        self.varPrintPaperHeight = tk.StringVar(value="29.7")
+        self.varCameraIndex = tk.IntVar(value=0)
+        self.varSelectedCamera = tk.StringVar(value=defaultCamName)
+        # trace selected camera to set camera index
+        self.varSelectedCamera.trace_add('write', self.onNewCameraSelected)
+        self.varWebsocketIP = tk.StringVar(value="ws://localhost:8090")
+        self.varLockX = tk.BooleanVar(value=False)
+        self.varLockY = tk.BooleanVar(value=False)
+        self.varLockZ = tk.BooleanVar(value=False)
+        self.varLockRoll = tk.BooleanVar(value=False)
+        self.varLockPitch = tk.BooleanVar(value=False)
+        self.varLockYaw = tk.BooleanVar(value=False)
 
         # tk.StringVar(value="[0; 0; 0]") * 6 will not working, they will all point to same address
-        self.var_cube_active_marker_ids = [tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-"), tk.StringVar(value="-")]
-        self.var_cube_positions = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
-        self.var_cube_rotations = [tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]"), tk.StringVar(value="[0; 0; 0]")]
+        self.varCubeActiveMarkerIDs = [
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+            tk.StringVar(value="-"),
+        ]
+        self.varCubePositions = [
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+        ]
+        self.varCubeRotations = [
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+            tk.StringVar(value="[0; 0; 0]"),
+        ]
+        
+        # initialize button array for state control (enable/disable)
+        self.interactables = []
 
         # title
-        frame_header = ttk.Frame(self.frame_main)
-        label_title = ttk.Label(frame_header, text=f"VReactable {VERSION}")
-        label_title.grid(row=0, column=0, pady=5)
-        frame_header.grid(row=0, column=0, padx=10)
-        self.var_is_calibrated = tk.StringVar(value="False")
-        self.var_is_camera_ready = tk.StringVar(value="False")
+        frameHeader = ttk.Frame(self.frameMain)
+        labelTitle = ttk.Label(frameHeader, text=f"VReactable Cube Tracker  {VERSION}")
+        labelTitle.grid(row=0, column=0, pady=5)
+        frameHeader.grid(row=0, column=0, padx=10)
+        self.varIsCalibrated = tk.StringVar(value="False")
+        self.varIsCameraReady = tk.StringVar(value="False")
 
         # main frame
-        frame_body = ttk.Frame(self.frame_main)
+        frameBody = ttk.Frame(self.frameMain)
 
         # frame 1
-        frame_1 = ttk.Frame(frame_body)
-        frame_aruco_generator = self.draw_frame_aruco_generator(frame_1)
-        frame_calibration = self.draw_frame_calibration(frame_1)
+        frame1 = ttk.Frame(frameBody)
+        frameArucoGenerator = self.drawFrameArucoGenerator(frame1)
+        frameCalibrator = self.drawFrameCalibrator(frame1)
         # organize layout
-        frame_aruco_generator.grid(
+        frameArucoGenerator.grid(
             row=0, column=0, ipadx=15, ipady=5, pady=10, sticky=tk.EW
         )
-        frame_calibration.grid(row=1, column=0, ipadx=15, ipady=5, pady=1, sticky=tk.EW)
-        frame_1.grid(row=0, column=0, padx=10)
-        frame_1.columnconfigure(0, weight=1)
+        frameCalibrator.grid(row=1, column=0, ipadx=15, ipady=5, pady=1, sticky=tk.EW)
+        frame1.grid(row=0, column=0, padx=10, sticky=tk.N)
+        frame1.columnconfigure(0, weight=1)
 
         # frame 2
-        frame_2 = ttk.Frame(frame_body)
-        frame_detect = self.draw_frame_detector(frame_2)
-        frame_detect.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
-        frame_2.grid(row=0, column=1, padx=10)
-        frame_2.columnconfigure(0, weight=1)
+        frame2 = ttk.Frame(frameBody)
+        frameTracker = self.drawFrameTracker(frame2)
+        frameTracker.grid(row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW)
+        frame2.grid(row=0, column=1, padx=10)
+        frame2.columnconfigure(0, weight=1)
 
         # frame 3
-        frame_3 = ttk.Frame(frame_body)
-        frame_detection_inspector = self.draw_frame_detection_inspector(frame_3)
-        frame_detection_inspector.grid(
+        frame3 = ttk.Frame(frameBody)
+        frameTrackingInspector = self.drawFrameTrackingInspector(frame3)
+        frameTrackingInspector.grid(
             row=0, column=0, ipadx=10, ipady=15, pady=10, sticky=tk.EW
         )
-        frame_3.grid(row=0, column=2, padx=10)
-        frame_3.columnconfigure(0, weight=1)
+        frame3.grid(row=0, column=2, padx=10)
+        frame3.columnconfigure(0, weight=1)
 
-        frame_body.grid(row=1, column=0, pady=5)
-        frame_body.rowconfigure(0, weight=1)
-        frame_body.columnconfigure(0, weight=2)
-        frame_body.columnconfigure(1, weight=1)
-        frame_body.columnconfigure(2, weight=2)
+        frameBody.grid(row=1, column=0, pady=5)
+        frameBody.rowconfigure(0, weight=1)
+        frameBody.columnconfigure(0, weight=2)
+        frameBody.columnconfigure(1, weight=1)
+        frameBody.columnconfigure(2, weight=2)
 
         # Main widget
-        self.mainwindow = self.toplevel_vreactable
+        self.mainwindow = self.root
+        self.mainwindow.protocol("WM_DELETE_WINDOW", self.onRootWindowClose)
 
-        self.update_num_sampled_images()
-        self.refresh_status()
+        self.refreshStatus()
 
-    def draw_frame_aruco_generator(self, parent):
+    def disableButtons(self):
+        for interactable in self.interactables:
+            interactable.configure(state=tk.DISABLED)
+        pass
+
+    def enableButtons(self):
+        for interactable in self.interactables:
+            interactable.configure(state=tk.NORMAL)
+        pass
+
+    def drawFrameArucoGenerator(self, parent):
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
+        textFieldMarkerSize, entryMarkerSize = ui_helper.drawCMNumberField(
+            frame, self.varArucoSize, "Marker size", "5"
+        )
+        textFieldGapSize, entryGapSize = ui_helper.drawCMNumberField(
+            frame, self.varArucoGapSize, "Gap size", "0.5"
+        )
+        textFieldPrintPaperWidth, entryPrintPaperWidth = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperWidth, "Print paper width", "21.0"
+        )
+        textFieldPrintPaperHeight, entryPrintPaperHeight = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperHeight, "Print paper height", "29.7"
+        )
+        btnGenerate = ui_helper.drawButton(
+            frame, "Generate aruco markers", self.onClickGenerateAruco
+        )
+        
+        self.interactables.append(entryMarkerSize)
+        self.interactables.append(entryGapSize)
+        self.interactables.append(entryPrintPaperWidth)
+        self.interactables.append(entryPrintPaperHeight)
+        self.interactables.append(btnGenerate)
 
-        text_field_marker_size = ui_helper.draw_cm_number_field(
-            frame, self.var_aruco_size, "Marker size", "5"
-        )
-        text_field_gap_size = ui_helper.draw_cm_number_field(
-            frame, self.var_aruco_gap_size, "Gap size", "0.5"
-        )
-        btn_generate = ui_helper.draw_button(
-            frame, "Generate aruco markers", self.on_click_generate_aruco
-        )
-
-        text_field_marker_size.grid(row=0, column=0, pady=5)
-        text_field_gap_size.grid(row=1, column=0, pady=5)
-        btn_generate.grid(row=2, column=0, ipadx=10, pady=5)
+        textFieldMarkerSize.grid(row=0, column=0, pady=5)
+        textFieldGapSize.grid(row=1, column=0, pady=5)
+        textFieldPrintPaperWidth.grid(row=2, column=0, pady=5)
+        textFieldPrintPaperHeight.grid(row=3, column=0, pady=5)
+        btnGenerate.grid(row=4, column=0, ipadx=10, pady=5)
 
         frame.columnconfigure(0, weight=1)
         return frame
 
-    def draw_frame_calibration(self, parent):
+    def drawFrameCalibrator(self, parent):
         frame = ttk.Labelframe(parent, text="Camera Calibratior")
 
-        btn_generate = ui_helper.draw_button(
-            frame, "Generate charuco board", self.on_click_generate_charuco_board
+        btnGenerate = ui_helper.drawButton(
+            frame, "Generate charuco board", self.onClickGenerateCharucoBoard
         )
 
-        rs_field_sample_count = ui_helper.draw_refreshable_state_field(
-            frame,
-            "Sampled image count:",
-            self.img_refresh,
-            self.var_sample_image_count,
-            "0",
-            self.on_click_refresh_sampled_count,
+        btnCalibrate = ui_helper.drawButton(
+            frame, "Calibrate camera", self.onClickCalibrateCamera
         )
-        btn_capture = ui_helper.draw_button(
-            frame, "Capture sample images", self.on_click_capture_sample_images
-        )
-        btn_calibrate = ui_helper.draw_button(
-            frame, "Calibrate camera", self.on_click_calibrate_camera
-        )
+        
+        self.interactables.append(btnGenerate)
+        self.interactables.append(btnCalibrate)
 
-        btn_generate.grid(row=0, column=0, pady=5)
-        rs_field_sample_count.grid(row=1, column=0, pady=5)
-        btn_capture.grid(row=2, column=0, pady=5)
-        btn_calibrate.grid(row=3, column=0, pady=5)
+        btnGenerate.grid(row=0, column=0, pady=5)
+        btnCalibrate.grid(row=1, column=0, pady=5)
         frame.columnconfigure(index=0, weight=1)
 
         return frame
 
-    def draw_frame_status(self, parent):
+    def drawFrameCalibratorStatus(self, parent):
         frame = ttk.Labelframe(parent, text="Status")
 
-        s_field_is_calibrated = ui_helper.draw_state_label(
-            frame, "Is camera calibrated: ", self.var_is_calibrated, "False"
+        stateIsCalibrated = ui_helper.drawState(
+            frame, "Is camera calibrated: ", self.varIsCalibrated, "False"
         )
-        s_field_is_cam_ready = ui_helper.draw_state_label(
-            frame, "Is camera ready:", self.var_is_camera_ready, "False"
-        )
-
-        btn_refresh = ui_helper.draw_icon_button(
-            frame, self.img_refresh, self.refresh_status
+        stateIsCamReady = ui_helper.drawState(
+            frame, "Is camera ready:", self.varIsCameraReady, "False"
         )
 
-        s_field_is_calibrated.grid(row=0, column=0, pady=5)
-        s_field_is_cam_ready.grid(row=1, column=0, pady=5)
-        btn_refresh.grid(row=2, column=0, pady=10)
+        btnRefresh = ui_helper.drawIconButton(
+            frame, self.imgRefresh, self.refreshStatus
+        )
+
+        stateIsCalibrated.grid(row=0, column=0, pady=5)
+        stateIsCamReady.grid(row=1, column=0, pady=5)
+        btnRefresh.grid(row=2, column=0, pady=10)
+        
+        self.interactables.append(btnRefresh)
 
         frame.columnconfigure(index=0, weight=1)
 
         return frame
 
-    def draw_frame_detector_lock_settings(self, parent):
+    def drawFrameTrackerLockSettings(self, parent):
         frame = ttk.LabelFrame(parent, text="Lock settings")
 
-        label_position = ttk.Label(frame, text="Position")
-        frame_position = ttk.Frame(frame)
-        checkbox_x = ui_helper.draw_check_box(frame_position, "x", self.var_lock_x)
-        checkbox_y = ui_helper.draw_check_box(frame_position, "y", self.var_lock_y)
-        checkbox_z = ui_helper.draw_check_box(frame_position, "z", self.var_lock_z)
-        checkbox_x.grid(row=0, column=0, pady=5)
-        checkbox_y.grid(row=0, column=1, pady=5)
-        checkbox_z.grid(row=0, column=2, pady=5)
-        frame_position.columnconfigure(index=0, weight=1)
-        frame_position.columnconfigure(index=1, weight=1)
-        frame_position.columnconfigure(index=2, weight=1)
+        labelPosition = ttk.Label(frame, text="Position")
+        framePosition = ttk.Frame(frame)
+        checkboxX = ui_helper.drawCheckBox(framePosition, "x", self.varLockX)
+        checkboxY = ui_helper.drawCheckBox(framePosition, "y", self.varLockY)
+        checkboxZ = ui_helper.drawCheckBox(framePosition, "z", self.varLockZ)
+        checkboxX.grid(row=0, column=0, pady=5)
+        checkboxY.grid(row=0, column=1, pady=5)
+        checkboxZ.grid(row=0, column=2, pady=5)
+        framePosition.columnconfigure(index=0, weight=1)
+        framePosition.columnconfigure(index=1, weight=1)
+        framePosition.columnconfigure(index=2, weight=1)
 
-        label_rotation = ttk.Label(frame, text="Rotation")
-        frame_rotation = ttk.Frame(frame)
-        checkbox_roll = ui_helper.draw_check_box(
-            frame_rotation, "roll", self.var_lock_roll
+        labelRotation = ttk.Label(frame, text="Rotation")
+        frameRotation = ttk.Frame(frame)
+        checkboxRoll = ui_helper.drawCheckBox(frameRotation, "roll", self.varLockRoll)
+        checkboxPitch = ui_helper.drawCheckBox(
+            frameRotation, "pitch", self.varLockPitch
         )
-        checkbox_pitch = ui_helper.draw_check_box(
-            frame_rotation, "pitch", self.var_lock_pitch
-        )
-        checkbox_yaw = ui_helper.draw_check_box(
-            frame_rotation, "yaw", self.var_lock_yaw
-        )
-        checkbox_roll.grid(row=0, column=0, pady=5)
-        checkbox_pitch.grid(row=0, column=1, pady=5)
-        checkbox_yaw.grid(row=0, column=2, pady=5)
-        frame_rotation.columnconfigure(index=0, weight=1)
-        frame_rotation.columnconfigure(index=1, weight=1)
-        frame_rotation.columnconfigure(index=2, weight=1)
+        checkboxYaw = ui_helper.drawCheckBox(frameRotation, "yaw", self.varLockYaw)
+        checkboxRoll.grid(row=0, column=0, pady=5)
+        checkboxPitch.grid(row=0, column=1, pady=5)
+        checkboxYaw.grid(row=0, column=2, pady=5)
+        frameRotation.columnconfigure(index=0, weight=1)
+        frameRotation.columnconfigure(index=1, weight=1)
+        frameRotation.columnconfigure(index=2, weight=1)
 
-        label_position.grid(row=0, column=0, pady=5)
-        frame_position.grid(row=1, column=0, pady=5, sticky=tk.EW)
-        label_rotation.grid(row=2, column=0, pady=5)
-        frame_rotation.grid(row=3, column=0, pady=5, sticky=tk.EW)
+        labelPosition.grid(row=0, column=0, pady=5)
+        framePosition.grid(row=1, column=0, pady=5, sticky=tk.EW)
+        labelRotation.grid(row=2, column=0, pady=5)
+        frameRotation.grid(row=3, column=0, pady=5, sticky=tk.EW)
 
         frame.rowconfigure(index=0, weight=1)
         frame.rowconfigure(index=1, weight=1)
@@ -230,59 +287,75 @@ class VreactableApp:
         frame.columnconfigure(index=0, weight=1)
         return frame
 
-    def draw_frame_detector(self, parent):
-        frame = ttk.Labelframe(parent, text="Detector")
+    def drawFrameTracker(self, parent):
+        frame = ttk.Labelframe(parent, text="Tracker")
 
-        frame_status = self.draw_frame_status(frame)
+        frameStatus = self.drawFrameCalibratorStatus(frame)
 
-        frame_lock_settings = self.draw_frame_detector_lock_settings(frame)
+        frameLockSettings = self.drawFrameTrackerLockSettings(frame)
 
-        field_camera_index = ui_helper.draw_text_field(
-            frame, self.var_camera_index, "Camera index", "0", 5
+        # fieldCameraIndex = ui_helper.drawTextField(
+        #     frame, self.varCameraIndex, "Camera index", "0", 5
+        # )
+        frameCamera = ttk.Frame(frame)
+        comboBoxCamera = ui_helper.drawComboBox(frameCamera, self.availableCameras, self.varSelectedCamera)
+        btnRefresh = ui_helper.drawIconButton(frameCamera, self.imgRefresh, self.updateAvailableCameras)
+        comboBoxCamera.grid(row=0, column=0, padx=5, pady=5)
+        btnRefresh.grid(row=0, column=1, padx=5, pady= 5)
+        frameCamera.columnconfigure(index=0, weight=1)
+        
+        self.interactables.append(comboBoxCamera)
+        self.interactables.append(btnRefresh)
+        
+        self.comboBoxCamera = comboBoxCamera
+        fieldWebocketIP, entryWebsocketIP = ui_helper.drawTextField(
+            frame, self.varWebsocketIP, "Websocket IP", "ws://localhost:8090", 20
         )
-        field_webocket_ip = ui_helper.draw_text_field(
-            frame, self.var_websocket_ip, "Websocket IP", "ws://localhost:8090", 20
+        btnStartTracking = ui_helper.drawButton(
+            frame, "Start Tracking", self.onClickStartTracking
         )
-        btn_detect = ui_helper.draw_button(frame, "Detect", self.on_click_detect)
+        
+        self.interactables.append(entryWebsocketIP)
+        self.interactables.append(btnStartTracking)
 
-        frame_status.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
-        frame_lock_settings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
-        field_camera_index.grid(row=2, column=0, padx=10, pady=5)
-        field_webocket_ip.grid(row=3, column=0, padx=10, pady=5)
-        btn_detect.grid(row=4, column=0, pady=5)
+        frameStatus.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
+        frameLockSettings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
+        frameCamera.grid(row=2, column=0, padx=10, pady=5)
+        fieldWebocketIP.grid(row=3, column=0, padx=10, pady=5)
+        btnStartTracking.grid(row=4, column=0, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
 
         return frame
 
-    def draw_cube_status(self, parent, cube_index):
-        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}", width=230, height=100)
-        label_active_code = ui_helper.draw_state_label_unpropagated(
-            frame, "Active marker id", self.var_cube_active_marker_ids[cube_index], "-"
+    def drawCubeStatus(self, parent, cubeIndex):
+        frame = ttk.LabelFrame(parent, text=f"Cube {cubeIndex}", width=230, height=100)
+        labelActiveID = ui_helper.drawStateUnpropagated(
+            frame, "Active marker id", self.varCubeActiveMarkerIDs[cubeIndex], "-"
         )
-        label_position = ui_helper.draw_state_label_unpropagated(
-            frame, "Position", self.var_cube_positions[cube_index], "[0; 0; 0]"
+        labelPosition = ui_helper.drawStateUnpropagated(
+            frame, "Position", self.varCubePositions[cubeIndex], "[0; 0; 0]"
         )
-        label_rotation = ui_helper.draw_state_label_unpropagated(
-            frame, "Rotation", self.var_cube_rotations[cube_index], "[0; 0; 0]"
+        labelRotation = ui_helper.drawStateUnpropagated(
+            frame, "Rotation", self.varCubeRotations[cubeIndex], "[0; 0; 0]"
         )
 
-        label_active_code.configure(width=220)
-        label_position.configure(width=220)
-        label_rotation.configure(width=220)
-        label_active_code.grid(row=0, column=0, ipadx=5, pady=10)
-        label_position.grid(row=1, column=0, ipadx=5, pady=5)
-        label_rotation.grid(row=2, column=0, ipadx=5, pady=5)
+        labelActiveID.configure(width=220)
+        labelPosition.configure(width=220)
+        labelRotation.configure(width=220)
+        labelActiveID.grid(row=0, column=0, ipadx=5, pady=10)
+        labelPosition.grid(row=1, column=0, ipadx=5, pady=5)
+        labelRotation.grid(row=2, column=0, ipadx=5, pady=5)
 
         frame.columnconfigure(index=0, weight=1)
         frame.grid_propagate(False)
         return frame
 
-    def draw_frame_detection_inspector(self, parent):
-        frame = ttk.LabelFrame(parent, text="Detection Inspector")
+    def drawFrameTrackingInspector(self, parent):
+        frame = ttk.LabelFrame(parent, text="Tracking Inspector")
 
         for index in range(6):
-            status_cube = self.draw_cube_status(frame, index)
+            status_cube = self.drawCubeStatus(frame, index)
             status_cube.grid(
                 row=int(index / 3),
                 column=int(index % 3),
@@ -303,133 +376,199 @@ class VreactableApp:
         return frame
 
     def run(self):
-        #self.update_frame()
+        # self.update_frame()
         self.mainwindow.mainloop()
         pass
 
-    def update_frame(self):
-        self.mainwindow.after(1000, self.update_frame)
+    def updateFrame(self):
+        self.mainwindow.after(1000, self.updateFrame)
+        pass
+    
+    def updateAvailableCameras(self):
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+            
+        # self.varCameraIndex.set(0)
+        self.varSelectedCamera.set(defaultCamName)
+        
+        self.comboBoxCamera.configure(values=self.availableCameras)
+        pass
+    
+    def onNewCameraSelected(self, var, index, mode):
+        print(f"Camera {self.varSelectedCamera.get()} is selected. Set index to {self.comboBoxCamera.current()}")
+        self.varCameraIndex.set(self.comboBoxCamera.current())
+        self.refreshStatus()
         pass
 
-    def on_click_generate_aruco(self):
-        generator.generatePackedArucoMarkers(
+    def onClickGenerateAruco(self):
+        self.disableButtons()
+        self.generator.generatePackedArucoMarkers(
             markerFolder=MARKER_FOLDER,
             packedFolder=PACKED_FOLDER,
             arucoDict=ARUCO_DICT,
             numMarkers=36,
-            markerSizecm=float(self.var_aruco_size.get()),
-            gapSizecm=float(self.var_aruco_gap_size.get()),
+            markerSizecm=float(self.varArucoSize.get()),
+            gapSizecm=float(self.varArucoGapSize.get()),
+            paperWidthcm=float(self.varPrintPaperWidth.get()),
+            paperHeightcm=float(self.varPrintPaperHeight.get())
         )
         showinfo(
-            title="Generate Aruco Markers",
+            title="Generate Aruco Markers Success",
             message=f"Successfully generated aruco markers. \n The files are at: {PACKED_FOLDER}",
         )
+        self.enableButtons()
         pass
 
-    def on_click_generate_charuco_board(self):
-        generator.generateCharucoBoard(
+    def onClickGenerateCharucoBoard(self):
+        self.disableButtons()
+        self.generator.generateCharucoBoard(
             outputFolder=CHARUCO_FOLDER,
             arucoDict=ARUCO_DICT,
             pattern=CHARUCO_BOARD_PATTERN,
-            markerSizecm=float(self.var_aruco_size.get()),
-            gapSizecm=float(self.var_aruco_gap_size.get()),
+            markerSizecm=float(self.varArucoSize.get()),
+            gapSizecm=float(self.varArucoGapSize.get()),
+            
         )
         showinfo(
-            title="Generate Aruco Board",
+            title="Generate Aruco Board Success",
             message=f"Successfully generated aruco board. \n The files are at: {CHARUCO_FOLDER}",
         )
+        self.enableButtons()
         pass
 
-    def on_click_refresh_sampled_count(self):
-        self.update_num_sampled_images()
-        pass
-
-    def on_click_capture_sample_images(self):
-        sample_image_capturer.capture_sample_images(SAMPLE_FOLDER)
-        self.update_num_sampled_images()
-        showinfo(
-            title="Capture Sample Images",
-            message=f"Successfully sampled images. \n The files are at: {SAMPLE_FOLDER}",
-        )
-        pass
-
-    def on_click_calibrate_camera(self):
-        calibrator.calibrate(
-            sampleFolder=SAMPLE_FOLDER,
-            calibFolder=CALIB_FOLDER,
-            arucoDict=ARUCO_DICT,
-            pattern=CHARUCO_BOARD_PATTERN,
-        )
-        self.refresh_status()
-        pass
-
-    def on_click_detect(self):
-        print("Try start detecting")
-        if self.detect_thread != None and self.detect_thread.is_alive():
-            showinfo(
-                title="Detector is running already",
-                message=f"Detector is running already. Please press Q in detector window to close it.",
+    def onClickCalibrateCamera(self):
+        self.refreshStatus()
+        if self.varIsCameraReady.get() == "False":
+            showerror(
+                title="Camera is not found",
+                message=f"Please check if your camera is connect.",
             )
             return
-        if self.is_detector_ready() is False:
+        self.calibrationThread = Thread(
+            target=self.calibrator.startCalibration
+        )
+        self.calibrationThread.start()
+        self.disableButtons()
+        pass
+
+    def onClickStartTracking(self):
+        print("Try start tracking")
+        if self.trackingThread != None and self.trackingThread.is_alive():
             showinfo(
-                title="Detector is not ready",
-                message=f"Detector is not ready yet. Please check status panel.",
+                title="Tracker is running already",
+                message=f"Tracker is running already. Please press Q in Tracker window to close it.",
             )
             return
-        ip = self.var_websocket_ip.get()
+        if self.isTrackerReady() is False:
+            showinfo(
+                title="Tracker is not ready",
+                message=f"Tracker is not ready yet. Please check status panel.",
+            )
+            return
+        ip = self.varWebsocketIP.get()
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
-        self.detect_thread = Thread(target=self.detector.detect_arucos, args=(calibFilePath, ip))
-        self.detect_thread.start()
-        #self.detector.detect_arucos(calibFilePath, ip)
+        self.trackingThread = Thread(
+            target=self.tracker.startTrackingMarkers,
+            args=(calibFilePath, ip, self.varCameraIndex.get()),
+        )
+        # run tracking in different threads
+        self.trackingThread.start()
+        self.disableButtons()
         pass
 
-    def update_num_sampled_images(self):
-        numImgs = helper.countImages(SAMPLE_FOLDER)
-        self.var_sample_image_count.set(str(numImgs))
-        pass
-
-    def refresh_status(self):
+    def refreshStatus(self):
         calibFilePath = os.path.join(CALIB_FOLDER, "calib.npz")
 
-        self.var_is_calibrated.set(str(helper.isFileExit(calibFilePath)))
-        self.var_is_camera_ready.set(
-            str(helper.isCameraAvailable(self.var_camera_index.get()))
+        self.varIsCalibrated.set(str(helper.isFileExit(calibFilePath)))
+        self.varIsCameraReady.set(
+            str(helper.isCameraAvailable(self.varCameraIndex.get()))
         )
         pass
 
-    def is_detector_ready(self):
-        if self.var_is_calibrated.get() == "False":
+    def isTrackerReady(self):
+        self.refreshStatus()
+        if self.varIsCalibrated.get() == "False":
             return False
-        if self.var_is_camera_ready.get() == "False":
+        if self.varIsCameraReady.get() == "False":
             return False
         return True
 
-    def detect_callback(self, markerIds, positions, rotations):
-        if len(markerIds) == 0:
-            return
-
-        for index in range(6):
-            if markerIds[index] > -1:
-                p = positions[index]
-                r = rotations[index]
-
-                self.var_cube_active_marker_ids[index].set(str(markerIds[index]))
-                self.var_cube_positions[index].set(
-                    f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
-                )
-                self.var_cube_rotations[index].set(
-                    f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
-                )
-            else:
-                self.var_cube_active_marker_ids[index].set("-")
-                self.var_cube_positions[index].set(f"[0; 0; 0]")
-                self.var_cube_rotations[index].set(f"[0; 0; 0]")
+    def onRootWindowClose(self):
+        self.tracker.terminate()
+        self.mainwindow.destroy()
         pass
 
+    def onTrack(self, markerIds, positions, rotations):
+        if len(markerIds) == 0:
+            for index in range(6):
+                self.varCubeActiveMarkerIDs[index].set("-")
+                self.varCubePositions[index].set(f"[0; 0; 0]")
+                self.varCubeRotations[index].set(f"[0; 0; 0]")
+            pass
+        else:
+            for index in range(6):
+                if markerIds[index] > -1:
+                    p = positions[index]
+                    r = rotations[index]
+
+                    self.varCubeActiveMarkerIDs[index].set(str(markerIds[index]))
+                    self.varCubePositions[index].set(
+                        f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
+                    )
+                    self.varCubeRotations[index].set(
+                        f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
+                    )
+                else:
+                    self.varCubeActiveMarkerIDs[index].set("-")
+                    self.varCubePositions[index].set(f"[0; 0; 0]")
+                    self.varCubeRotations[index].set(f"[0; 0; 0]")
+            pass
+        pass
+    
+    def onTrackingFinish(self):
+        print("tracker is closed now.")
+        if self.tracker.forceTerminate == False:
+            self.enableButtons()
+        pass
+    
+    def onTrackingFail(self, reason):
+        showerror(
+            title="Tracking Failed",
+            message=f"Tracking failed. Reason: {reason}"
+        )
+        self.enableButtons()
+        pass
+
+    def onCalibrationFinish(self):
+        showinfo(
+            title="Calibration Success",
+            message=f"Camera is successfully calibrated. Now you can start tracking!",
+        )
+        self.refreshStatus()
+        self.enableButtons()
+        pass
+    
+    def onCalibrationFail(self, reason):
+        showerror(
+            title="Calibration Failed",
+            message=f"Camera calibration failed. Reason: {reason}"
+        )
+        self.enableButtons()
+        pass
+    
+    def onGenerateFail(self, reason):
+        showerror(
+            title="Generate Failed",
+            message=f"Generate Aruco Marker failed. Reason: {reason}"
+        )
+        self.enableButtons()
+        pass
 
 if __name__ == "__main__":
     app = VreactableApp()
     app.run()
-    if app.detect_thread != None:
-        app.detect_thread.join()
+    if app.trackingThread != None:
+        app.trackingThread.join()

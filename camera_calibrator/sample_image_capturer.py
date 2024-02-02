@@ -25,13 +25,8 @@ CHARUCO_BOARD = aruco.CharucoBoard(
 )
 
 
-def validatePath(path):
-    if os.path.exists(path) == False:
-        os.makedirs(path)
-
-
 # validate the detectable images
-def detect(windowName, imageCopy, goodAmount, badAmount):
+def detect(windowName, imageCopy, amount):
     # prepare object points
     detectorParams = aruco.DetectorParameters()
     detector = aruco.CharucoDetector(board=CHARUCO_BOARD, detectorParams=detectorParams)
@@ -57,29 +52,38 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
     # set instructions text for setting next image
     cv2.putText(
         imageCopy,
-        f"Capture images    Now captured {goodAmount} good images, and {badAmount} bad images",
+        f"Capture images for calibration    Now captured {amount} images",
         (10, 20),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
-        (255, 255, 255),
+        (0, 255, 0),
         1,
     )
     cv2.putText(
         imageCopy,
-        f"Press S to take screenshot",
+        f"Press S to take sample when you see marker ids are detected",
         (10, 40),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
-        (255, 255, 255),
+        (0, 0, 255),
         1,
     )
     cv2.putText(
         imageCopy,
-        f"Press Q to exit",
+        f"It is normal if an image is not saved, because bad images are filtered automatically",
         (10, 60),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.4,
-        (255, 255, 255),
+        (0, 255, 0),
+        1,
+    )
+    cv2.putText(
+        imageCopy,
+        f"Press Q to exit and start calibration",
+        (10, 80),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.4,
+        (0, 0, 255),
         1,
     )
 
@@ -93,7 +97,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
         cv2.putText(
             imageCopy,
             f"corners are found",
-            (10, 80),
+            (10, 100),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
             (0, 255, 0),
@@ -104,7 +108,7 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
         cv2.putText(
             imageCopy,
             f"corners are not found",
-            (10, 80),
+            (10, 100),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
             (0, 0, 255),
@@ -117,13 +121,15 @@ def detect(windowName, imageCopy, goodAmount, badAmount):
 
 # run camera
 def run(outputFolder):
-    goodAmount = 0
-    badAmount = 0
-    cap = cv2.VideoCapture(0)
+    helper.clearFolder(outputFolder)
+    imageAmount = 0
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     if not cap.isOpened():
         print("error: cannot open camera")
         exit()
+    
+    print("camera is captured, start sampling...")
     while cap.isOpened():
         found, frame = cap.read()
 
@@ -131,23 +137,19 @@ def run(outputFolder):
             print("error: can't receive frame (stream end?). Exiting ...")
             break
 
-        print("camera is captured, now showing the camera")
-
         frameCopy = copy.copy(frame)
 
-        result = detect("camera", frameCopy, goodAmount, badAmount)
+        result = detect("camera", frameCopy, imageAmount)
 
         key = cv2.waitKey(33)
-        if key == ord("s"):
+        if key == ord("s") or key == ord("S"):
             # save screenshot
-            cv2.imwrite(
-                f"{outputFolder}\\screenshot_{goodAmount + badAmount}.jpg", frame
-            )
             if result:
-                goodAmount += 1
-            else:
-                badAmount += 1
-        elif key == ord("q"):
+                cv2.imwrite(
+                    f"{outputFolder}\\screenshot_{imageAmount}.jpg", frame
+                )
+                imageAmount += 1
+        elif key == ord("q") or key == ord("Q"):
             break
 
     # release everything if job is finished
@@ -156,11 +158,11 @@ def run(outputFolder):
     cv2.destroyAllWindows()
 
 
-def capture_sample_images(sampleFolder):
+def captureSampleImages(sampleFolder):
     helper.validatePath(sampleFolder)
     run(sampleFolder)
 
 
 if __name__ == "__main__":
     sampleFolder = os.path.join(helper.getRootPath(), "resources\\calibration\\samples")
-    capture_sample_images(sampleFolder)
+    captureSampleImages(sampleFolder)

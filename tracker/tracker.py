@@ -4,7 +4,7 @@ from cv2 import aruco
 import copy
 import os
 import pathlib
-from detector import sender
+from tracker.sender import Client
 import math
 
 # ChAruco board configs
@@ -40,31 +40,48 @@ def wrapAngle(angle):
     Returns:
         float: Wrapped angle in the range -180 to 180 degrees.
     """
-    wrapped_angle = (angle + 180) % 360
+    wrappedAngle = (angle + 180) % 360
 
-    if wrapped_angle > 180:
-        wrapped_angle = wrapped_angle - 360
-    return wrapped_angle
+    if wrappedAngle > 180:
+        wrappedAngle = wrappedAngle - 360
+    return wrappedAngle
 
 
-class CubeDetector:
-    def __init__(self, app, detect_callback):
-        self.websocket = None
+class CubeTracker:
+    def __init__(self, app, onTrack, onTrackingFinish, onTrackingFail):
+        self.client = None
         self.app = app
-        self.detect_callback = detect_callback
+        self.onTrack = onTrack
+        self.onTrackingFinish = onTrackingFinish
+        self.onTrackingFail = onTrackingFail
+        self.forceTerminate = False
+        pass
+    
+    def terminate(self):
+        self.forceTerminate = True
         pass
 
-    def detect_arucos(self, calibFilePath: str, ip: str):
+    def startTrackingMarkers(self, calibFilePath: str, ip: str, cameraIndex: int):
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.websocket = sender.setup_websocket_client(ip)
+        try:
+            self.client = Client(ip)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Failed to setup Websocket. Please check whether the ip address is correct then try again.")
+            raise e
         print("Websocket is set...")
-        self.__run__(cameraMatrix, distCoeffs)
+        try:
+            self.__run__(cameraMatrix, distCoeffs, cameraIndex)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Unknown error. Please check console to address the issue.")
+            raise e
 
     # private
-    def __run__(self, cameraMatrix, distCoeffs):
-        cap = cv2.VideoCapture(0)
+    def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
+        cap = cv2.VideoCapture(cameraIndex, cv2.CAP_DSHOW)
 
         if not cap.isOpened():
             print("error: cannot open camera")
@@ -72,19 +89,23 @@ class CubeDetector:
 
         print("Camera is found...")
         while cap.isOpened():
+            if self.forceTerminate:
+                break
             isCaptured, frame = cap.read()
 
             if isCaptured:
-                self.__detect_frame__(frame, cameraMatrix, distCoeffs)
+                self.__trackFrame__(frame, cameraMatrix, distCoeffs)
 
+            # tracking fps = 30
             key = cv2.waitKey(math.floor(1000 / 30))
-            if key == ord("q"):
+            if key == ord("q") or key == ord("Q"):
                 break
         cap.release()
         cv2.destroyAllWindows()
+        self.onTrackingFinish()
 
     # private
-    def __detect_frame__(self, frame, cameraMatrix, distCoeffs):
+    def __trackFrame__(self, frame, cameraMatrix, distCoeffs):
         global isLastObjectGone
         imageCopy = copy.copy(frame)
         detectorParams = aruco.DetectorParameters()
@@ -124,20 +145,18 @@ class CubeDetector:
                     OBJ_POINTS, markerCorners[i], cameraMatrix, distCoeffs
                 )
                 # Convert rotation vector to rotation matrix
-                rot_mat, _ = cv2.Rodrigues(rvecs[i])
+                rotMat, _ = cv2.Rodrigues(rvecs[i])
 
-                proj_matrix = np.hstack((rot_mat, tvecs[i]))
-                eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
+                projMat = np.hstack((rotMat, tvecs[i]))
+                eulerAngles = cv2.decomposeProjectionMatrix(projMat)[6]
 
-                roll_degrees, pitch_degrees, yaw_degrees = eulerAngles
+                rollDegree, pitchDegree, yawDegrees = eulerAngles
 
-                roll_degrees = wrapAngle(roll_degrees[0])
-                pitch_degrees = pitch_degrees[0]
-                yaw_degrees = yaw_degrees[0]
+                rollDegree = wrapAngle(rollDegree[0])
+                pitchDegree = pitchDegree[0]
+                yawDegrees = yawDegrees[0]
 
-                rotation = np.array(
-                    [roll_degrees, pitch_degrees, yaw_degrees], np.float32
-                )
+                rotation = np.array([rollDegree, pitchDegree, yawDegrees], np.float32)
                 # filter by rotations so there will be only 1 marker on a box being detected
                 cubeIndex = int(markerIds[i] / 6)
                 # pitch diff with platform
@@ -168,32 +187,41 @@ class CubeDetector:
             # post prcoess data
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
-                    filteredTvecs[i][0] = 0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
-                    filteredTvecs[i][1] = (
-                        0.0 if self.app.var_lock_y.get() else filteredTvecs[i][1][0] * -1
+                    filteredTvecs[i][0] = (
+                        0.0 if self.app.varLockX.get() else filteredTvecs[i][0][0]
                     )
-                    filteredTvecs[i][2] = 0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                    filteredTvecs[i][1] = (
+                        0.0
+                        if self.app.varLockY.get()
+                        else filteredTvecs[i][1][0] * -1
+                    )
+                    filteredTvecs[i][2] = (
+                        0.0 if self.app.varLockZ.get() else filteredTvecs[i][2][0]
+                    )
                     filteredRotations[i][0] = (
-                        0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
+                        0.0 if self.app.varLockRoll.get() else filteredRotations[i][0]
                     )
                     filteredRotations[i][1] = (
-                        0.0 if self.app.var_lock_pitch.get() else filteredRotations[i][1]
+                        0.0
+                        if self.app.varLockPitch.get()
+                        else filteredRotations[i][1]
                     )
                     filteredRotations[i][2] = (
-                        0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]
+                        0.0 if self.app.varLockYaw.get() else filteredRotations[i][2]
                     )
 
             # send data
-            sender.send_object_data(
-                self.websocket, filteredMarkerIds, filteredTvecs, filteredRotations
+            self.client.sendCubeData(
+                filteredMarkerIds, filteredTvecs, filteredRotations
             )
 
-            self.detect_callback(filteredMarkerIds, filteredTvecs, filteredRotations)
+            self.onTrack(filteredMarkerIds, filteredTvecs, filteredRotations)
             isLastObjectGone = False
 
         else:
             if isLastObjectGone is False:
-                sender.send_object_data(self.websocket, [], [], [])
+                self.client.sendCubeData([], [], [])
+                self.onTrack([], [], [])
                 isLastObjectGone = True
             cv2.putText(
                 imageCopy,

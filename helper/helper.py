@@ -1,11 +1,21 @@
 import os
 import pathlib
 import cv2
+from pygrabber.dshow_graph import FilterGraph
 
 
 def getRootPath():
     return pathlib.Path().resolve()
 
+def getAvailableCameras():
+    devices = FilterGraph().get_input_devices()
+
+    availableCameras = [""] * len(devices)
+
+    for deviceIndex, deviceName in enumerate(devices):
+        availableCameras[deviceIndex] = deviceName
+
+    return availableCameras
 
 def format(v):
     return "{:.0f}".format(round(v, 1))
@@ -44,7 +54,9 @@ def isFileExit(path):
 
 def isCameraAvailable(index):
     try:
-        cap = cv2.VideoCapture(index)
+        # cv2.CAP_DSHOW makes this code only work on Windows, but it helps the camera to show up instantly.
+        # Otherwise it takes years to open the camera
+        cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
         if not cap.isOpened():
             return False
         cap.release()
