@@ -48,6 +48,9 @@ Camera is ready, then you will need to have markers for tracking. In this tracke
 
 The setup includes a camera and 36 aruco tags.
 
+![Cubes](./assets/readme/cube.png)
+
+
 ### Component 2: Websocket Server
 
 To send data to Resonite, we will need a websocket server as a middleware. We use Chataigne as the websocket server since it is easy to setup. It is also possible to replace it by any other websocket server applications. The function of the server is to receive data from the tracking software and reflect(brodcast) the data to all clients.
