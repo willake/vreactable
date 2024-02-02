@@ -432,24 +432,29 @@ class VreactableApp:
 
     def onTrack(self, markerIds, positions, rotations):
         if len(markerIds) == 0:
-            return
-
-        for index in range(6):
-            if markerIds[index] > -1:
-                p = positions[index]
-                r = rotations[index]
-
-                self.varCubeActiveMarkerIDs[index].set(str(markerIds[index]))
-                self.varCubePositions[index].set(
-                    f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
-                )
-                self.varCubeRotations[index].set(
-                    f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
-                )
-            else:
+            for index in range(6):
                 self.varCubeActiveMarkerIDs[index].set("-")
                 self.varCubePositions[index].set(f"[0; 0; 0]")
                 self.varCubeRotations[index].set(f"[0; 0; 0]")
+            pass
+        else:
+            for index in range(6):
+                if markerIds[index] > -1:
+                    p = positions[index]
+                    r = rotations[index]
+
+                    self.varCubeActiveMarkerIDs[index].set(str(markerIds[index]))
+                    self.varCubePositions[index].set(
+                        f"[{helper.format(p[0][0])}; {helper.format(p[1][0])}; {helper.format(p[2][0])}]"
+                    )
+                    self.varCubeRotations[index].set(
+                        f"[{helper.format(r[0])}; {helper.format(r[1])}; {helper.format(-r[2])}]"
+                    )
+                else:
+                    self.varCubeActiveMarkerIDs[index].set("-")
+                    self.varCubePositions[index].set(f"[0; 0; 0]")
+                    self.varCubeRotations[index].set(f"[0; 0; 0]")
+            pass
         pass
     
     def onTrackingFinish(self):

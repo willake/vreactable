@@ -221,6 +221,7 @@ class CubeTracker:
         else:
             if isLastObjectGone is False:
                 self.client.sendCubeData([], [], [])
+                self.onTrack([], [], [])
                 isLastObjectGone = True
             cv2.putText(
                 imageCopy,
