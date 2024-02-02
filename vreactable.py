@@ -28,7 +28,7 @@ CALIB_FOLDER = os.path.join(helper.getRootPath(), config["PATH"]["CalibFolder"])
 
 ARUCO_DICT = aruco.getPredefinedDictionary(aruco.DICT_6X6_50)
 CHARUCO_BOARD_PATTERN = (5, 7)
-VERSION = "v2.3"
+VERSION = "v2.4"
 
 
 class VreactableApp:
