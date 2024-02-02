@@ -55,7 +55,6 @@ class VreactableApp:
 
         self.varArucoSize = tk.StringVar(value="5")
         self.varArucoGapSize = tk.StringVar(value="0.5")
-        self.varSampleImageCount = tk.StringVar(value="0")
         self.varCameraIndex = tk.IntVar(value=0)
         self.varWebsocketIP = tk.StringVar(value="ws://localhost:8090")
         self.varLockX = tk.BooleanVar(value=False)
@@ -139,7 +138,6 @@ class VreactableApp:
         # Main widget
         self.mainwindow = self.root
 
-        self.updateNumSampledImages()
         self.refreshStatus()
 
     def disableButtons(self):
@@ -176,17 +174,6 @@ class VreactableApp:
             frame, "Generate charuco board", self.onClickGenerateCharucoBoard
         )
 
-        # rsSampleCount = ui_helper.drawRefreshableState(
-        #     frame,
-        #     "Sampled image count:",
-        #     self.imgRefresh,
-        #     self.varSampleImageCount,
-        #     "0",
-        #     self.onClickRefreshSampledCount,
-        # )
-        # btnCapture = ui_helper.drawButton(
-        #     frame, "Capture sample images", self.onClickCaptureSampleImages
-        # )
         btnCalibrate = ui_helper.drawButton(
             frame, "Calibrate camera", self.onClickCalibrateCamera
         )
@@ -374,19 +361,6 @@ class VreactableApp:
         )
         pass
 
-    def onClickRefreshSampledCount(self):
-        self.updateNumSampledImages()
-        pass
-
-    def onClickCaptureSampleImages(self):
-        sample_image_capturer.captureSampleImages(SAMPLE_FOLDER)
-        self.updateNumSampledImages()
-        showinfo(
-            title="Capture Sample Images",
-            message=f"Successfully sampled images. \n The files are at: {SAMPLE_FOLDER}",
-        )
-        pass
-
     def onClickCalibrateCamera(self):
         self.calibrator.startCalibration()
         pass
@@ -413,11 +387,6 @@ class VreactableApp:
         )
         # run tracking in different threads
         self.trackingThread.start()
-        pass
-
-    def updateNumSampledImages(self):
-        numImgs = helper.countImages(SAMPLE_FOLDER)
-        self.varSampleImageCount.set(str(numImgs))
         pass
 
     def refreshStatus(self):
