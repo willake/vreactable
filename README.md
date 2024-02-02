@@ -48,7 +48,7 @@ Camera is ready, then you will need to have markers for tracking. In this tracke
 
 The setup includes a camera and 36 aruco tags.
 
-![Cubes](./assets/readme/cube.png)
+![Cubes](./assets/readme/cube.jpg)
 
 
 ### Component 2: Websocket Server
