@@ -53,10 +53,19 @@ class VreactableApp:
 
         # the image asset
         self.imgRefresh = tk.PhotoImage(file="assets/refresh.png")
-
+        
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+        
         self.varArucoSize = tk.StringVar(value="5")
         self.varArucoGapSize = tk.StringVar(value="0.5")
         self.varCameraIndex = tk.IntVar(value=0)
+        self.varSelectedCamera = tk.StringVar(value=defaultCamName)
+        # trace selected camera to set camera index
+        self.varSelectedCamera.trace_add('write', self.onNewCameraSelected)
         self.varWebsocketIP = tk.StringVar(value="ws://localhost:8090")
         self.varLockX = tk.BooleanVar(value=False)
         self.varLockY = tk.BooleanVar(value=False)
@@ -158,16 +167,18 @@ class VreactableApp:
     def drawFrameArucoGenerator(self, parent):
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
-        textFieldMarkerSize = ui_helper.drawCMNumberField(
+        textFieldMarkerSize, entryMarkerSize = ui_helper.drawCMNumberField(
             frame, self.varArucoSize, "Marker size", "5"
         )
-        textFieldGapSize = ui_helper.drawCMNumberField(
+        textFieldGapSize, entryGapSize = ui_helper.drawCMNumberField(
             frame, self.varArucoGapSize, "Gap size", "0.5"
         )
         btnGenerate = ui_helper.drawButton(
             frame, "Generate aruco markers", self.onClickGenerateAruco
         )
         
+        self.interactables.append(entryMarkerSize)
+        self.interactables.append(entryGapSize)
         self.interactables.append(btnGenerate)
 
         textFieldMarkerSize.grid(row=0, column=0, pady=5)
@@ -269,21 +280,33 @@ class VreactableApp:
 
         frameLockSettings = self.drawFrameTrackerLockSettings(frame)
 
-        fieldCameraIndex = ui_helper.drawTextField(
-            frame, self.varCameraIndex, "Camera index", "0", 5
-        )
-        fieldWebocketIP = ui_helper.drawTextField(
+        # fieldCameraIndex = ui_helper.drawTextField(
+        #     frame, self.varCameraIndex, "Camera index", "0", 5
+        # )
+        frameCamera = ttk.Frame(frame)
+        comboBoxCamera = ui_helper.drawComboBox(frameCamera, self.availableCameras, self.varSelectedCamera)
+        btnRefresh = ui_helper.drawIconButton(frameCamera, self.imgRefresh, self.updateAvailableCameras)
+        comboBoxCamera.grid(row=0, column=0, padx=5, pady=5)
+        btnRefresh.grid(row=0, column=1, padx=5, pady= 5)
+        frameCamera.columnconfigure(index=0, weight=1)
+        
+        self.interactables.append(comboBoxCamera)
+        self.interactables.append(btnRefresh)
+        
+        self.comboBoxCamera = comboBoxCamera
+        fieldWebocketIP, entryWebsocketIP = ui_helper.drawTextField(
             frame, self.varWebsocketIP, "Websocket IP", "ws://localhost:8090", 20
         )
         btnStartTracking = ui_helper.drawButton(
             frame, "Start Tracking", self.onClickStartTracking
         )
         
+        self.interactables.append(entryWebsocketIP)
         self.interactables.append(btnStartTracking)
 
         frameStatus.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frameLockSettings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
-        fieldCameraIndex.grid(row=2, column=0, padx=10, pady=5)
+        frameCamera.grid(row=2, column=0, padx=10, pady=5)
         fieldWebocketIP.grid(row=3, column=0, padx=10, pady=5)
         btnStartTracking.grid(row=4, column=0, pady=5)
 
@@ -346,6 +369,25 @@ class VreactableApp:
     def updateFrame(self):
         self.mainwindow.after(1000, self.updateFrame)
         pass
+    
+    def updateAvailableCameras(self):
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+            
+        # self.varCameraIndex.set(0)
+        self.varSelectedCamera.set(defaultCamName)
+        
+        self.comboBoxCamera.configure(values=self.availableCameras)
+        pass
+    
+    def onNewCameraSelected(self, var, index, mode):
+        print(f"Camera {self.varSelectedCamera.get()} is selected. Set index to {self.comboBoxCamera.current()}")
+        self.varCameraIndex.set(self.comboBoxCamera.current())
+        self.refreshStatus()
+        pass
 
     def onClickGenerateAruco(self):
         generator.generatePackedArucoMarkers(
@@ -377,6 +419,13 @@ class VreactableApp:
         pass
 
     def onClickCalibrateCamera(self):
+        self.refreshStatus()
+        if self.varIsCameraReady.get() == "False":
+            showerror(
+                title="Camera is not found",
+                message=f"Please check if your camera is connect.",
+            )
+            return
         self.calibrationThread = Thread(
             target=self.calibrator.startCalibration
         )
@@ -419,6 +468,7 @@ class VreactableApp:
         pass
 
     def isTrackerReady(self):
+        self.refreshStatus()
         if self.varIsCalibrated.get() == "False":
             return False
         if self.varIsCameraReady.get() == "False":
@@ -460,7 +510,6 @@ class VreactableApp:
     def onTrackingFinish(self):
         print("tracker is closed now.")
         if self.tracker.forceTerminate == False:
-            print("only tracker window closes")
             self.enableButtons()
         pass
     

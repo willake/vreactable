@@ -14,7 +14,7 @@ def drawTextField(
     entry.insert("0", default_value)
     entry.grid(row=0, column=1, padx=10)
     frame.columnconfigure(0, weight=1)
-    return frame
+    return frame, entry
 
 
 def drawCMNumberField(parent, variable: tk.StringVar, title: str, default_value: str):
@@ -31,7 +31,7 @@ def drawCMNumberField(parent, variable: tk.StringVar, title: str, default_value:
     entry.grid(row=0, column=1, padx=10)
     text_cm.grid(row=0, column=2)
     frame.columnconfigure(0, weight=1)
-    return frame
+    return frame, entry
 
 
 def drawButton(parent, title, callback):
@@ -129,3 +129,7 @@ def drawState(parent, title, variable, defaultValue):
 def drawCheckBox(parent, title, variable):
     checkbutton = ttk.Checkbutton(parent, text=title, variable=variable)
     return checkbutton
+
+def drawComboBox(parent, options, variable):
+    comboBox = ttk.Combobox(parent, values=options, textvariable=variable, width= 30)
+    return comboBox
