@@ -27,33 +27,43 @@ class MarkerGenerator:
         if arucoSize > paperWidthcm or arucoSize > paperHeightcm:
             self.onFail("Marker size plus gap size is bigger than paper size.")
             return
-        # Specify the folder to save ArUco markers and the number of markers to generate
-        helper.clearFolder(markerFolder)
-        helper.validatePath(markerFolder)
+        
+        try:
+            # Specify the folder to save ArUco markers and the number of markers to generate
+            helper.clearFolder(markerFolder)
+            helper.validatePath(markerFolder)
 
-        aruco_generator.generateArucoMarkers(
-            markerFolder,
-            arucoDict,
-            numMarkers,
-            helper.cmToPixels(markerSizecm - gapSizecm * 2),
-        )
+            aruco_generator.generateArucoMarkers(
+                markerFolder,
+                arucoDict,
+                numMarkers,
+                helper.cmToPixels(markerSizecm - gapSizecm * 2),
+            )
 
-        # Specify the folder containing ArUco markers, the output folder, and A4 size in centimeters
-        helper.clearFolder(packedFolder)
-        helper.validatePath(packedFolder)
+            # Specify the folder containing ArUco markers, the output folder, and A4 size in centimeters
+            helper.clearFolder(packedFolder)
+            helper.validatePath(packedFolder)
 
-        self.__packImages__(markerFolder, packedFolder, paperWidthcm, paperHeightcm, gapSizecm)
+            self.__packImages__(markerFolder, packedFolder, paperWidthcm, paperHeightcm, gapSizecm)
+        except Exception as e:
+            self.onFail("Unknown error. Please check console to address the issue.")
+            raise e
         pass
 
 
     def generateCharucoBoard(self, outputFolder, arucoDict, pattern, markerSizecm, gapSizecm):
-        charuco_board_generator.generateCharucoboardImage(
-            outputFolder=outputFolder,
-            arucoDict=arucoDict,
-            pattern=pattern,
-            squareSizecm=markerSizecm + gapSizecm * 2,
-            markerSizecm=markerSizecm,
-        )
+        try:
+            charuco_board_generator.generateCharucoboardImage(
+                outputFolder=outputFolder,
+                arucoDict=arucoDict,
+                pattern=pattern,
+                squareSizecm=markerSizecm + gapSizecm * 2,
+                markerSizecm=markerSizecm,
+            )
+            pass
+        except Exception as e:
+            self.onFail("Unknown error. Please check console to address the issue.")
+            raise e
         pass
     
 

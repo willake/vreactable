@@ -404,6 +404,7 @@ class VreactableApp:
         pass
 
     def onClickGenerateAruco(self):
+        self.disableButtons()
         self.generator.generatePackedArucoMarkers(
             markerFolder=MARKER_FOLDER,
             packedFolder=PACKED_FOLDER,
@@ -415,23 +416,27 @@ class VreactableApp:
             paperHeightcm=float(self.varPrintPaperHeight.get())
         )
         showinfo(
-            title="Generate Aruco Markers",
+            title="Generate Aruco Markers Success",
             message=f"Successfully generated aruco markers. \n The files are at: {PACKED_FOLDER}",
         )
+        self.enableButtons()
         pass
 
     def onClickGenerateCharucoBoard(self):
+        self.disableButtons()
         self.generator.generateCharucoBoard(
             outputFolder=CHARUCO_FOLDER,
             arucoDict=ARUCO_DICT,
             pattern=CHARUCO_BOARD_PATTERN,
             markerSizecm=float(self.varArucoSize.get()),
             gapSizecm=float(self.varArucoGapSize.get()),
+            
         )
         showinfo(
-            title="Generate Aruco Board",
+            title="Generate Aruco Board Success",
             message=f"Successfully generated aruco board. \n The files are at: {CHARUCO_FOLDER}",
         )
+        self.enableButtons()
         pass
 
     def onClickCalibrateCamera(self):
@@ -559,6 +564,7 @@ class VreactableApp:
             title="Generate Failed",
             message=f"Generate Aruco Marker failed. Reason: {reason}"
         )
+        self.enableButtons()
         pass
 
 if __name__ == "__main__":
