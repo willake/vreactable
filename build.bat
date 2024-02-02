@@ -1,15 +1,20 @@
-@echo off
-rem Run PyInstaller to create the executable
-pyinstaller -F vreactable.py
+@ECHO OFF
 
-rem Copy additional files to the dist folder
+rmdir /s /q "dist"
+mkdir "dist"
+
+ECHO Copy additional files to the dist folder
 copy "config.ini" "dist"
 copy "README.md" "dist"
-rem Copy assets folder to the dist folder
-xcopy /s /y "assets" "dist"
+ECHO Copy assets folder to the dist folder
+mkdir "dist/assets"
+xcopy /s /y "assets" "dist/assets"
 
-echo.
-echo PyInstaller build completed.
+ECHO.
+ECHO PyInstaller build completed.
+
+ECHO Run PyInstaller to create the executable
+pyinstaller -F vreactable.py
 
 rem Pause to keep the command prompt window open for checking errors
-pause
+PAUSE
