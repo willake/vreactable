@@ -40,7 +40,7 @@ class VreactableApp:
             self.onCalibrationFinish,
             self.onCalibrationFail
         )
-        self.tracker = CubeTracker(self, self.onTrack)
+        self.tracker = CubeTracker(self, self.onTrack, self.onTrackingFinish)
         self.trackingThread = None
 
         # start building GUI
@@ -429,6 +429,12 @@ class VreactableApp:
                 self.varCubeActiveMarkerIDs[index].set("-")
                 self.varCubePositions[index].set(f"[0; 0; 0]")
                 self.varCubeRotations[index].set(f"[0; 0; 0]")
+        pass
+    
+    def onTrackingFinish(self):
+        print("tracker is closed now.")
+        if self.calibrator.forceTerminate == False:
+            print("only tracker window closes")
         pass
 
     def onCalibrationFinish(self):

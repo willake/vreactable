@@ -48,10 +48,11 @@ def wrapAngle(angle):
 
 
 class CubeTracker:
-    def __init__(self, app, onTrack):
+    def __init__(self, app, onTrack, onTrackingFinish):
         self.client = None
         self.app = app
         self.onTrack = onTrack
+        self.onTrackingFinish = onTrackingFinish
         self.forceTerminate = False
         pass
     
@@ -90,6 +91,7 @@ class CubeTracker:
                 break
         cap.release()
         cv2.destroyAllWindows()
+        self.onTrackingFinish()
 
     # private
     def __trackFrame__(self, frame, cameraMatrix, distCoeffs):
