@@ -98,9 +98,8 @@ pyinstaller -F vreactable.py
 
 The file will appear in the `dist` folder. Remember to copy `config.ini` and the `assets` folder to the dist folder after building the software if they are not there.
 
-## What need to improved (Technical)
+## Some Technical Notes
 
-- Run VReactable and OpenCV detector on different threads, so that you can force close OpenCV window when VReactable is closed.
 - `cv2.CAP_DSHOW` is added to `cv2.VideoCapute()`. It dramatically decreases the camera open time, but it makes the code only work on Windows. If you would like to further develop this tool for more platforms. Consider remove it or add a check if it is on Windows.
 
 ## Credits

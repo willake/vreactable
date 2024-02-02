@@ -48,19 +48,36 @@ def wrapAngle(angle):
 
 
 class CubeTracker:
-    def __init__(self, app, onTrack):
+    def __init__(self, app, onTrack, onTrackingFinish, onTrackingFail):
         self.client = None
         self.app = app
         self.onTrack = onTrack
+        self.onTrackingFinish = onTrackingFinish
+        self.onTrackingFail = onTrackingFail
+        self.forceTerminate = False
+        pass
+    
+    def terminate(self):
+        self.forceTerminate = True
         pass
 
     def startTrackingMarkers(self, calibFilePath: str, ip: str, cameraIndex: int):
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.client = Client(ip)
+        try:
+            self.client = Client(ip)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Failed to setup Websocket. Please check whether the ip address is correct then try again.")
+            raise e
         print("Websocket is set...")
-        self.__run__(cameraMatrix, distCoeffs, cameraIndex)
+        try:
+            self.__run__(cameraMatrix, distCoeffs, cameraIndex)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Unknown error. Please check console to address the issue.")
+            raise e
 
     # private
     def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
@@ -72,16 +89,20 @@ class CubeTracker:
 
         print("Camera is found...")
         while cap.isOpened():
+            if self.forceTerminate:
+                break
             isCaptured, frame = cap.read()
 
             if isCaptured:
                 self.__trackFrame__(frame, cameraMatrix, distCoeffs)
 
+            # tracking fps = 30
             key = cv2.waitKey(math.floor(1000 / 30))
-            if key == ord("q"):
+            if key == ord("q") or key == ord("Q"):
                 break
         cap.release()
         cv2.destroyAllWindows()
+        self.onTrackingFinish()
 
     # private
     def __trackFrame__(self, frame, cameraMatrix, distCoeffs):
@@ -167,26 +188,26 @@ class CubeTracker:
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
                     filteredTvecs[i][0] = (
-                        0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
+                        0.0 if self.app.varLockX.get() else filteredTvecs[i][0][0]
                     )
                     filteredTvecs[i][1] = (
                         0.0
-                        if self.app.var_lock_y.get()
+                        if self.app.varLockY.get()
                         else filteredTvecs[i][1][0] * -1
                     )
                     filteredTvecs[i][2] = (
-                        0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                        0.0 if self.app.varLockZ.get() else filteredTvecs[i][2][0]
                     )
                     filteredRotations[i][0] = (
-                        0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
+                        0.0 if self.app.varLockRoll.get() else filteredRotations[i][0]
                     )
                     filteredRotations[i][1] = (
                         0.0
-                        if self.app.var_lock_pitch.get()
+                        if self.app.varLockPitch.get()
                         else filteredRotations[i][1]
                     )
                     filteredRotations[i][2] = (
-                        0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]
+                        0.0 if self.app.varLockYaw.get() else filteredRotations[i][2]
                     )
 
             # send data
@@ -200,6 +221,7 @@ class CubeTracker:
         else:
             if isLastObjectGone is False:
                 self.client.sendCubeData([], [], [])
+                self.onTrack([], [], [])
                 isLastObjectGone = True
             cv2.putText(
                 imageCopy,
