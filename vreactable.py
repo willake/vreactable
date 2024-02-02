@@ -179,8 +179,6 @@ class VreactableApp:
         )
 
         btnGenerate.grid(row=0, column=0, pady=5)
-        # rsSampleCount.grid(row=1, column=0, pady=5)
-        # btnCapture.grid(row=2, column=0, pady=5)
         btnCalibrate.grid(row=1, column=0, pady=5)
         frame.columnconfigure(index=0, weight=1)
 
@@ -276,16 +274,16 @@ class VreactableApp:
 
         return frame
 
-    def draw_cube_status(self, parent, cube_index):
-        frame = ttk.LabelFrame(parent, text=f"Cube {cube_index}", width=230, height=100)
+    def drawCubeStatus(self, parent, cubeIndex):
+        frame = ttk.LabelFrame(parent, text=f"Cube {cubeIndex}", width=230, height=100)
         labelActiveID = ui_helper.drawStateUnpropagated(
-            frame, "Active marker id", self.varCubeActiveMarkerIDs[cube_index], "-"
+            frame, "Active marker id", self.varCubeActiveMarkerIDs[cubeIndex], "-"
         )
         labelPosition = ui_helper.drawStateUnpropagated(
-            frame, "Position", self.varCubePositions[cube_index], "[0; 0; 0]"
+            frame, "Position", self.varCubePositions[cubeIndex], "[0; 0; 0]"
         )
         labelRotation = ui_helper.drawStateUnpropagated(
-            frame, "Rotation", self.varCubeRotations[cube_index], "[0; 0; 0]"
+            frame, "Rotation", self.varCubeRotations[cubeIndex], "[0; 0; 0]"
         )
 
         labelActiveID.configure(width=220)
@@ -303,7 +301,7 @@ class VreactableApp:
         frame = ttk.LabelFrame(parent, text="Tracking Inspector")
 
         for index in range(6):
-            status_cube = self.draw_cube_status(frame, index)
+            status_cube = self.drawCubeStatus(frame, index)
             status_cube.grid(
                 row=int(index / 3),
                 column=int(index % 3),
