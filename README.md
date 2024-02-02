@@ -1,8 +1,12 @@
-# VReactable
+# VReactable Cube Tracker
 
-VReactable is an interface connects the VR world and Reality. The tool runs on an VR platform named Resonite, which is a platform that users can customize their own space and writing scripts in the space. VReactable provides a tangible interface that users can manipulate a Resonite world by moving cubes in real world. This brings an oppotunity for users to interact with VR users in a different way.
+VReactable is an interface connects the VR world and the reality. The tool runs on an VR platform named [Resonite](https://store.steampowered.com/app/2519830/Resonite/), which is a platform that allow users to customize their own space and writing scripts in their virtual space. VReactable provides a tangible interface which users can manipulate a Resonite world by moving cubes in real world. This brings an oppotunity for users to interact with VR users in a different way.
 
-This repository is the marker tracking tool for VReactable. To use this tool, you are required to download [Chataigne](https://github.com/willake/vreactable) and [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
+## Requirement
+
+- Download [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
+- Download [Chataigne 1.9.7](https://benjamin.kuperberg.fr/chataigne/user/data/Chataigne-win-x64-1.9.7.exe) (Pleae stick with this version)
+- [Chataigne Official Website](http://benjamin.kuperberg.fr/chataigne/en)
 
 ![Overview](./assets/readme/overview_optimized.gif)
 
@@ -12,11 +16,11 @@ This repository is the marker tracking tool for VReactable. To use this tool, yo
 
 ## Installation
 
-You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/). In the downloaded version, there is a `calib.npz` file inside `resources/calibration`. It is a calibrated parameter file we made. The camera we used is Logitech C310 webcam, which means if the user is using the same camera, the calibration process is skippable. Otherwise, it is required to do the calibration again to make the parameters fit different camera.
+You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/).
 
-## Prerequisite
+## Prerequisite to run VReactable
 
-To use this tool, there are 3 components need to be prepared.
+To run the whole VReactable pipeline, there are 3 components need to be prepared.
 
 ### Component 1: Webcam and Aruco Markers
 
@@ -24,21 +28,24 @@ To use this tool, there are 3 components need to be prepared.
 
 Connect the webcam with your computer or laptop. Next, locate your camera above a plane like a empty table. The optimal height will be 80cm.
 
-When camera is located, it is required to calibrate camera parameters. First, we need to print a Charuco Board. Charuco Board is a common material to calibrate the camera parameters for increasing accurancy of tracking. By clicking the button `Generate charuco board`, the board image will be generated in `${projectfolder}\resources\aruco\charuco_board`.
+When camera is located, it is required to calibrate camera parameters. First, you need to print a Charuco Board. Charuco Board, is a common material to calibrate the camera parameters for increasing accurancy of tracking. By clicking the button `Generate charuco board`, the board image will be generated in `${projectfolder}\resources\aruco\charuco_board`.
 
-Now it is ready for calibration. Click the button `Capture sample images`, a window will show up. Then, present your Charuco Board in the camera view. When all the markers are tracked, press `S` on your keyboard to save the sample image. Take at least 20 images from different angles and distances can have a best quality of camera parameters.
+Now it is ready for calibration. Select the camera that you would like to calibrate. Click the button `Calibrate Camera`, a window will show up. Then, present your Charuco Board in the camera view. When all the markers are tracked, press `S` on your keyboard to save the sample image. Take at least 20 images from different angles and distances can have a best quality of camera parameters. When enough samples are captured, press `Q` to start calibration. This process will present each sample to you. In this phase, you can decide whether to accept a certain sample. By pressing `A` to accept sample, or pressing `R` to reject sample.
 
 ![Sampling](./assets/readme/sampling_optimized.gif)
 
-Lastly, press Calibrate camera to start calibration. In the end a `calib.npz` file should be seen at `${projectfolder}\resources\calibration`. Note that you do not need to recalibrate the camera if you change the location because the calibration parameters the tool records does not contain position and rotation data.
+In the end a `calib.npz` file should be seen at `${projectfolder}\resources\calibration`.
+
+**Note that it is not required to recalibrate the camera every time, it can be done at once.**
+
+**Also, you do not need to recalibrate the camera if the camera roatation/location is changed because the calibration parameters does not contain position and rotation data.**
 
 #### Aruco markers
 
-Camera is ready, then you will need to have markers for tracking. Open `VReactable.exe`. There is a section called `Aruco Generator`. Usually users do not need to adjust any settings. By clicking button `Generate Aruco markers`, a set of Aruco markers will be generated in `${projectfolder}\resources\aruco\markers`. An easy printing version will be at `${projectfolder}\resources\aruco\packed`. For the markers, it will be more handy if they are attached to a cube.
+Camera is ready, then you will need to have markers for tracking. In this tracker tool, there is a section called `Aruco Generator`. Usually users do not need to adjust any settings. By clicking button `Generate Aruco markers`, a set of Aruco markers will be generated in `${projectfolder}\resources\aruco\markers`. An easy printing version will be at `${projectfolder}\resources\aruco\packed`. For the markers, it will be more handy if they are attached to a cube. The actual marker size on printed paper is `marker size + (gap size * 2)`. **Note that always leave some white space outside the marker. Otherwise it will not be detected.** You can change the marker color to whatever you would like but keep in mind that the color should have high contrast to the background.
 
 ![Markers](./assets/readme/markers.png)
 
--- placeholder for placing image --
 The setup includes a camera and 36 aruco tags.
 
 ### Component 2: Websocket Server
@@ -49,7 +56,9 @@ To use Chataigne, first download the [1.9.7](https://benjamin.kuperberg.fr/chata
 
 ### Component 3: Resonite World
 
-Next, download Resonite on Steam. Open Resonite and create a world. Import the VReactable inventory by copy `resrec:///G-HKU-Mixed-Reality/R-6586E3FF28427F32F9B8D2ADA8408D8DCEF6AE7894A49781AADAA08F7DB1FE57` and `Ctrl+V` in the game. Right click the object and save it to the inventory. Note that if it is not savable, it is because the current foloder is not a savable location.
+Next, download Resonite on Steam. Open Resonite and create a world. Import the VReactable inventory by copy `resrec:///G-HKU-Mixed-Reality/R-6586E3FF28427F32F9B8D2ADA8408D8DCEF6AE7894A49781AADAA08F7DB1FE57` and `Ctrl+V` in the game. Right click the object and save it to the inventory. Inside the VReactable inventory, there are some preset worlds for learning how to use the tool.
+
+> Note that if it is not savable, it is because the current foloder is not a savable location.
 
 ![Visualizer-1](./assets/readme/visualizer-1_optimized.gif)
 ![Visualizer-2](./assets/readme/visualizer-2_optimized.gif)
@@ -104,9 +113,9 @@ The file will appear in the `dist` folder. Remember to copy `config.ini` and the
 
 ## Credits
 
-VReactable is a research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.
+VReactable is an research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.
 
-The right of this project and the code is belongs to HKU. While referencing this project, It will be necceessary to mention HKU and the people participate in developing this tool.
+The right of this project is reserved to HKU. While referencing this project, It will be necceessary to mention HKU. It would be great to mention the people participate in developing this tool as well.
 
 ### Developers
 
