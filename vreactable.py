@@ -38,6 +38,7 @@ class VreactableApp:
             ARUCO_DICT,
             CHARUCO_BOARD_PATTERN,
             self.onCalibrationFinish,
+            self.onCalibrationFail
         )
         self.tracker = CubeTracker(self, self.onTrack)
         self.trackingThread = None
@@ -464,6 +465,12 @@ class VreactableApp:
         )
         self.refreshStatus()
         pass
+    
+    def onCalibrationFail(self, reason):
+        showerror(
+            title="Calibration Failed",
+            message=f"Camera calibration failed. Reason: {reason}"
+        )
 
 
 if __name__ == "__main__":

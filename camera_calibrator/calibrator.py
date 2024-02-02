@@ -15,12 +15,13 @@ ids_all = []
 
 
 class Calibrator:
-    def __init__(self, sampleFolder, calibFolder, arucoDict, pattern, onFinish):
+    def __init__(self, sampleFolder, calibFolder, arucoDict, pattern, onFinish, onFail):
         self.sampleFolder = sampleFolder
         self.calibFolder = calibFolder
         self.arucoDict = arucoDict
         self.pattern = pattern
         self.onFinish = onFinish
+        self.onFail = onFail
         pass
 
     def startCalibration(self):
@@ -131,43 +132,47 @@ class Calibrator:
                     accepted = False
                     break
             imageIdx += 1
-
-        image_size = None
-
-        if image_size is None:
-            image_size = gray.shape[::-1]
-
-        (
-            calibration,
-            cameraMatrix,
-            distCoeffs,
-            rvecs,
-            tvecs,
-        ) = aruco.calibrateCameraCharuco(
-            charucoCorners=corners_all,
-            charucoIds=ids_all,
-            board=charucoBoard,
-            imageSize=image_size,
-            cameraMatrix=None,
-            distCoeffs=None,
-        )
-
-        print("=== Camera Matrix ===")
-        print(cameraMatrix)
-        print("=== Dist Coeffs ===")
-        print(distCoeffs)
-        print("=========")
-
-        helper.validatePath(self.calibFolder)
-        np.savez(
-            os.path.join(self.calibFolder, "calib"),
-            cameraMatrix=cameraMatrix,
-            distCoeffs=distCoeffs,
-        )
-        
-        print(f"calibration is done. The file is saved at {self.calibFolder}")
-        
+            
         cv2.destroyAllWindows()
         
-        self.onFinish()
+        if len(corners_all) == 0:
+            self.onFail("No sample images found")
+            return
+
+        try:
+            image_size = gray.shape[::-1]
+            (
+                calibration,
+                cameraMatrix,
+                distCoeffs,
+                rvecs,
+                tvecs,
+            ) = aruco.calibrateCameraCharuco(
+                charucoCorners=corners_all,
+                charucoIds=ids_all,
+                board=charucoBoard,
+                imageSize=image_size,
+                cameraMatrix=None,
+                distCoeffs=None,
+            )
+            
+            print("=== Camera Matrix ===")
+            print(cameraMatrix)
+            print("=== Dist Coeffs ===")
+            print(distCoeffs)
+            print("=========")
+
+            helper.validatePath(self.calibFolder)
+            np.savez(
+                os.path.join(self.calibFolder, "calib"),
+                cameraMatrix=cameraMatrix,
+                distCoeffs=distCoeffs,
+            )
+            
+            print(f"calibration is done. The file is saved at {self.calibFolder}")
+        
+            self.onFinish()
+        except Exception as e:
+            self.onFail("Complex error. View the console to see more.")
+            # raise e
         
