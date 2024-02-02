@@ -5,7 +5,7 @@ VReactable is an interface connects the VR world and the reality. The tool runs 
 ## Requirement
 
 - Download [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
-- Download [Chataigne 1.9.7](https://benjamin.kuperberg.fr/chataigne/user/data/Chataigne-win-x64-1.9.7.exe) (Pleae stick with this version)
+- Download [Chataigne 1.9.7](https://benjamin.kuperberg.fr/chataigne/user/data/Chataigne-win-x64-1.9.7.exe) (Please stick with this version)
 - [Chataigne Official Website](http://benjamin.kuperberg.fr/chataigne/en)
 
 ![Overview](./assets/readme/overview_optimized.gif)
