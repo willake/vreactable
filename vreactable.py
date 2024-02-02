@@ -53,10 +53,19 @@ class VreactableApp:
 
         # the image asset
         self.imgRefresh = tk.PhotoImage(file="assets/refresh.png")
-
+        
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+        
         self.varArucoSize = tk.StringVar(value="5")
         self.varArucoGapSize = tk.StringVar(value="0.5")
         self.varCameraIndex = tk.IntVar(value=0)
+        self.varSelectedCamera = tk.StringVar(value=defaultCamName)
+        # trace selected camera to set camera index
+        self.varSelectedCamera.trace_add('write', self.onNewCameraSelected)
         self.varWebsocketIP = tk.StringVar(value="ws://localhost:8090")
         self.varLockX = tk.BooleanVar(value=False)
         self.varLockY = tk.BooleanVar(value=False)
@@ -269,9 +278,11 @@ class VreactableApp:
 
         frameLockSettings = self.drawFrameTrackerLockSettings(frame)
 
-        fieldCameraIndex = ui_helper.drawTextField(
-            frame, self.varCameraIndex, "Camera index", "0", 5
-        )
+        # fieldCameraIndex = ui_helper.drawTextField(
+        #     frame, self.varCameraIndex, "Camera index", "0", 5
+        # )
+        comboBoxCamera = ui_helper.drawComboBox(frame, self.availableCameras, self.varSelectedCamera)
+        self.comboBoxCamera = comboBoxCamera
         fieldWebocketIP = ui_helper.drawTextField(
             frame, self.varWebsocketIP, "Websocket IP", "ws://localhost:8090", 20
         )
@@ -283,7 +294,7 @@ class VreactableApp:
 
         frameStatus.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frameLockSettings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
-        fieldCameraIndex.grid(row=2, column=0, padx=10, pady=5)
+        comboBoxCamera.grid(row=2, column=0, padx=10, pady=5)
         fieldWebocketIP.grid(row=3, column=0, padx=10, pady=5)
         btnStartTracking.grid(row=4, column=0, pady=5)
 
@@ -345,6 +356,11 @@ class VreactableApp:
 
     def updateFrame(self):
         self.mainwindow.after(1000, self.updateFrame)
+        pass
+    
+    def onNewCameraSelected(self, var, index, mode):
+        print(f"Camera {self.varSelectedCamera.get()} is selected. Set index to {self.comboBoxCamera.current()}")
+        self.varCameraIndex.set(self.comboBoxCamera.current())
         pass
 
     def onClickGenerateAruco(self):

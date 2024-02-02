@@ -129,3 +129,7 @@ def drawState(parent, title, variable, defaultValue):
 def drawCheckBox(parent, title, variable):
     checkbutton = ttk.Checkbutton(parent, text=title, variable=variable)
     return checkbutton
+
+def drawComboBox(parent, options, variable):
+    comboBox = ttk.Combobox(parent, values=options, textvariable=variable)
+    return comboBox
