@@ -49,7 +49,7 @@ class VreactableApp:
         # start building GUI
         style = Style(theme="darkly")
         self.root = style.master
-        self.root.title(f"VRectable {VERSION}")
+        self.root.title(f"VRectable Cube Tracker {VERSION}")
         self.frameMain = ttk.Frame(self.root)
         self.frameMain.grid(row=0, column=0, padx=20, pady=10, sticky=tk.NSEW)
 
@@ -109,7 +109,7 @@ class VreactableApp:
 
         # title
         frameHeader = ttk.Frame(self.frameMain)
-        labelTitle = ttk.Label(frameHeader, text=f"VReactable {VERSION}")
+        labelTitle = ttk.Label(frameHeader, text=f"VReactable Cube Tracker  {VERSION}")
         labelTitle.grid(row=0, column=0, pady=5)
         frameHeader.grid(row=0, column=0, padx=10)
         self.varIsCalibrated = tk.StringVar(value="False")
