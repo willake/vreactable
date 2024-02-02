@@ -84,6 +84,7 @@ class CubeTracker:
             if isCaptured:
                 self.__trackFrame__(frame, cameraMatrix, distCoeffs)
 
+            # tracking fps = 30
             key = cv2.waitKey(math.floor(1000 / 30))
             if key == ord("q") or key == ord("Q"):
                 break
