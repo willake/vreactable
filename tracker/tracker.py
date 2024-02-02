@@ -85,7 +85,7 @@ class CubeTracker:
                 self.__trackFrame__(frame, cameraMatrix, distCoeffs)
 
             key = cv2.waitKey(math.floor(1000 / 30))
-            if key == ord("q"):
+            if key == ord("q") or key == ord("Q"):
                 break
         cap.release()
         cv2.destroyAllWindows()
