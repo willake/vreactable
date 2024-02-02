@@ -62,6 +62,8 @@ class VreactableApp:
         
         self.varArucoSize = tk.StringVar(value="5")
         self.varArucoGapSize = tk.StringVar(value="0.5")
+        self.varPrintPaperWidth = tk.StringVar(value="21.0")
+        self.varPrintPaperHeight = tk.StringVar(value="29.7")
         self.varCameraIndex = tk.IntVar(value=0)
         self.varSelectedCamera = tk.StringVar(value=defaultCamName)
         # trace selected camera to set camera index
@@ -173,17 +175,27 @@ class VreactableApp:
         textFieldGapSize, entryGapSize = ui_helper.drawCMNumberField(
             frame, self.varArucoGapSize, "Gap size", "0.5"
         )
+        textFieldPrintPaperWidth, entryPrintPaperWidth = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperWidth, "Print paper width", "21.0"
+        )
+        textFieldPrintPaperHeight, entryPrintPaperHeight = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperHeight, "Print paper height", "29.7"
+        )
         btnGenerate = ui_helper.drawButton(
             frame, "Generate aruco markers", self.onClickGenerateAruco
         )
         
         self.interactables.append(entryMarkerSize)
         self.interactables.append(entryGapSize)
+        self.interactables.append(entryPrintPaperWidth)
+        self.interactables.append(entryPrintPaperHeight)
         self.interactables.append(btnGenerate)
 
         textFieldMarkerSize.grid(row=0, column=0, pady=5)
         textFieldGapSize.grid(row=1, column=0, pady=5)
-        btnGenerate.grid(row=2, column=0, ipadx=10, pady=5)
+        textFieldPrintPaperWidth.grid(row=2, column=0, pady=5)
+        textFieldPrintPaperHeight.grid(row=3, column=0, pady=5)
+        btnGenerate.grid(row=4, column=0, ipadx=10, pady=5)
 
         frame.columnconfigure(0, weight=1)
         return frame
