@@ -378,7 +378,7 @@ class VreactableApp:
 
     def onClickCalibrateCamera(self):
         self.calibrationThread = Thread(
-            target=self.calibrator.startCalibration()
+            target=self.calibrator.startCalibration
         )
         self.calibrationThread.start()
         self.disableButtons()

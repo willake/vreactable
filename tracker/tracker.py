@@ -188,26 +188,26 @@ class CubeTracker:
             for i in range(6):
                 if filteredMarkerIds[i] > -1:
                     filteredTvecs[i][0] = (
-                        0.0 if self.app.var_lock_x.get() else filteredTvecs[i][0][0]
+                        0.0 if self.app.varLockX.get() else filteredTvecs[i][0][0]
                     )
                     filteredTvecs[i][1] = (
                         0.0
-                        if self.app.var_lock_y.get()
+                        if self.app.varLockY.get()
                         else filteredTvecs[i][1][0] * -1
                     )
                     filteredTvecs[i][2] = (
-                        0.0 if self.app.var_lock_z.get() else filteredTvecs[i][2][0]
+                        0.0 if self.app.varLockZ.get() else filteredTvecs[i][2][0]
                     )
                     filteredRotations[i][0] = (
-                        0.0 if self.app.var_lock_roll.get() else filteredRotations[i][0]
+                        0.0 if self.app.varLockRoll.get() else filteredRotations[i][0]
                     )
                     filteredRotations[i][1] = (
                         0.0
-                        if self.app.var_lock_pitch.get()
+                        if self.app.varLockPitch.get()
                         else filteredRotations[i][1]
                     )
                     filteredRotations[i][2] = (
-                        0.0 if self.app.var_lock_yaw.get() else filteredRotations[i][2]
+                        0.0 if self.app.varLockYaw.get() else filteredRotations[i][2]
                     )
 
             # send data
