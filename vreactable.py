@@ -387,14 +387,7 @@ class VreactableApp:
         pass
 
     def onClickCalibrateCamera(self):
-        # calibrator.calibrate(
-        #     sampleFolder=SAMPLE_FOLDER,
-        #     calibFolder=CALIB_FOLDER,
-        #     arucoDict=ARUCO_DICT,
-        #     pattern=CHARUCO_BOARD_PATTERN,
-        # )
         self.calibrator.startCalibration()
-        self.refreshStatus()
         pass
 
     def onClickStartTracking(self):
@@ -465,6 +458,11 @@ class VreactableApp:
         pass
 
     def onCalibrationFinish(self):
+        showinfo(
+            title="Calibration Success",
+            message=f"Camera is successfully calibrated. Now you can start tracking!",
+        )
+        self.refreshStatus()
         pass
 
 

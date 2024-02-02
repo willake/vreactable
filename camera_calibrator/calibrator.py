@@ -169,4 +169,5 @@ class Calibrator:
         
         cv2.destroyAllWindows()
         
+        self.onFinish()
         
