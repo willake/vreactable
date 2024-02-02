@@ -41,6 +41,7 @@ class Calibrator:
         detector = aruco.CharucoDetector(
             board=charucoBoard, detectorParams=detectorParams
         )
+        accepted = False
         # Loop through images glob
         for iname in images:
             img = cv2.imread(iname)
@@ -51,12 +52,78 @@ class Calibrator:
             )
 
             img = aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
-            corners_all.append(charucoCorners)
-            ids_all.append(charucoIds)
-
+                
+            cv2.putText(
+                img,
+                f"Calibration",
+                (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0, 255, 0),
+                1,
+            )
+            cv2.putText(
+                img,
+                f"This is the step for you to validate samples",
+                (10, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0, 255, 0),
+                1,
+            )
+            cv2.putText(
+                img,
+                f"Press any key to accept sample",
+                (10, 60),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0, 0, 255),
+                1,
+            )
+            cv2.putText(
+                img,
+                f"Press R to reject sample",
+                (10, 80),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0, 0, 255),
+                1,
+            )
+            
+            if len(charucoIds) > 0:
+                if accepted:
+                    cv2.putText(
+                        img,
+                        f"Previous sample is accepted",
+                        (10, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.4,
+                        (0, 255, 0),
+                        1,
+                    )
+                else:
+                    cv2.putText(
+                        img,
+                        f"Previous sample is rejected",
+                        (10, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.4,
+                        (0, 0, 255),
+                        1,
+                    )
+                    
             cv2.imshow("calibrator", img)
 
-            cv2.waitKey(0)
+            key = cv2.waitKey(0)
+            
+            if key == ord("a") or key == ord("A"):
+                # save screenshot
+                if len(charucoIds) > 0:
+                    corners_all.append(charucoCorners)
+                    ids_all.append(charucoIds)
+                accepted = True
+            elif key == ord("r") or key == ord("R"):
+                accepted = False
 
         image_size = None
 
@@ -78,8 +145,11 @@ class Calibrator:
             distCoeffs=None,
         )
 
+        print("=== Camera Matrix ===")
         print(cameraMatrix)
+        print("=== Dist Coeffs ===")
         print(distCoeffs)
+        print("=========")
 
         helper.validatePath(self.calibFolder)
         np.savez(
@@ -87,3 +157,7 @@ class Calibrator:
             cameraMatrix=cameraMatrix,
             distCoeffs=distCoeffs,
         )
+        
+        print(f"calibration done. The file is saved at {self.calibFolder}")
+        
+        
