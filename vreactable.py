@@ -282,6 +282,7 @@ class VreactableApp:
         #     frame, self.varCameraIndex, "Camera index", "0", 5
         # )
         comboBoxCamera = ui_helper.drawComboBox(frame, self.availableCameras, self.varSelectedCamera)
+        btnRefresh = ui_helper.drawIconButton(frame, self.imgRefresh, self.updateAvailableCameras)
         self.comboBoxCamera = comboBoxCamera
         fieldWebocketIP = ui_helper.drawTextField(
             frame, self.varWebsocketIP, "Websocket IP", "ws://localhost:8090", 20
@@ -295,6 +296,7 @@ class VreactableApp:
         frameStatus.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frameLockSettings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
         comboBoxCamera.grid(row=2, column=0, padx=10, pady=5)
+        btnRefresh.grid(row=2, column=1, padx=5, pady= 5)
         fieldWebocketIP.grid(row=3, column=0, padx=10, pady=5)
         btnStartTracking.grid(row=4, column=0, pady=5)
 
@@ -356,6 +358,19 @@ class VreactableApp:
 
     def updateFrame(self):
         self.mainwindow.after(1000, self.updateFrame)
+        pass
+    
+    def updateAvailableCameras(self):
+        self.availableCameras = helper.getAvailableCameras()
+        defaultCamName = ""
+        
+        if len(self.availableCameras) > 0:
+            defaultCamName = self.availableCameras[0]
+            
+        # self.varCameraIndex.set(0)
+        self.varSelectedCamera.set(defaultCamName)
+        
+        self.comboBoxCamera.configure(values=self.availableCameras)
         pass
     
     def onNewCameraSelected(self, var, index, mode):
@@ -476,7 +491,6 @@ class VreactableApp:
     def onTrackingFinish(self):
         print("tracker is closed now.")
         if self.tracker.forceTerminate == False:
-            print("only tracker window closes")
             self.enableButtons()
         pass
     

@@ -131,5 +131,5 @@ def drawCheckBox(parent, title, variable):
     return checkbutton
 
 def drawComboBox(parent, options, variable):
-    comboBox = ttk.Combobox(parent, values=options, textvariable=variable)
+    comboBox = ttk.Combobox(parent, values=options, textvariable=variable, width= 30)
     return comboBox
