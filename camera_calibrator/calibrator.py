@@ -42,6 +42,8 @@ class Calibrator:
             board=charucoBoard, detectorParams=detectorParams
         )
         accepted = False
+        imageIdx = 1
+        imageTotal = len(images)
         # Loop through images glob
         for iname in images:
             
@@ -57,7 +59,7 @@ class Calibrator:
                     
                 cv2.putText(
                     img,
-                    f"Calibration",
+                    f"Calibration           Now viewing image {imageIdx}/{imageTotal}",
                     (10, 20),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.4,
@@ -128,6 +130,7 @@ class Calibrator:
                 elif key == ord("r") or key == ord("R"):
                     accepted = False
                     break
+            imageIdx += 1
 
         image_size = None
 
