@@ -52,6 +52,11 @@ class CubeTracker:
         self.client = None
         self.app = app
         self.onTrack = onTrack
+        self.forceTerminate = False
+        pass
+    
+    def terminate(self):
+        self.forceTerminate = True
         pass
 
     def startTrackingMarkers(self, calibFilePath: str, ip: str, cameraIndex: int):
@@ -72,6 +77,8 @@ class CubeTracker:
 
         print("Camera is found...")
         while cap.isOpened():
+            if self.forceTerminate:
+                break
             isCaptured, frame = cap.read()
 
             if isCaptured:

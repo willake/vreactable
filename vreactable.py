@@ -137,6 +137,7 @@ class VreactableApp:
 
         # Main widget
         self.mainwindow = self.root
+        self.mainwindow.protocol("WM_DELETE_WINDOW", self.onRootWindowClose)
 
         self.refreshStatus()
 
@@ -403,6 +404,11 @@ class VreactableApp:
             return False
         return True
 
+    def onRootWindowClose(self):
+        self.tracker.terminate()
+        self.mainwindow.destroy()
+        pass
+
     def onTrack(self, markerIds, positions, rotations):
         if len(markerIds) == 0:
             return
@@ -438,7 +444,6 @@ class VreactableApp:
             title="Calibration Failed",
             message=f"Camera calibration failed. Reason: {reason}"
         )
-
 
 if __name__ == "__main__":
     app = VreactableApp()
