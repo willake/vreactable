@@ -40,8 +40,9 @@ class VreactableApp:
             self.onCalibrationFinish,
             self.onCalibrationFail
         )
-        self.tracker = CubeTracker(self, self.onTrack, self.onTrackingFinish)
+        self.tracker = CubeTracker(self, self.onTrack, self.onTrackingFinish, self.onTrackingFail)
         self.trackingThread = None
+        self.calibrationThread = None
 
         # start building GUI
         style = Style(theme="darkly")
@@ -89,6 +90,9 @@ class VreactableApp:
             tk.StringVar(value="[0; 0; 0]"),
             tk.StringVar(value="[0; 0; 0]"),
         ]
+        
+        # initialize button array for state control (enable/disable)
+        self.interactables = []
 
         # title
         frameHeader = ttk.Frame(self.frameMain)
@@ -142,15 +146,18 @@ class VreactableApp:
         self.refreshStatus()
 
     def disableButtons(self):
+        for interactable in self.interactables:
+            interactable.configure(state=tk.DISABLED)
         pass
 
     def enableButtons(self):
+        for interactable in self.interactables:
+            interactable.configure(state=tk.NORMAL)
         pass
 
     def drawFrameArucoGenerator(self, parent):
         # aruco generator
         frame = ttk.Labelframe(parent, text="Aruco Generator")
-
         textFieldMarkerSize = ui_helper.drawCMNumberField(
             frame, self.varArucoSize, "Marker size", "5"
         )
@@ -160,6 +167,8 @@ class VreactableApp:
         btnGenerate = ui_helper.drawButton(
             frame, "Generate aruco markers", self.onClickGenerateAruco
         )
+        
+        self.interactables.append(btnGenerate)
 
         textFieldMarkerSize.grid(row=0, column=0, pady=5)
         textFieldGapSize.grid(row=1, column=0, pady=5)
@@ -178,6 +187,9 @@ class VreactableApp:
         btnCalibrate = ui_helper.drawButton(
             frame, "Calibrate camera", self.onClickCalibrateCamera
         )
+        
+        self.interactables.append(btnGenerate)
+        self.interactables.append(btnCalibrate)
 
         btnGenerate.grid(row=0, column=0, pady=5)
         btnCalibrate.grid(row=1, column=0, pady=5)
@@ -202,6 +214,8 @@ class VreactableApp:
         stateIsCalibrated.grid(row=0, column=0, pady=5)
         stateIsCamReady.grid(row=1, column=0, pady=5)
         btnRefresh.grid(row=2, column=0, pady=10)
+        
+        self.interactables.append(btnRefresh)
 
         frame.columnconfigure(index=0, weight=1)
 
@@ -264,6 +278,8 @@ class VreactableApp:
         btnStartTracking = ui_helper.drawButton(
             frame, "Start Tracking", self.onClickStartTracking
         )
+        
+        self.interactables.append(btnStartTracking)
 
         frameStatus.grid(row=0, column=0, padx=10, pady=5, sticky=tk.EW)
         frameLockSettings.grid(row=1, column=0, padx=10, pady=5, sticky=tk.EW)
@@ -361,7 +377,11 @@ class VreactableApp:
         pass
 
     def onClickCalibrateCamera(self):
-        self.calibrator.startCalibration()
+        self.calibrationThread = Thread(
+            target=self.calibrator.startCalibration()
+        )
+        self.calibrationThread.start()
+        self.disableButtons()
         pass
 
     def onClickStartTracking(self):
@@ -386,6 +406,7 @@ class VreactableApp:
         )
         # run tracking in different threads
         self.trackingThread.start()
+        self.disableButtons()
         pass
 
     def refreshStatus(self):
@@ -433,8 +454,17 @@ class VreactableApp:
     
     def onTrackingFinish(self):
         print("tracker is closed now.")
-        if self.calibrator.forceTerminate == False:
+        if self.tracker.forceTerminate == False:
             print("only tracker window closes")
+            self.enableButtons()
+        pass
+    
+    def onTrackingFail(self, reason):
+        showerror(
+            title="Tracking Failed",
+            message=f"Tracking failed. Reason: {reason}"
+        )
+        self.enableButtons()
         pass
 
     def onCalibrationFinish(self):
@@ -443,6 +473,7 @@ class VreactableApp:
             message=f"Camera is successfully calibrated. Now you can start tracking!",
         )
         self.refreshStatus()
+        self.enableButtons()
         pass
     
     def onCalibrationFail(self, reason):
@@ -450,6 +481,8 @@ class VreactableApp:
             title="Calibration Failed",
             message=f"Camera calibration failed. Reason: {reason}"
         )
+        self.enableButtons()
+        pass
 
 if __name__ == "__main__":
     app = VreactableApp()

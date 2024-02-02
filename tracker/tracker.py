@@ -48,11 +48,12 @@ def wrapAngle(angle):
 
 
 class CubeTracker:
-    def __init__(self, app, onTrack, onTrackingFinish):
+    def __init__(self, app, onTrack, onTrackingFinish, onTrackingFail):
         self.client = None
         self.app = app
         self.onTrack = onTrack
         self.onTrackingFinish = onTrackingFinish
+        self.onTrackingFail = onTrackingFail
         self.forceTerminate = False
         pass
     
@@ -64,9 +65,19 @@ class CubeTracker:
         with np.load(calibFilePath) as X:
             cameraMatrix, distCoeffs = [X[i] for i in ("cameraMatrix", "distCoeffs")]
         print("Calibration file is loaded...")
-        self.client = Client(ip)
+        try:
+            self.client = Client(ip)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Failed to setup Websocket. Please check whether the ip address is correct then try again.")
+            raise e
         print("Websocket is set...")
-        self.__run__(cameraMatrix, distCoeffs, cameraIndex)
+        try:
+            self.__run__(cameraMatrix, distCoeffs, cameraIndex)
+            pass
+        except Exception as e:
+            self.onTrackingFail("Unknown error. Please check console to address the issue.")
+            raise e
 
     # private
     def __run__(self, cameraMatrix, distCoeffs, cameraIndex):
