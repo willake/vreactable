@@ -4,6 +4,7 @@ from camera_calibrator import sample_image_capturer, calibrator
 import cv2.aruco as aruco
 from camera_calibrator.calibrator import Calibrator
 from tracker.tracker import CubeTracker
+from aruco_generators.generator import MarkerGenerator
 from aruco_generators import generator
 from helper import helper, ui_helper
 import pathlib
@@ -32,6 +33,7 @@ VERSION = "v2.3"
 
 class VreactableApp:
     def __init__(self, master=None):
+        self.generator = MarkerGenerator(self.onGenerateFail)
         self.calibrator = Calibrator(
             SAMPLE_FOLDER,
             CALIB_FOLDER,
@@ -62,6 +64,8 @@ class VreactableApp:
         
         self.varArucoSize = tk.StringVar(value="5")
         self.varArucoGapSize = tk.StringVar(value="0.5")
+        self.varPrintPaperWidth = tk.StringVar(value="21.0") # 21.0cm x 29.7cm is A4
+        self.varPrintPaperHeight = tk.StringVar(value="29.7")
         self.varCameraIndex = tk.IntVar(value=0)
         self.varSelectedCamera = tk.StringVar(value=defaultCamName)
         # trace selected camera to set camera index
@@ -173,17 +177,27 @@ class VreactableApp:
         textFieldGapSize, entryGapSize = ui_helper.drawCMNumberField(
             frame, self.varArucoGapSize, "Gap size", "0.5"
         )
+        textFieldPrintPaperWidth, entryPrintPaperWidth = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperWidth, "Print paper width", "21.0"
+        )
+        textFieldPrintPaperHeight, entryPrintPaperHeight = ui_helper.drawCMNumberField(
+            frame, self.varPrintPaperHeight, "Print paper height", "29.7"
+        )
         btnGenerate = ui_helper.drawButton(
             frame, "Generate aruco markers", self.onClickGenerateAruco
         )
         
         self.interactables.append(entryMarkerSize)
         self.interactables.append(entryGapSize)
+        self.interactables.append(entryPrintPaperWidth)
+        self.interactables.append(entryPrintPaperHeight)
         self.interactables.append(btnGenerate)
 
         textFieldMarkerSize.grid(row=0, column=0, pady=5)
         textFieldGapSize.grid(row=1, column=0, pady=5)
-        btnGenerate.grid(row=2, column=0, ipadx=10, pady=5)
+        textFieldPrintPaperWidth.grid(row=2, column=0, pady=5)
+        textFieldPrintPaperHeight.grid(row=3, column=0, pady=5)
+        btnGenerate.grid(row=4, column=0, ipadx=10, pady=5)
 
         frame.columnconfigure(0, weight=1)
         return frame
@@ -390,32 +404,39 @@ class VreactableApp:
         pass
 
     def onClickGenerateAruco(self):
-        generator.generatePackedArucoMarkers(
+        self.disableButtons()
+        self.generator.generatePackedArucoMarkers(
             markerFolder=MARKER_FOLDER,
             packedFolder=PACKED_FOLDER,
             arucoDict=ARUCO_DICT,
             numMarkers=36,
             markerSizecm=float(self.varArucoSize.get()),
             gapSizecm=float(self.varArucoGapSize.get()),
+            paperWidthcm=float(self.varPrintPaperWidth.get()),
+            paperHeightcm=float(self.varPrintPaperHeight.get())
         )
         showinfo(
-            title="Generate Aruco Markers",
+            title="Generate Aruco Markers Success",
             message=f"Successfully generated aruco markers. \n The files are at: {PACKED_FOLDER}",
         )
+        self.enableButtons()
         pass
 
     def onClickGenerateCharucoBoard(self):
-        generator.generateCharucoBoard(
+        self.disableButtons()
+        self.generator.generateCharucoBoard(
             outputFolder=CHARUCO_FOLDER,
             arucoDict=ARUCO_DICT,
             pattern=CHARUCO_BOARD_PATTERN,
             markerSizecm=float(self.varArucoSize.get()),
             gapSizecm=float(self.varArucoGapSize.get()),
+            
         )
         showinfo(
-            title="Generate Aruco Board",
+            title="Generate Aruco Board Success",
             message=f"Successfully generated aruco board. \n The files are at: {CHARUCO_FOLDER}",
         )
+        self.enableButtons()
         pass
 
     def onClickCalibrateCamera(self):
@@ -534,6 +555,14 @@ class VreactableApp:
         showerror(
             title="Calibration Failed",
             message=f"Camera calibration failed. Reason: {reason}"
+        )
+        self.enableButtons()
+        pass
+    
+    def onGenerateFail(self, reason):
+        showerror(
+            title="Generate Failed",
+            message=f"Generate Aruco Marker failed. Reason: {reason}"
         )
         self.enableButtons()
         pass
