@@ -59,7 +59,9 @@ If you opt for Chataigne, start by opening Chataigne version 1.9.7. Then, downlo
 
 ### Component 3: Resonite World
 
-Next, download Resonite on Steam. Open Resonite and create a world. Import the VReactable inventory by copy `resrec:///G-HKU-Mixed-Reality/R-6586E3FF28427F32F9B8D2ADA8408D8DCEF6AE7894A49781AADAA08F7DB1FE57` and `Ctrl+V` in the game. Right click the object and save it to the inventory. Inside the VReactable inventory, there are some preset worlds for learning how to use the tool.
+Next, download Resonite on Steam. Open Resonite and create a world. Import the VReactable inventory by copy `resrec:///G-HKU-Mixed-Reality/R-6586E3FF28427F32F9B8D2ADA8408D8DCEF6AE7894A49781AADAA08F7DB1FE57` and `Ctrl+V` in the game. Right click the object and save it to the inventory. Inside the VReactable inventory, there are some preset worlds for learning how to use the tool. 
+
+The tool transform the cubes position and rotation into parameters, which means that you can treat every properties of a cube state differently. For example, you can transform the yaw rotation into the intensity of a light source, or a volume of a background music. A boolean(True/False) variable is imeplemented to represent whether a marker on the cube is visible, you can make a cube becomes a switch to switch between 6 different predefined states.
 
 > Note that if it is not savable, it is because the current foloder is not a savable location.
 
