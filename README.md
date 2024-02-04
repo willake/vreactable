@@ -5,8 +5,7 @@ VReactable is an interface that serves as a bridge between the virtual reality (
 ## Requirement
 
 - Download [Resonite](https://store.steampowered.com/app/2519830/Resonite/)
-- Download [Chataigne 1.9.7](https://benjamin.kuperberg.fr/chataigne/user/data/Chataigne-win-x64-1.9.7.exe) (Please stick with this version)
-- [Chataigne Official Website](http://benjamin.kuperberg.fr/chataigne/en)
+- Download [Chataigne 1.9.7](https://benjamin.kuperberg.fr/chataigne/user/data/Chataigne-win-x64-1.9.7.exe) (Optional, please stick with this version)
 
 ![Overview](./assets/readme/overview_optimized.gif)
 
@@ -53,8 +52,7 @@ For practical use, it's recommended to affix the markers to a cube. The setup in
 
 ### Component 2: Websocket Server
 
-For transmitting data to Resonite, a middleware WebSocket server is required. Chataigne is recommended for this purpose due to its easy setup. However, it's possible to substitute it with any other WebSocket server application. The server's role is to receive data from the tracking software and broadcast it to all clients.
-
+For transmitting data to Resonite, a middleware WebSocket server is required. [Chataigne](http://benjamin.kuperberg.fr/chataigne/en) is recommended for this purpose due to its easy setup. However, it's possible to substitute it with any other WebSocket server application. The server's role is to receive data from the tracking software and broadcast it to all clients.
 If you opt for Chataigne, start by opening Chataigne version 1.9.7. Then, download the [template](https://github.com/willake/vreactable/releases) provided. Load the template, and your WebSocket server using Chataigne will be ready for operation.
 
 ### Component 3: Resonite World
