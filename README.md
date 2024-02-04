@@ -1,6 +1,6 @@
 # VReactable Cube Tracker
 
-VReactable is an interface connects the VR world and the reality. The tool runs on an VR platform named [Resonite](https://store.steampowered.com/app/2519830/Resonite/), which is a platform that allow users to customize their own space and writing scripts in their virtual space. VReactable provides a tangible interface which users can manipulate a Resonite world by moving cubes in real world. This brings an oppotunity for users to interact with VR users in a different way.
+VReactable is an interface that serves as a bridge between the virtual reality (VR) realm and the physical world. The tool runs on a VR platform named [Resonite](https://store.steampowered.com/app/2519830/Resonite/), which is a platform that allows users to customize their own space and write scripts in their virtual space. VReactable provides a tangible interface in which users can manipulate a Resonite world by moving cubes in the real world. This brings an opportunity for users to interact with VR users differently.
 
 ## Requirement
 
@@ -16,25 +16,25 @@ VReactable is an interface connects the VR world and the reality. The tool runs 
 
 ## Installation
 
-You are not required to download the source code. To run this tool, you can simply download the [release version](https://github.com/willake/vreactable/releases/).
+Downloading the source code is not necessary for running this tool. You can easily utilize the tool by downloading the [release version](https://github.com/willake/vreactable/releases/).
 
 ## Prerequisite to run VReactable
 
-To run the whole VReactable pipeline, there are 3 components need to be prepared.
+To execute the complete VReactable pipeline, three components must be prepared.
 
 ### Component 1: Webcam and Aruco Markers
 
 #### Camera
 
-Connect the webcam with your computer or laptop. Next, locate your camera above a plane like a empty table. The optimal height will be 80cm.
+Connect the webcam with your computer or laptop. Next, locate your camera above a plane, such as an empty table, at an optimal height of 80cm.
 
-When camera is located, it is required to calibrate camera parameters. First, you need to print a Charuco Board. Charuco Board, is a common material to calibrate the camera parameters for increasing accurancy of tracking. By clicking the button `Generate charuco board`, the board image will be generated in `${projectfolder}\resources\aruco\charuco_board`.
+Once the camera is in place, it's essential to calibrate its parameters. To do this, print a Charuco Board, a common tool for enhancing tracking accuracy during camera calibration. Click the `Generate charuco board` button to create the board image, which will be saved in `${projectfolder}\resources\aruco\charuco_board`.
 
-Now it is ready for calibration. Select the camera that you would like to calibrate. Click the button `Calibrate Camera`, a window will show up. Then, present your Charuco Board in the camera view. When all the markers are tracked, press `S` on your keyboard to save the sample image. Take at least 20 images from different angles and distances can have a best quality of camera parameters. When enough samples are captured, press `Q` to start calibration. This process will present each sample to you. In this phase, you can decide whether to accept a certain sample. By pressing `A` to accept sample, or pressing `R` to reject sample.
+With the Charuco Board ready, select the camera you wish to calibrate and click the `Calibrate Camera` button to open a window. Display the Charuco Board within the camera's view, and when all markers are tracked, press `S` on your keyboard to save the sample image. For optimal results, capture at least 20 images from various angles and distances. Once enough samples are obtained, press `Q` to initiate the calibration process. During calibration, each sample will be presented, allowing you to decide whether to accept (`A`) or reject (`R`) a particular sample.
 
 ![Sampling](./assets/readme/sampling_optimized.gif)
 
-In the end a `calib.npz` file should be seen at `${projectfolder}\resources\calibration`.
+In the end, a `calib.npz` file should be seen at `${projectfolder}\resources\calibration`.
 
 **Note that it is not required to recalibrate the camera every time, it can be done at once.**
 
@@ -42,20 +42,20 @@ In the end a `calib.npz` file should be seen at `${projectfolder}\resources\cali
 
 #### Aruco markers
 
-Camera is ready, then you will need to have markers for tracking. In this tracker tool, there is a section called `Aruco Generator`. Usually users do not need to adjust any settings. By clicking button `Generate Aruco markers`, a set of Aruco markers will be generated in `${projectfolder}\resources\aruco\markers`. An easy printing version will be at `${projectfolder}\resources\aruco\packed`. For the markers, it will be more handy if they are attached to a cube. The actual marker size on printed paper is `marker size + (gap size * 2)`. The default paper size is set to an A4 paper. **Note that always leave some white space outside the marker. Otherwise it will not be detected.** You can change the marker color to whatever you would like but keep in mind that the color should have high contrast to the background.
+Once your camera setup is complete, the next step is to obtain markers for tracking. In the tracker tool, navigate to the 'Aruco Generator' section. Typically, users won't need to adjust any settings. Simply click the 'Generate Aruco markers' button, and a set of Aruco markers will be generated in ${projectfolder}\resources\aruco\markers. Additionally, a printer-friendly version will be available at `${projectfolder}\resources\aruco\packed`.
+
+For practical use, it's recommended to affix the markers to a cube. The setup includes 36 aruco markers. The actual size of the markers on the printed paper is calculated as `marker size + (gap size * 2)`. The default paper size is set to A4, and it's crucial to leave some white space around the marker to ensure proper detection. Feel free to customize the marker color, but ensure it contrasts sharply with the background for optimal performance.
 
 ![Markers](./assets/readme/markers.png)
-
-The setup includes a camera and 36 aruco tags.
 
 ![Cubes](./assets/readme/cube.jpg)
 
 
 ### Component 2: Websocket Server
 
-To send data to Resonite, we will need a websocket server as a middleware. We use Chataigne as the websocket server since it is easy to setup. It is also possible to replace it by any other websocket server applications. The function of the server is to receive data from the tracking software and reflect(brodcast) the data to all clients.
+For transmitting data to Resonite, a middleware WebSocket server is required. Chataigne is recommended for this purpose due to its easy setup. However, it's possible to substitute it with any other WebSocket server application. The server's role is to receive data from the tracking software and broadcast it to all clients.
 
-If you would like to go with Chataigne. First, open Chataigne 1.9.7. Next, download the [template](https://github.com/willake/vreactable/releases) we prepared. Load the template then websocket server is ready to go.
+If you opt for Chataigne, start by opening Chataigne version 1.9.7. Then, download the [template](https://github.com/willake/vreactable/releases) provided. Load the template, and your WebSocket server using Chataigne will be ready for operation.
 
 ### Component 3: Resonite World
 
@@ -69,11 +69,11 @@ Next, download Resonite on Steam. Open Resonite and create a world. Import the V
 
 ## Start Tracking
 
-Set the websocket IP to the same as your Chataigne server. If it is running in the same device as the tracker. The ip should be `ws://localhost:${your_port}`. If it is 8090 then the ip would be `ws://localhost:8090`. By clicking the `Start Tracking` button on VReactable software, the tracking will start and send data to Resonite.
+Configure the WebSocket IP to match that of your Chataigne server. If Chataigne is running on the same device as the tracker, set the IP to `ws://localhost:${your_port}`. For example, if it is running on port 8090, the IP would be `ws://localhost:8090`. Once configured, clicking the `Start Tracking` button in the VReactable software initiates tracking and sends data to Resonite.
 
 > For the status section of the tracker. `Is camera calibrated` indicates that whether the tool found a file named `calib.npz` inisde `resources/calibration`. As for `Is camera ready`, it check whether the selected camera index is available. Camera index is the index of connected camera. If you have more than 1 camera connected, remeber to select the right index. Also make sure that the camera is not used by another software.
 
-> Note that to increase the tracking quality, you can also adjust the camera settings like making it gray or lowering the exposure and increasing the gain. To do so, either use the driver of your webcam or OBS can help. Making the background dark is also very helpful.
+> Keep in mind that for enhanced tracking quality, consider adjusting the camera settings, such as switching to grayscale, reducing exposure, and increasing gain. You can accomplish this either through your webcam's driver settings or by utilizing OBS. Additionally, creating a darker background can significantly improve tracking accuracy.
 
 ![OBS Camera Settings](./assets/readme/obs.png)
 
@@ -88,7 +88,7 @@ If it is a question about the code, you can contact me by emailing huienlin.game
 
 ## How to run from source code (Technical)
 
-The environement I ran this code is Python `3.11.4`. If you are new to Python, I would recommend looking into pyenv for installing Python. It provides a easier way to manage different versions and also prevent corrupting the environment, which happens very often. (If you are using Windows, there is a [specific version for Windows](https://github.com/pyenv-win/pyenv-win).)
+The environement I ran this code is Python `3.11.4`. If you are new to Python, I would recommend looking into pyenv for installing Python. It provides an easier way to manage different versions and also prevent corrupting the environment, which happens very often. (If you are using Windows, there is a [specific version for Windows](https://github.com/pyenv-win/pyenv-win).)
 
 To install required packages, run
 
@@ -116,9 +116,9 @@ The file will appear in the `dist` folder. Remember to copy `config.ini` and the
 
 ## Credits
 
-VReactable is an research project at [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We collaborate with an XR researcher, [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom), to develop a tool that not only inspire XR artists but also intrigue people that have no experience in XR.
+VReactable is a research project conducted at  [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We are in collaboration with XR researcher [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom) to create a tool designed to inspire XR artists and captivate individuals without prior experience in XR.
 
-The right of this project is reserved to HKU. While referencing this project, It will be necceessary to mention HKU. It would be great to mention the people participate in developing this tool as well.
+The rights to this project are reserved by HKU. When referencing this project, it is necessary to acknowledge HKU. Additionally, it would be appreciated to mention the individuals who actively contributed to the development of this tool.
 
 ### Developers
 
