@@ -116,12 +116,12 @@ The file will appear in the `dist` folder. Remember to copy `config.ini` and the
 
 ## Credits
 
-VReactable is a research project conducted at  [Hogeschool voor de Kunsten Utrecht](https://www.hku.nl/). We are supervised by the XR researcher [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom) as a client to create a tool designed to inspire XR artists and captivate individuals without prior experience in XR.
+VReactable is a collabration research project of Master Game and Media Technology at [Utrecht University(UU)] and Games at [Hogeschool voor de Kunsten Utrecht(HKU)](https://www.hku.nl/). The project is conducted at HKU. We are supervised by the XR researcher [Joris Weijdom](https://www.hku.nl/en/research/professorships/performative-creative-processes/phd-research-joris-weijdom) as a client to create a tool designed to inspire XR artists and captivate individuals without prior experience in XR.
 
 The rights to this project are reserved by HKU. When referencing this project, it is necessary to acknowledge HKU. Additionally, it would be appreciated to mention the individuals who actively contributed to the development of this tool.
 
 ### Developers
 
-**Cube tracker developer** [Hui En Lin](https://hui-en.me) <br>
-**Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379) <br>
-**Interaction designer** [Tom Zevering](http://snuuf.com/)
+**Cube tracker developer** [Hui En Lin](https://hui-en.me), Game & Media Technology, Utrecht University<br>
+**Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379) Game Arts, Hogeschool voor de Kunsten Utrecht<br>
+**Interaction designer** [Tom Zevering](http://snuuf.com/) Interaction Design, Hogeschool voor de Kunsten Utrecht
