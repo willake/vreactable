@@ -122,6 +122,6 @@ The rights to this project are reserved by HKU. When referencing this project, i
 
 ### Developers
 
-**Cube tracker developer** [Hui En Lin](https://hui-en.me), Game & Media Technology, Utrecht University<br>
+**Cube tracker developer** [Hui En Lin](https://hui-en.me), Master Game & Media Technology, Utrecht University<br>
 **Resonite tool developer / 3D Artist** [David Jak](https://linktr.ee/Davidoo379) Game Arts, Hogeschool voor de Kunsten Utrecht<br>
 **Interaction designer** [Tom Zevering](http://snuuf.com/) Interaction Design, Hogeschool voor de Kunsten Utrecht
